@@ -4,6 +4,7 @@
 <h4 align="center">暮之酒馆: 放置一些中间件的使用笔记</h4>
 
 [![License](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)](https://github.com/waitspring/evening-tavern/blob/master/license.md)
-[![Software](https://img.shields.io/badge/NginX-1.8.1-CB1B45)](https://github.com/waitspring/evening-tavern/blob/master/)
+<br/>
+[![Software](https://img.shields.io/badge/NginX-1.8.1-00733C)](https://github.com/waitspring/evening-tavern/tree/master/NginX)
 
 </div>
