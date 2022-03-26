@@ -10,5 +10,82 @@
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-NginX 软件的发展历程
+NginX 软件的源码编译
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NginX 软件的安装途经有:
+
+    •  使用 YUM 源直接安装
+    •  使用 RPM 包直接安装
+    •  使用源码安装 (优先推荐使用源码安装), 源码可以基于 GitHub/ NGINX 社区站点下载
+       •  https://github.com/nginx/nginx/releases
+       •  https://www.nginx.org/en/download.html
+
+NginX 软件的源码编译选项有
+┌────────────────────┬───────────────────────────┬─────────────────────────────────────────────────────────────────────
+│ Parameter Name     │ Default Value             │ Comment
+├────────────────────┼───────────────────────────┼─────────────────────────────────────────────────────────────────────
+│ --prefix=          │ /usr/local/nginx          │ 指定 NginX 软件的基目录的位置
+│ --sbin-path=       │ $prefix/sbin/nginx        │ 指定 NginX 软件的可执行文件的位置
+│ --conf-path=       │ $prefix/conf/nginx.conf   │ 指定 NginX 软件的配置文件的位置
+│ --pid-path=        │ $prefix/logs/nginx.pid    │ 指定 NginX 软件的进程文件的位置
+│ --error-log-path=  │ $prefix/logs/error.log    │ 指定 NginX 软件的错误日志文件的位置
+│ --http-log-path=   │ $prefix/logs/access.log   │ 指定 NginX 软件的访问日志文件的位置
+│ --lock-path=       │ $prefix/logs/nginx.lock   │ 指定 NginX 软件的服务锁定文件的位置
+│ --add-module=      │ /path/to/module           │ 指定 NginX 软件编译时, 需要额外编译到软件中的, 由第三方社区发布的功能模块
+└────────────────────┴───────────────────────────┴─────────────────────────────────────────────────────────────────────
+
+NginX 软件的编译过程中, 可以使用下述参数停用默认会被 NginX 软件启用的 HTTP 功能模块
+**  --without-http_charset_module
+**  --without-http_gzip_module
+**  --without-http_ssi_module
+**  --without-http_userid_module
+**  --without-http_access_module
+**  --without-http_autoindex_module
+**  --without-http_geo_module
+**  --without-http_map_module
+**  --without-http_referer_module
+**  --without-http_rewrite_module
+**  --without-http_proxy_module
+**  --without-http_fastcgi_module
+**  --without-http_uwsgi_module
+**  --without-http_scgi_module
+**  --without-http_memcached_module
+**  --without-http_limit_conn_module
+**  --without-http_limit_req_module
+**  --without-http_empty_gif_module
+**  --without-http_browser_module
+**  --without-http_upstream_ip_hash_module
+**  --without-http_upstream_least_conn_module
+**  --without-http_split_clients_module
+
+NginX 软件的编译过程中, 可以使用下述参数启用默认会被 NginX 软件停用的 HTTP 功能模块
+**  --with-http_ssl_module
+**  --with-http_realip_module
+**  --with-http_addition_module
+**  --with-http_xslt_module
+**  --with-http_image_filter_module
+**  --with-http_geoip_module
+**  --with-http_sub_module
+**  --with-http_dav_module
+**  --with-http_flv_module
+**  --with-http_mp4_module
+**  --with-http_gzip_static_module
+**  --with-http_random_index_module
+**  --with-http_secure_link_module
+**  --with-http_stub_status_module
+**  --with-http_degradation_module
+**  --with-http_perl_module
+**  --with-http_spdy_module
+**  --with-http_gunzip_module
+**  --with-http_auth_request_module
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
+
+
