@@ -63,25 +63,21 @@ NginX 软件的编译过程中, 可以使用下述参数停用默认会被 NginX
 **  --without-http_split_clients_module
 
 NginX 软件的编译过程中, 可以使用下述参数启用默认会被 NginX 软件停用的 HTTP 功能模块
-**  --with-http_ssl_module
-**  --with-http_realip_module
-**  --with-http_addition_module
-**  --with-http_xslt_module
-**  --with-http_image_filter_module
-**  --with-http_geoip_module
-**  --with-http_sub_module
-**  --with-http_dav_module
-**  --with-http_flv_module
-**  --with-http_mp4_module
-**  --with-http_gzip_static_module
-**  --with-http_random_index_module
-**  --with-http_secure_link_module
-**  --with-http_stub_status_module
-**  --with-http_degradation_module
-**  --with-http_perl_module
-**  --with-http_spdy_module
-**  --with-http_gunzip_module
-**  --with-http_auth_request_module
+**  --with-http_ssl_module                       | 该模块能够提供 HTTPS 服务, 其底层依赖 OpenSSL 软件包
+**  --with-http_realip_module                    | 该模块能够基于请求头获取客户端的真实地址 (X-Forwarded-For 关键字)
+**  --with-http_addition_module                  | 该模块能够管理请求头的字符串内容
+**  --with-http_xslt_module                      | 该模块用于给服务端响应数据添加 XML 渲染
+**  --with-http_sub_module                       | 该模块能够管理请求体的字符串内容
+**  --with-http_dav_module                       | 该模块能够支持 WebDav 协议
+**  --with-http_flv_module                       | 该模块用于给服务端响应数据处理 FLV 格式的视频文件
+**  --with-http_mp4_module                       | 该模块用于给服务端响应数据处理 MP4 格式的视频文件
+**  --with-http_gzip_static_module               | 该模块能够避免服务端重复使用 GZIP 格式压缩静态资源文件 (减轻 CPU 负载压力)
+**  --with-http_random_index_module              | 该模块能够提供特定目录下的随机响应服务
+**  --with-http_secure_link_module               | 该模块用于验证请求附带的令牌信息 (token) 是否过期
+**  --with-http_stub_status_module               | 该模块用于提供 NginX 软件的管理控制台功能
+**  --with-http_spdy_module                      | 该模块能够支持 SPDY 协议
+**  --with-http_gunzip_module                    | 该模块仍是 HTTP_GZIP_MODULE 的扩展功能模块, 提供 GZIP 格式压缩的过滤器
+**  --with-http_auth_request_module              | 该模块用于支持 LDAP 统一用户认证体系
 
 
 
