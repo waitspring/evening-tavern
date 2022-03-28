@@ -133,10 +133,57 @@ GNU Autotools 规范下, C/C++ 源代码转换为二进制可执行文件, 需�
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Doing Simple │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+提前准备资源如下:
 
+    •  /srv/nginx-1.8.1.tar.gz
+    •  /srv/nginx-sticky-module-1.2.6.zip
+    •  /srv/nginx-upstream-dynamic-servers-0.4.0.zip
 
+""""""""" 准备 NginX 软件的进程用户和用户组, 安装 NginX 软件的前置依赖包
+server:~$ useradd -r -s /sbin/nologin -M nginx
+server:~$ yum install -y gcc.x86_64 \
+gcc-c++.x86_64 \
+pcre.x86_64 \
+pcre-devel.x86_64 \
+zlib.x86_64 \
+zlib-devel.x86_64 \
+openssl.x86_64 \
+openssl-devel.x86_64 \
+perl-Digest-SHA1.x86_64
+--------------------------------------------------------------------------------------------------------------------- ✻
 
-我们会演示如何使用 NginX 软件的源代码 (nginx-1.8.1.tar.gz) 来编译安装 NginX 软件
+""""""""" 解压 NginX 软件的源码压缩包, 并执行编译安装
+server:~$ tar -xzf /srv/nginx-1.8.1.tar.gz -C /root
+server:~$ unzip /srv/nginx-upstream-dynamic-servers-0.4.0.zip -d /root/nginx-1.8.1
+server:~$ unzip /srv/nginx-sticky-module-1.2.6.zip -d /root/nginx-1.8.1
+server:~$ mv /root/nginx-1.8.1/nginx-sticky-module-1.2.6/* /root/nginx-1.8.1/nginx-sticky-module-1.2.6
+server:~$ cd /root/nginx-1.8.1
+server:nginx-1.8.1$ ./configure --prefix=/usr/local/nginx \
+--sbin-path=/usr/sbin/nginx \
+--conf-path=/etc/nginx/nginx.conf \
+--pid-path=/var/run/nginx.pid \
+--lock-path=/var/run/nginx.lock \
+--error-log-path=/var/log/nginx/error.log \
+--http-log-path=/var/log/nginx/access.log \
+--user=nginx \
+--group=nginx \
+--with-debug \
+--with-ipv6 \
+--with-http_ssl_module \
+--with-http_realip_module \
+--with-http_flv_module \
+--with-http_mp4_module \
+--with-http_gzip_static_module \
+--with-http_secure_link_module \
+--with-http_stub_status_module \
+--with-http_gunzip_module \
+--with-http_auth_request_module \
+--add-module=nginx-upstream-dynamic-servers-0.4.0 \
+--add-module=nginx-sticky-module-1.2.6
+server:nginx-1.8.1$ make
+server:nginx-1.8.1$ make install
+server:nginx-1.8.1$ nginx -v
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
