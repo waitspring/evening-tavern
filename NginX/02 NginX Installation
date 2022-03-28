@@ -92,7 +92,7 @@ NginX 软件的编译过程中, 经常添加的第三方功能模块有:
 
 nginx-sticky-module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-开源地址: https://github.com/michaelneale/nginx-sticky-module
+开源地址: https://github.com/Refinitiv/nginx-sticky-module-ng
 模块作用: 基于用户会话的 cookie 数据提供负载均衡服务 (相比 NginX 软件基于 IPv4 地址提供负载均衡服务, 该模块更为科学合理)
 
 nginx-upstream-dynamic-servers
@@ -136,12 +136,12 @@ GNU Autotools 规范下, C/C++ 源代码转换为二进制可执行文件, 需�
 提前准备资源如下:
 
     •  /srv/nginx-1.8.1.tar.gz
-    •  /srv/nginx-sticky-module-1.2.6.zip
+    •  /srv/nginx-sticky-module-ng-1.2.6.zip
     •  /srv/nginx-upstream-dynamic-servers-0.4.0.zip
 
 """"""""" 准备 NginX 软件的进程用户和用户组, 安装 NginX 软件的前置依赖包
-server:~$ useradd -r -s /sbin/nologin -M nginx
-server:~$ yum install -y gcc.x86_64 \
+[root ~]# useradd -r -s /sbin/nologin -M nginx
+[root ~]# yum install -y gcc.x86_64 \
 gcc-c++.x86_64 \
 pcre.x86_64 \
 pcre-devel.x86_64 \
@@ -153,12 +153,11 @@ perl-Digest-SHA1.x86_64
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 解压 NginX 软件的源码压缩包, 并执行编译安装
-server:~$ tar -xzf /srv/nginx-1.8.1.tar.gz -C /root
-server:~$ unzip /srv/nginx-upstream-dynamic-servers-0.4.0.zip -d /root/nginx-1.8.1
-server:~$ unzip /srv/nginx-sticky-module-1.2.6.zip -d /root/nginx-1.8.1
-server:~$ mv /root/nginx-1.8.1/nginx-sticky-module-1.2.6/* /root/nginx-1.8.1/nginx-sticky-module-1.2.6
-server:~$ cd /root/nginx-1.8.1
-server:nginx-1.8.1$ ./configure --prefix=/usr/local/nginx \
+[root ~]# tar -xzf /srv/nginx-1.8.1.tar.gz -C /root
+[root ~]# unzip /srv/nginx-sticky-module-ng-1.2.6.zip -d /root/nginx-1.8.1
+[root ~]# unzip /srv/nginx-upstream-dynamic-servers-0.4.0.zip -d /root/nginx-1.8.1
+[root ~]# cd /root/nginx-1.8.1
+[root nginx-1.8.1]# ./configure --prefix=/usr/local/nginx \
 --sbin-path=/usr/sbin/nginx \
 --conf-path=/etc/nginx/nginx.conf \
 --pid-path=/var/run/nginx.pid \
@@ -178,13 +177,34 @@ server:nginx-1.8.1$ ./configure --prefix=/usr/local/nginx \
 --with-http_stub_status_module \
 --with-http_gunzip_module \
 --with-http_auth_request_module \
---add-module=nginx-upstream-dynamic-servers-0.4.0 \
---add-module=nginx-sticky-module-1.2.6
-server:nginx-1.8.1$ make
-server:nginx-1.8.1$ make install
-server:nginx-1.8.1$ nginx -v
+--add-module=nginx-sticky-module-ng-1.2.6 \
+--add-module=nginx-upstream-dynamic-servers-0.4.0
+[root nginx-1.8.1]# make
+[root nginx-1.8.1]# make install
+[root nginx-1.8.1]# nginx -v
 --------------------------------------------------------------------------------------------------------------------- ✻
 
+""""""""" 编写 NginX 软件的服务单元文件, 并启动软件服务
+[root ~]# cat > /usr/lib/systemd/system/nginx.service << EOF
+[Unit]
+Description = Nginx Service
+After = network-online.target
+[Service]
+Type = forking
+TimeoutSec = 0
+ExecStart = /usr/sbin/nginx -c /etc/nginx/nginx.conf
+ExecReload = /usr/sbin/nginx -s reload
+ExecStop = /usr/bin/kill -s TERM $MAINPID
+[Install]
+WantedBy = multi-user.target
+EOF
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enable nginx.service
+[root ~]# systemctl start nginx.service
+[root ~]# firewall-cmd --permanent --add-service=http
+[root ~]# firewall-cmd --permanent --add-service=https
+[root ~]# firewall-cmd --reload
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
