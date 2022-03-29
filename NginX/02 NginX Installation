@@ -28,9 +28,9 @@ NginX 软件的源码编译选项有
 │ --sbin-path=       │ $prefix/sbin/nginx        │ 指定 NginX 软件的可执行文件的位置
 │ --conf-path=       │ $prefix/conf/nginx.conf   │ 指定 NginX 软件的配置文件的位置
 │ --pid-path=        │ $prefix/logs/nginx.pid    │ 指定 NginX 软件的进程文件的位置
+│ --lock-path=       │ $prefix/logs/nginx.lock   │ 指定 NginX 软件的服务锁定文件的位置
 │ --error-log-path=  │ $prefix/logs/error.log    │ 指定 NginX 软件的错误日志文件的位置
 │ --http-log-path=   │ $prefix/logs/access.log   │ 指定 NginX 软件的访问日志文件的位置
-│ --lock-path=       │ $prefix/logs/nginx.lock   │ 指定 NginX 软件的服务锁定文件的位置
 │ --add-module=      │ /path/to/module           │ 指定 NginX 软件编译时, 需要额外编译到软件中的, 由第三方社区发布的功能模块
 │ --user=            │ USERNAME                  │ 指定 NginX 软件的工作进程的所属用户
 │ --group=           │ GPNAME                    │ 指定 NginX 软件的工作进程的所属群组
@@ -106,7 +106,27 @@ nginx-upstream-dynamic-servers
 NginX 软件的源码安装
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 NginX 软件的源码安装遵循 GNU Autotools 规范
-GNU Autotools 规范下, C/C++ 源代码转换为二进制可执行文件, 需要经历如下的漫长过程
+NginX 软件的源码安装可以在部署目录上取得 YUM 安装的效果, 同时这是我们推荐的安装效果
+┌────────────────────────────────────────────────┬────────────────────────────────────────────────────────────────────┐
+│ Parameter Name                                 │ Actual Result                                                      │
+├────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+│ --prefix=                                      │ /usr/local/nginx                                                   │
+│ --sbin-path=                                   │ /usr/sbin/nginx                                                    │
+│ --conf-path=                                   │ /etc/nginx/nginx.conf                                              │
+│ --pid-path=                                    │ /var/run/nginx.pid                                                 │
+│ --lock-path=                                   │ /var/run/nginx.lock                                                │
+│ --error-log-path=                              │ /var/log/nginx/error.log                                           │
+│ --http-log-path=                               │ /var/log/nginx/access.log                                          │
+└────────────────────────────────────────────────┴────────────────────────────────────────────────────────────────────┘
+
+GNU Autotools 规范下, C/C++ 源代码转换为二进制可执行文件, 需要经历如下的漫长过程:
+
+    1' ./autoscan      --  源码扫描 (由社区完成)
+    2' ./autoconf      --  制作预编译文件 (由社区完成)
+    3' ./automake      --  制作预编译文件 (由社区完成)
+    4' ./configure     --  源码预编译
+    5' ./make          --  软件编译
+    6' ./make install  --  软件安装
 
                                         ┌──────────────┐     ┌─────────────┐     ┌────────────┐     ┌─────────────┐
                                      ┌──┤ ./aclocal    ├─────┤ aclocal.m4  ├─────┤ ./autoconf ├─────┤ configure   ├───┐
@@ -182,28 +202,6 @@ perl-Digest-SHA1.x86_64
 [root nginx-1.8.1]# make
 [root nginx-1.8.1]# make install
 [root nginx-1.8.1]# nginx -v
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 编写 NginX 软件的服务单元文件, 并启动软件服务
-[root ~]# cat > /usr/lib/systemd/system/nginx.service << EOF
-[Unit]
-Description = Nginx Service
-After = network-online.target
-[Service]
-Type = forking
-TimeoutSec = 0
-ExecStart = /usr/sbin/nginx -c /etc/nginx/nginx.conf
-ExecReload = /usr/sbin/nginx -s reload
-ExecStop = /usr/bin/kill -s TERM $MAINPID
-[Install]
-WantedBy = multi-user.target
-EOF
-[root ~]# systemctl daemon-reload
-[root ~]# systemctl enable nginx.service
-[root ~]# systemctl start nginx.service
-[root ~]# firewall-cmd --permanent --add-service=http
-[root ~]# firewall-cmd --permanent --add-service=https
-[root ~]# firewall-cmd --reload
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
