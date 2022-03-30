@@ -1,10 +1,10 @@
- , _                    _             _                       _   _                           
-/|/ \        o         (_\  /        | |                     | | | |          o               
- |   |   __,     _  _     \/         | | _  _    , _|_  __,  | | | |  __, _|_     __   _  _   
- |   |  /  | |  / |/ |    /\       _ |/ / |/ |  / \_|  /  |  |/  |/  /  |  |  |  /  \_/ |/ |  
- |   |_/\_/|/|_/  |  |_/_/  \_/    \_/\/  |  |_/ \/ |_/\_/|_/|__/|__/\_/|_/|_/|_/\__/   |  |_/
-          /|                                                                                  
-          \|                                                                                  
+   _                       _   _                           
+  | |                     | | | |          o               
+  | | _  _    , _|_  __,  | | | |  __, _|_     __   _  _   
+_ |/ / |/ |  / \_|  /  |  |/  |/  /  |  |  |  /  \_/ |/ |  
+\_/\/  |  |_/ \/ |_/\_/|_/|__/|__/\_/|_/|_/|_/\__/   |  |_/
+                                                           
+                                                           
 --  This document was created by Xuanming in 2022, thanks for your reading
 
 
@@ -204,6 +204,28 @@ perl-Digest-SHA1.x86_64
 [root nginx-1.8.1]# make
 [root nginx-1.8.1]# make install
 [root nginx-1.8.1]# nginx -v
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 编写 NginX 软件的服务单元文件, 并启动软件服务
+[root ~]# cat > /usr/lib/systemd/system/nginx.service << EOF
+[Unit]
+Description = Nginx Service
+After = network-online.target
+[Service]
+Type = forking
+TimeoutSec = 0
+ExecStart = /usr/sbin/nginx
+ExecReload = /usr/sbin/nginx -s reload
+ExecStop = /usr/sbin/nginx -s stop
+[Install]
+WantedBy = multi-user.target
+EOF
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enable nginx.service
+[root ~]# systemctl start nginx.service
+[root ~]# firewall-cmd --permanent --add-service=http
+[root ~]# firewall-cmd --permanent --add-service=https
+[root ~]# firewall-cmd --reload
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
