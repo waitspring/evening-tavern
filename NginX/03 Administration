@@ -140,15 +140,15 @@ NginX 软件的核心配置项登记如下
 """"""""" 演示 NginX 软件的配置文件内, 核心配置项的使用办法
 [root ~]# sudo -u nginx mkdir -p /tmp/nginx
 [root ~]# vim /etc/nginx/nginx.conf
-user                         nginx nginx;
-pid                          /var/run/nginx.pid;
-lock_file                    /var/run/nginx.lock;
-working_directory            /tmp/nginx;
-worker_rlimit_core           1m;
-worker_rlimit_nofile         65535;
-worker_processes             8;
-worker_cpu_affinity          00000001 00000010 00000100 00001000
-                             00010000 00100000 01000000 10000000;
+user nginx nginx;
+pid /var/run/nginx.pid;
+lock_file /var/run/nginx.lock;
+working_directory /tmp/nginx;
+worker_rlimit_core 1m;
+worker_rlimit_nofile 65535;
+worker_processes 8;
+worker_cpu_affinity 00000001 00000010 00000100 00001000
+                    00010000 00100000 01000000 10000000;
 ... ...
 ... ...
 --------------------------------------------------------------------------------------------------------------------- ✻
@@ -183,19 +183,18 @@ NginX 软件的事件模型配置项登记如下
     •  不同的事件驱动模型之间, 存在下述区别:
         •  select 模型使用轮询算法遍历全部 I/O 信息流, 连接越多时 I/O 信息流就越多, 轮询算法的效率越差
         •    poll 模型使用轮询算法遍历全部 I/O 信息流, 连接越多时 I/O 信息流就越多, 轮询算法的效率越差, 但该模型不设置连接上限
-        •   epoll 模型使用中间对象缓存连接信息, 再基于连接信息实际收集 I/O 信息流中的事件, 这种设计思路使得该模型性能优越
-    •
-    •
+        •   epoll 模型使用中间文件缓存连接信息的元数据, 基于连接信息收集 I/O 信息流中实际存在的事件, 这种设计思路使得该模型性能优越
+    •  强烈建议用户使用 epoll 事件驱动模型, 这是 NginX 软件具备卓越性能的主要因素
 
 """"""""" 演示 NginX 软件的配置文件内, 事件配置项的使用办法
 [root ~]# vim /etc/nginx/nginx.conf
 ... ...
 ... ...
 events {
-    use                      epoll;
-    worker_connections       65535;
-    accept_mutex_delay       100ms;
-    multi_accept             on;
+    use epoll;
+    worker_connections 65535;
+    accept_mutex_delay 100ms;
+    multi_accept on;
 }
 ... ...
 ... ...
