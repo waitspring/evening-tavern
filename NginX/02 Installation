@@ -217,6 +217,8 @@ TimeoutSec = 0
 ExecStart = /usr/sbin/nginx
 ExecReload = /usr/sbin/nginx -s reload
 ExecStop = /usr/sbin/nginx -s stop
+LimitNOFILE = 65535
+LimitNPROC = 65535
 [Install]
 WantedBy = multi-user.target
 EOF
