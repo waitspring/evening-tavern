@@ -34,7 +34,7 @@ NginX 软件的日常管理工具有:
 
 """"""""" 演示 NginX 软件的日常管理办法
 [root ~]# nginx -V
-NginX version: NginX/1.8.1
+NginX version: NginX/1.20.2
 built by GCC 4.8.5           (23 Jun 2015)
 built with OpenSSL 1.0.1     (11 Feb 2013)
 TLS SNI support enabled

@@ -1,3 +1,3 @@
 # NginX
-![version](https://img.shields.io/badge/OS-RHEL7-CB1B45) 
-![version](https://img.shields.io/badge/NginX-1.8.1-00733C)
+![version](https://img.shields.io/badge/OS-RHEL7-F3F5F6) 
+![version](https://img.shields.io/badge/NginX-1.20.2-293017)
