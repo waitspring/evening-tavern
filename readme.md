@@ -5,6 +5,6 @@
 
 [![License](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)](https://github.com/waitspring/evening-tavern/blob/master/license.md)
 <br/>
-[![Software](https://img.shields.io/badge/NginX-1.8.1-00733C)](https://github.com/waitspring/evening-tavern/tree/master/NginX)
+[![Software](https://img.shields.io/badge/NginX-1.20.2-293017)](https://github.com/waitspring/evening-tavern/tree/master/NginX)
 
 </div>

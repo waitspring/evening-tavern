@@ -77,19 +77,60 @@ HTTP 配置块能够内嵌的子配置项登记如下
 │ default_type MIME;                   │         │ 软件在无法锚定 MIME 与文件扩展名之间的映射关系时, 默认使用 MIME 类型
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
+HTTP 配置块能够内嵌的 GZIP 文件压缩的相关子配置项登记如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ gzip on;                             │         │ 启用基于 GZIP 算法的文件压缩功能
+│ gzip off;                            │    √    │ 禁用基于 GZIP 算法的文件压缩功能
+│ gzip_vary on;                        │         │ 添加 vary: accept-encoding 键值对到响应头
+│ gzip_vary off;                       │    √    │ 不添加 vary: accept-encoding 键值对到响应头
+│ gzip_buffers 4 8k;                   │    √    │ 基于 GZIP 算法执行文件压缩时, 软件申请 4 * 8KB 大小的内存资源作为缓冲区
+│ gzip_buffers NUM SIZE;               │         │ 基于 GZIP 算法执行文件压缩时, 软件申请 NUM * SIZE 大小的内存资源作为缓冲区
+│ gzip_comp_level 1;                   │    √    │ 使用 1 级压缩比 (压缩效果不明显, 但压缩速度快)
+│ gzip_comp_level NUM;                 │         │ 使用 NUM 级压缩比, 且 NUM ∈ [1, 9] 区间, 取值大则压缩效果明显, 压缩速度慢
+│ gzip_min_length 0;                   │    √    │ 凡是符合规定的文件皆做 GZIP 压缩
+│ gzip_min_length NUM;                 │         │ 仅有容量大于 NUM KB 的文件才做 GZIP 压缩
+│ gzip_http_version 1.1;               │    √    │ 连接对端为遵守 HTTP 1.1 通信协议的浏览器时, 才执行 GZIP 压缩
+│ gzip_http_version 1.0;               │         │ 连接对端为遵守 HTTP 1.0 通信协议的浏览器时, 才执行 GZIP 压缩
+│ gzip_types text/html;                │    √    │ 压缩 text/html 类型的文件
+│ gzip_types MIME...;                  │         │ 压缩 MIME... 类型的文件
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
 """"""""" 演示 NginX 软件的配置文件内, HTTP 块配置项的使用办法
 [root ~]# vim /etc/nginx/nginx.conf
 ... ...
 ... ...
 http {
     sendfile on;
-    open_file_cache max=1000;
-    open_file_cache_errors on;
+    send_timeout 300;
 
-    send_timeout 60;
+    open_file_cache max=65535;
+    open_file_cache_errors on;
+    open_file_cache_valid 90s;
+
+    server_tokens off;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 300;
+    keepalive_requests 300;
+
+    gzip on;
+    gzip_vary on;
+    gzip_buffers 8 128k;
+    gzip_comp_level 3;
+    gzip_min_length 512k;
+    gzip_types text/plain text/css application/javascript application/xml;
+
+    resolver 223.5.5.5 223.6.6.6;
+    resolver_timeout 10s;
+
+    default_type application/octet-stream;
+    include /etc/nginx/mime.types;
 }
 ... ...
 ... ...
 --------------------------------------------------------------------------------------------------------------------- ✻
+
 
 
