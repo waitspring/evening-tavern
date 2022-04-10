@@ -130,8 +130,8 @@ http {
 
     default_type application/octet-stream;
     include /etc/nginx/mime.types;
-    include /etc/nginx/conf.d/*.conf;
-}
+    include /etc/nginx/conf.d/*.conf;            | 建议把单个 HTTP/HTTPS 协议层的网站代理服务, 单独放置一个配置文件
+}                                                | 并使用加载的方式, 纳入到软件的配置文件
 ... ...
 ... ...
 --------------------------------------------------------------------------------------------------------------------- ✻
@@ -141,6 +141,52 @@ http {
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SERVER 配置块
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SERVER 配置块是 HTTP 配置块的子配置块, 主要用于定义软件在 HTTP/HTTPS 协议层的网站代理服务, 其具体数量不定
+SERVER 配置块能够进一步内嵌 LOCATION 子配置块, 由此实现代理路由的效果
+
+┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+┊                                                                                                                     ┊
+┊   SERVER PART {                                                                                                     ┊
+┊       ... ...                                                                                                       ┊
+┊       LOCATION PART {                                                                                               ┊
+┊           ... ...                                                                                                   ┊
+┊       }                                                                                                             ┊
+┊   }                                                                                                                 ┊
+┊                                                                                                                     ┊
+└╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+
+SERVER 配置块能够内嵌的子配置项登记如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ listen 80;                           │    √    │ 软件监听主机的 80 端口
+│ listen NUM [ssl] [default];          │         │ 软件监听主机的 NUM 端口, 关键字 ssl 要求该端口用于 HTTPS 协议层通信
+│ server_name domain ...;              │         │ 设置主机名称为 domain
+│ client_body_in_file_only on;         │         │ HTTP 包体存储在磁盘中并生成相应文件, 请求结束时保留 HTTP 包体文件
+│ client_body_in_file_only off;        │    √    │ HTTP 包体寄存在内存中
+│ client_body_in_file_only clean;      │         │ HTTP 包体存储在磁盘中并生成相应文件, 请求结束时删除 HTTP 包体文件
+│ client_body_buffer_size 8k;          │    √    │ HTTP 包体分配到的内存资源容量为 8KB
+│ client_body_buffer_size SIZE;        │         │ HTTP 包体分配到的内存资源容量为 SIZE
+│ client_max_body_size 1m;             │    √    │ HTTP 包体允许的尺寸上限为 1MB
+│ client_max_body_size SIZE;           │         │ HTTP 包体允许的尺寸上限为 SIZE
+│ client_body_timeout 60;              │    √    │ HTTP 408 超时响应的包体触发阈值为 60 秒
+│ client_body_timeout NUM;             │         │ HTTP 408 超时响应的包体触发阈值为 NUM 秒
+│ client_header_buffer_size 1k;        │    √    │ HTTP 包头分配到的内存资源容量为 1KB
+│ client_header_buffer_size SIZE;      │         │ HTTP 包头分配到的内存资源容量为 SIZE
+│ client_header_timeout 60;            │    √    │ HTTP 408 超时响应的包头触发阈值为 60 秒
+│ client_header_timeout NUM;           │         │ HTTP 408 超时响应的包头触发阈值为 NUM 秒
+│ connection_pool_size 256;            │    √    │ HTTP 连接分配到的内存池容量为 256KB
+│ connection_pool_size NUM;            │         │ HTTP 连接分配到的内存池容量为 NUMKB
+│ request_pool_size 4k;                │    √    │ HTTP 请求分配到的内存池容量为 4KB
+│ request_pool_size SIZE;              │         │ HTTP 请求分配到的内存池容量为 SIZE
+│ reset_timeout_connection on;         │         │ HTTP 连接超时之后, 启用 RST 信号重置连接的功能特性
+│ reset_timeout_connection off;        │    √    │ HTTP 连接超时之后, 禁用 RST 信号重置连接的功能特性
+│ send_timeout 60;                     │    √    │ HTTP 连接建立之后, 服务端的响应超时时间为 60 秒
+│ send_timeout NUM;                    │         │ HTTP 连接建立之后, 服务端的响应超时时间为 NUM 秒
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+
+
 
 
 
