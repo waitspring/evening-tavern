@@ -92,7 +92,7 @@ NginX 软件的编译过程中, 经常添加的第三方功能模块有:
 
 nginx-sticky-module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-开源地址: https://github.com/Refinitiv/nginx-sticky-module-ng
+开源地址: https://github.com/devsbb/nginx-sticky-module-ng
 模块作用: 基于用户会话的 cookie 数据提供负载均衡服务 (相比 NginX 软件基于 IPv4 地址提供负载均衡服务, 该模块更为科学合理)
 
 nginx-upstream-dynamic-servers
@@ -157,9 +157,7 @@ GNU Autotools 规范下, C/C++ 源代码转换为二进制可执行文件, 需�
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 提前准备资源如下:
 
-    •  /srv/nginx-1.8.1.tar.gz
-    •  /srv/nginx-sticky-module-ng-1.2.6.zip
-    •  /srv/nginx-upstream-dynamic-servers-0.4.0.zip
+    •  /srv/nginx-1.20.2.tar.gz
 
 """"""""" 准备 NginX 软件的进程用户和用户组, 安装 NginX 软件的前置依赖包
 [root ~]# useradd -r -s /sbin/nologin -M nginx
@@ -176,8 +174,6 @@ perl-Digest-SHA1.x86_64
 
 """"""""" 解压 NginX 软件的源码压缩包, 并执行编译安装
 [root ~]# tar -xzf /srv/nginx-1.20.2.tar.gz -C /root
-[root ~]# unzip /srv/nginx-sticky-module-ng-1.2.6.zip -d /root/nginx-1.20.2
-[root ~]# unzip /srv/nginx-upstream-dynamic-servers-0.4.0.zip -d /root/nginx-1.20.2
 [root ~]# cd /root/nginx-1.20.2
 [root nginx-1.20.2]# ./configure --prefix=/usr/local/nginx \
 --sbin-path=/usr/sbin/nginx \
@@ -198,9 +194,7 @@ perl-Digest-SHA1.x86_64
 --with-http_secure_link_module \
 --with-http_stub_status_module \
 --with-http_gunzip_module \
---with-http_auth_request_module \
---add-module=nginx-sticky-module-ng-1.2.6 \
---add-module=nginx-upstream-dynamic-servers-0.4.0
+--with-http_auth_request_module
 [root nginx-1.20.2]# make
 [root nginx-1.20.2]# make install
 [root nginx-1.20.2]# nginx -v
