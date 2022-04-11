@@ -102,20 +102,20 @@ NginX 软件的配置文件可以拆分为下述不同功能部分:
 ┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
 │ Configuration                        │ Default │ Comment
 ├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
-│ daemon on;                           │    √    │ 开启软件进程的守护工作模式
-│ daemon off;                          │         │ 关闭软件进程的守护工作模式, 软件启动之后进程将始终占据终端, 无法转为后台进程
-│ master_process on;                   │    √    │ 开启软件进程的管理工作模式, 服务区分出 master/ worker 不同的进程
+│ daemon on;                           │    √    │ 开启软件进程的后台工作模式
+│ daemon off;                          │         │ 关闭软件进程的后台工作模式, 软件启动之后进程将始终占据终端
+│ master_process on;                   │    √    │ 开启软件进程的管理工作模式, 服务区分出 master-worker 不同类型的进程
 │ master_process off;                  │         │ 关闭软件进程的管理工作模式, 服务仅拉起 worker 类型的进程
-│ user USRNAME GRPNAME;                │         │ 限制软件进程的用户与用户组, 用户组为配置项的可选值
+│ user USRNAME GRPNAME;                │         │ 配置软件进程的用户与用户组
 │ pid /PATH/TO/FILE;                   │         │ 配置软件进程的进程文件为 /PATH/TO/FILE
 │ lock_file /PATH/TO/FILE;             │         │ 配置软件进程的 accept 锁文件为 /PATH/TO/FILE
 │ working_directory /PATH/TO/DIR;      │         │ 限制软件进程的 coredump 文件的寄存目录为 /PATH/TO/DIR
-│ worker_rlimit_core SIZE;             │         │ 限制软件进程的 coredump 文件的单个容量大小为 SIZE (单位: k/m)
+│ worker_rlimit_core SIZE;             │         │ 限制软件进程的 coredump 文件的单个容量大小为 SIZE (容量单位)
 │ worker_rlimit_nofile NUM;            │         │ 限制软件进程允许打开最多 NUM 个文件句柄
 │ worker_priority 0;                   │    √    │ 配置软件进程的优先级权重为 0 (指定进程的 nice 权重值)
 │ worker_priority NICE;                │         │ 配置软件进程的优先级权重为 NUM
-│ worker_processes 1;                  │    √    │ 配置软件进程的数量为 1 个进程
-│ worker_processes NUM;                │         │ 配置软件进程的数量为 NUM 个进程
+│ worker_processes 1;                  │    √    │ 配置软件的 worker 进程数量为 1 个进程
+│ worker_processes NUM;                │         │ 配置软件的 worker 进程数量为 NUM 个进程
 │ worker_cpu_affinity MASK;            │         │ 配置软件进程的 CPU 亲和特性 (绑定进程到对应的 CPU 核心上不做切换)
 │ ssl_engine DEVNAME;                  │         │ 配置软件进程使用 DEVNAME 作为 SSL 协议的硬件加速设备
 │ error_log /PATH/TO/FILE;             │    √    │ 设置软件的错误日志等级为 ERROR 且输出目标为 /PATH/TO/FILE 日志文件
@@ -170,12 +170,12 @@ worker_cpu_affinity 00000001 00000010 00000100 00001000
 ├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
 │ use select;                          │         │ 要求软件使用 select 事件驱动模型, 该事件驱动模型的性能瓶颈明显
 │ use poll;                            │         │ 要求软件使用 poll 事件驱动模型, 该事件驱动模型的性能瓶颈明显
-│ use epoll;                           │         │ 要求软件使用 epoll 事件驱动模型, 该事件驱动模型的性能最优
+│ use epoll;                           │         │ 要求软件使用 epoll 事件驱动模型, 该事件驱动模型的性能表现最优
 │ worker_connections NUM;              │         │ 限制软件每个 worker 进程的连接并发量为 NUM 个连接
 │ accept_mutex on;                     │    √    │ 开启软件的 accept 锁机制, 这是一种负载均衡机制
 │ accept_mutex off;                    │         │ 关闭软件的 accept 锁机制
 │ accept_mutex_delay 500ms;            │    √    │ 设置软件取 accept 锁失败之后, 再次取锁的间隔时间为 500ms
-│ accept_mutex_delay TIME;             │         │ 设置软件取 accept 锁失败之后, 再次取锁的间隔时间为 TIME (单位: ms)
+│ accept_mutex_delay TIME;             │         │ 设置软件取 accept 锁失败之后, 再次取锁的间隔时间为 TIME (时间单位)
 │ multi_accept on;                     │         │ 开启通信连接的批量建立机制
 │ multi_accept off;                    │    √    │ 关闭通信连接的批量建立机制
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
