@@ -45,6 +45,8 @@ HTTP 配置块能够内嵌的子配置项登记如下
 │ sendfile off;                        │    √    │ 文件经过用户态发送到网卡设备, 文件发送效率较低
 │ send_timeout 60;                     │    √    │ 软件发送报文到对端时, 对端响应的超时时间为 60 秒
 │ send_timeout NUM;                    │         │ 软件发送报文到对端时, 对端响应的超时时间为 NUM 秒
+│ reset_timeout_connection on;         │         │ HTTP 连接超时之后, 启用 RST 信号重置连接的功能特性
+│ reset_timeout_connection off;        │    √    │ HTTP 连接超时之后, 禁用 RST 信号重置连接的功能特性
 │ open_file_cache max=NUM;             │         │ 启用基于内存资源的文件缓存, 限制文件缓存的数量上限为 NUM 份文件句柄
 │ open_file_cache off;                 │    √    │ 禁用基于内存资源的文件缓存
 │ open_file_cache_errors on;           │         │ 启用基于内存资源的文件错误缓存
@@ -99,7 +101,7 @@ HTTP 配置块能够内嵌的 GZIP 文件压缩的相关子配置项登记如下
 │ gzip_types MIME;                     │         │ 压缩 MIME 类型的文件, 多个 MIME 类型之间使用空格符号分割
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
-""""""""" 演示 NginX 软件的配置文件内, HTTP 块配置项的使用办法
+""""""""" 演示 NginX 软件的配置文件内, HTTP 配置块的使用办法
 [root ~]# vim /etc/nginx/nginx.conf
 ... ...
 ... ...
@@ -159,9 +161,9 @@ SERVER 配置块能够内嵌的子配置项登记如下
 ┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
 │ Configuration                        │ Default │ Comment
 ├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
-│ listen 80;                           │    √    │ 软件监听主机的 80 端口
-│ listen NUM;                          │         │ 软件监听主机的 NUM 端口
-│ server_name RECORD;                  │         │ 设置主机名称为 RECORD
+│ listen 80;                           │    √    │ 设置软件监听主机的 80 端口
+│ listen NUM;                          │         │ 设置软件监听主机的 NUM 端口
+│ server_name RECORD;                  │         │ 设置软件代理的站点名称为 RECORD
 │ client_header_buffer_size 1k;        │    √    │ HTTP 包头分配到的内存资源容量为 1kb
 │ client_header_buffer_size SIZE;      │         │ HTTP 包头分配到的内存资源容量为 SIZE (容量单位)
 │ client_header_timeout 60;            │    √    │ HTTP 408 Request Timeout 响应的触发阈值为 60 秒
@@ -179,20 +181,41 @@ SERVER 配置块能够内嵌的子配置项登记如下
 │ connection_pool_size NUM;            │         │ HTTP 连接分配到的内存池容量为 NUMkb
 │ request_pool_size 4k;                │    √    │ HTTP 请求分配到的内存池容量为 4kb
 │ request_pool_size SIZE;              │         │ HTTP 请求分配到的内存池容量为 SIZE (容量单位)
-│ reset_timeout_connection on;         │         │ HTTP 连接超时之后, 启用 RST 信号重置连接的功能特性
-│ reset_timeout_connection off;        │    √    │ HTTP 连接超时之后, 禁用 RST 信号重置连接的功能特性
-│ send_timeout 60;                     │    √    │ HTTP 连接建立之后, 服务端的响应超时时间为 60 秒
-│ send_timeout NUM;                    │         │ HTTP 连接建立之后, 服务端的响应超时时间为 NUM 秒
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
+listen num [option...];
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+listen 配置项常用的可选选项有
+**  default_server                               设置 SERVER 配置块为 HTTP 配置块内的默认配置块
+**  deffered                                     设置 SERVER 配置块的延迟特性, 牺牲软件响应时间的同时, 提高软件的承压能力
+**  ssl                                          开启 SSL 加密通信, 软件在相应端口与域名上启用 HTTPS 服务
 
+使用 server_name 配置项时, 还请注意:
 
+    •  不同 SERVER 配置块内, 允许使用相同的域名记录
+    •  请求头的 Host 记录同时匹配到不同 SERVER 配置块内的多个域名记录时, 按照下述优先级规则命中实际的域名记录
+       1. 请求头的 Host 记录完全匹配到域名记录, 例如 spring.season.com
+       2. 请求头的 Host 记录匹配到通配符 (*) 在前面的域名记录, 例如 *.season.com
+       3. 请求头的 Host 记录匹配到通配符 (*) 在后面的域名记录, 例如 spring.season.*
+       4. 请求头的 Host 记录匹配到使用有正则表达式的域名记录, 例如 ~^\.season\.com$
 
+""""""""" 演示 NginX 软件的配置文件内, SERVER 配置块的使用办法
+[root ~]# vim /etc/nginx/nginx.conf
+server {
+    listen 80 default_server;
+    server_name spring.season.com;
+    client_header_buffer_size 8k;
+    client_header_timeout 300;
+    client_body_timeout 300;
+    client_body_buffer_size 128m;
+    client_max_body_size 1024m;
+    connection_pool_size 1024;
+    request_pool_size 8k;
 
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-UPSTREAM 配置块
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ... ...
+    ... ...
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
