@@ -45,8 +45,6 @@ HTTP 配置块能够内嵌的子配置项登记如下
 │ sendfile off;                        │    √    │ 文件经过用户态发送到网卡设备, 文件发送效率较低
 │ send_timeout 60;                     │    √    │ 软件发送报文到对端时, 对端响应的超时时间为 60 秒
 │ send_timeout NUM;                    │         │ 软件发送报文到对端时, 对端响应的超时时间为 NUM 秒
-│ reset_timeout_connection on;         │         │ HTTP 连接超时之后, 启用 RST 信号重置连接的功能特性
-│ reset_timeout_connection off;        │    √    │ HTTP 连接超时之后, 禁用 RST 信号重置连接的功能特性
 │ open_file_cache max=NUM;             │         │ 启用基于内存资源的文件缓存, 限制文件缓存的数量上限为 NUM 份文件句柄
 │ open_file_cache off;                 │    √    │ 禁用基于内存资源的文件缓存
 │ open_file_cache_errors on;           │         │ 启用基于内存资源的文件错误缓存
@@ -102,7 +100,7 @@ HTTP 配置块能够内嵌的 GZIP 文件压缩的相关子配置项登记如下
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 """"""""" 演示 NginX 软件的配置文件内, HTTP 配置块的使用办法
-[root ~]# mkdir -p /etc/nginx/conf.d
+[root ~]# mkdir -p /etc/nginx/http.d
 [root ~]# vim /etc/nginx/nginx.conf
 ... ...
 ... ...
@@ -133,7 +131,7 @@ http {
 
     default_type application/octet-stream;
     include /etc/nginx/mime.types;
-    include /etc/nginx/conf.d/*.conf;            | 建议把单个 HTTP/HTTPS 协议层的网站代理服务, 单独放置一个配置文件
+    include /etc/nginx/http.d/*.conf;            | 建议把单个 HTTP/HTTPS 协议层的网站代理服务, 单独放置一个配置文件
 }                                                | 并使用加载的方式, 纳入到软件的配置文件
 ... ...
 ... ...

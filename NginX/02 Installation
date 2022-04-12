@@ -35,7 +35,6 @@ NginX 软件的源码编译选项有
 │ --user=            │ USERNAME                  │ 指定 NginX 软件的工作进程的所属用户
 │ --group=           │ GPNAME                    │ 指定 NginX 软件的工作进程的所属群组
 │ --with-debug       │                           │ 启用 NginX 软件的调试日志
-│ --with-ipv6        │                           │ 启用 NginX 软件支持 IPv6 通信地址
 └────────────────────┴───────────────────────────┴─────────────────────────────────────────────────────────────────────
 
 NginX 软件的编译过程中, 可以使用下述参数停用默认会被 NginX 软件启用的 HTTP 功能模块
@@ -81,9 +80,9 @@ NginX 软件的编译过程中, 可以使用下述参数启用默认会被 NginX
 
 编译 NginX 软件时, 我们建议:
 
-    1. 尽量不要停用默认会被 NginX 软件启用的 HTTP 功能模块
-    2. 根据软件的使用情境, 尽量启用默认会被 NginX 软件停用的 HTTP 功能模块
-    3. 开源社区提供的第三方功能模块有时无法适配最新版本的 NginX 软件, 使用前建议阅读开源社区的讨论信息与代码 PR 记录
+    •  尽量不要停用默认会被 NginX 软件启用的 HTTP 功能模块
+    •  根据软件的使用情境, 尽量启用默认会被 NginX 软件停用的 HTTP 功能模块
+    •  开源社区提供的第三方功能模块有时无法适配最新版本的 NginX 软件, 使用前建议阅读开源社区的讨论信息与代码 PR 记录
 
 
 
@@ -169,7 +168,6 @@ perl-Digest-SHA1.x86_64
 --user=nginx \
 --group=nginx \
 --with-debug \
---with-ipv6 \
 --with-http_ssl_module \
 --with-http_realip_module \
 --with-http_flv_module \

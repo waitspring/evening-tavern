@@ -12,11 +12,15 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 NginX 软件的日常管理
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-NginX 软件的日常管理工具有:
+NginX 软件的日常管理需要使用到软件本身的工具与资源, 同时亦需要结合操作系统的某些特性来实现
+NginX 软件的日常管理需要使用到的工具有:
 
-    •  /usr/sbin/nginx           --  软件的可执行程序文件
-    •  /etc/nginx/nginx.conf     --  软件的主配置文件
-    •  /etc/nginx/conf.d/*.conf  --  软件的子配置文件 (每个功能点通常单独使用各自的子配置文件)
+    •  /usr/sbin/nginx                           软件的可执行程序
+    •  /etc/nginx/nginx.conf                     软件的主配置文件
+    •  /etc/nginx/mime.types                     软件的 MIME (Multipurpose Internet Mail Extension) 属性集合文件
+    •  /etc/nginx/http.d/*.conf                  软件的子配置文件 (单个 HTTP   功能点通常单独使用各自的子配置文件)
+    •  /etc/nginx/stream.d/*.conf                软件的子配置文件 (单个 STREAM 功能点通常单独使用各自的子配置文件)
+    •  /usr/lib/systemd/system/nginx.service     软件的服务单元控制文件
 
 /usr/sbin/nginx [option...]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,7 +122,6 @@ NginX 软件的配置文件可以拆分为下述不同功能部分:
 │ worker_processes NUM;                │         │ 配置软件的 worker 进程数量为 NUM 个进程
 │ worker_cpu_affinity MASK;            │         │ 配置软件进程的 CPU 亲和特性 (绑定进程到对应的 CPU 核心上不做切换)
 │ ssl_engine DEVNAME;                  │         │ 配置软件进程使用 DEVNAME 作为 SSL 协议的硬件加速设备
-│ error_log /PATH/TO/FILE;             │    √    │ 设置软件的错误日志等级为 ERROR 且输出目标为 /PATH/TO/FILE 日志文件
 │ error_log /PATH/TO/FILE LEVEL;       │         │ 设置软件的错误日志等级为 LEVEL 且输出目标为 /PATH/TO/FILE 日志文件
 │ include /PATH/TO/FILE;               │         │ 加载 /PATH/TO/FILE 文件内的配置块与配置项
 │ env PAR=VALUE;                       │         │ 设置变量 PAR 的值为 VALUE
@@ -130,7 +133,7 @@ NginX 软件的配置文件可以拆分为下述不同功能部分:
     •  软件进程的优先级权重有可选范围 [-20, 19], 且数值越小优先级越大, 但不建议把权重配置在 [-20, -15] 的范围内, 这是操作系统的权重
     •  指定 coredump 文件的寄存目录时, 寄存目录应提前存在, 否则使用普通用户权限的 worker 进程无法正常工作
 
-错误日志存在下述输出等级:
+软件的错误日志存在下述输出等级:
 
     •  debug  --  系统调试信息, 数据输出量巨大且繁杂, 需要在软件编译时加入 --with-debug 选项
     •   info  --  常规记录的普通事件
