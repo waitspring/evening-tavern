@@ -102,6 +102,7 @@ HTTP 配置块能够内嵌的 GZIP 文件压缩的相关子配置项登记如下
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 """"""""" 演示 NginX 软件的配置文件内, HTTP 配置块的使用办法
+[root ~]# mkdir -p /etc/nginx/conf.d
 [root ~]# vim /etc/nginx/nginx.conf
 ... ...
 ... ...
@@ -186,9 +187,9 @@ SERVER 配置块能够内嵌的子配置项登记如下
 listen num [option...];
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 listen 配置项常用的可选选项有
-**  default_server                               设置 SERVER 配置块为 HTTP 配置块内的默认配置块
+**  default_server                               设置 SERVER 配置块为 HTTP 配置块内的默认配置块 (可用于屏蔽 IP 地址直接访问)
 **  deffered                                     设置 SERVER 配置块的延迟特性, 牺牲软件响应时间的同时, 提高软件的承压能力
-**  ssl                                          开启 SSL 加密通信, 软件在相应端口与域名上启用 HTTPS 服务
+**  backlog=num                                  设置 TCP/backlog 队列的大小 (默认值为 -1 表示不设置)
 
 使用 server_name 配置项时, 还请注意:
 
@@ -200,18 +201,17 @@ listen 配置项常用的可选选项有
        4. 请求头的 Host 记录匹配到使用有正则表达式的域名记录, 例如 ~^\.season\.com$
 
 """"""""" 演示 NginX 软件的配置文件内, SERVER 配置块的使用办法
-[root ~]# vim /etc/nginx/nginx.conf
+[root ~]# vim /etc/nginx/conf.d/spring.season.com.conf
 server {
     listen 80 default_server;
     server_name spring.season.com;
     client_header_buffer_size 8k;
     client_header_timeout 300;
     client_body_timeout 300;
-    client_body_buffer_size 128m;
+    client_body_buffer_size 1m;
     client_max_body_size 1024m;
     connection_pool_size 1024;
     request_pool_size 8k;
-
     ... ...
     ... ...
 }

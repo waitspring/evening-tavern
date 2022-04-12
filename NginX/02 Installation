@@ -77,29 +77,13 @@ NginX 软件的编译过程中, 可以使用下述参数启用默认会被 NginX
 **  --with-http_stub_status_module               | 该模块用于提供 NginX 软件的管理控制台功能
 **  --with-http_spdy_module                      | 该模块能够支持 SPDY 协议
 **  --with-http_gunzip_module                    | 该模块仍是 HTTP_GZIP_MODULE 的扩展功能模块, 提供 GZIP 格式压缩的过滤器
-**  --with-http_auth_request_module              | 该模块用于支持 LDAP 统一用户认证体系
+**  --with-http_auth_request_module              | 该模块用于支持用户认证体系
 
 编译 NginX 软件时, 我们建议:
 
     1. 尽量不要停用默认会被 NginX 软件启用的 HTTP 功能模块
     2. 根据软件的使用情境, 尽量启用默认会被 NginX 软件停用的 HTTP 功能模块
     3. 开源社区提供的第三方功能模块有时无法适配最新版本的 NginX 软件, 使用前建议阅读开源社区的讨论信息与代码 PR 记录
-
-NginX 软件的编译过程中, 经常添加一些开源社区提供的功能模块, 这些第三方功能模块需要用户自行到开源社区下载, 并在源码编译阶段加入软件
-NginX 软件的编译过程中, 经常添加的第三方功能模块有:
-
-    •  nginx-sticky-module
-    •  nginx-upstream-dynamic-servers
-
-nginx-sticky-module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-开源地址: https://github.com/devsbb/nginx-sticky-module-ng
-模块作用: 基于用户会话的 cookie 数据提供负载均衡服务 (相比 NginX 软件基于 IPv4 地址提供负载均衡服务, 该模块更为科学合理)
-
-nginx-upstream-dynamic-servers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-开源地址: https://github.com/GUI/nginx-upstream-dynamic-servers
-模块作用: 基于指定域名解析服务器 (DNS) 提供动态的域名解析服务 (通常在 NginX 软件负责正向请求代理时使用, 处理服务对端的动态地址情境)
 
 
 
@@ -157,6 +141,7 @@ GNU Autotools 规范下, C/C++ 源代码转换为二进制可执行文件, 需�
 │ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Doing Simple │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 提前准备资源: /srv/nginx-1.20.2.tar.gz
+注意: 本次安装不涉及开源社区提供的第三方模块, 如有机会笔者会在后文对部分第三方模式做讲述
 
 """"""""" 准备 NginX 软件的进程用户和用户组, 安装 NginX 软件的前置依赖包
 [root ~]# useradd -r -s /sbin/nologin -M nginx

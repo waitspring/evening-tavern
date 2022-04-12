@@ -119,6 +119,22 @@ NginX 软件的功能特性
     •  自由协议: 软件使用 BSD 协议开源, 开源协议相对自由开放 (Tengine, OpenRestry 项目便受益于此)
     •  二次开发: 软件使用 C/C++ 语言开发独立功能模块, 使用 Perl 语言或是 Lua 语言直接做二次开发都较为便捷
 
+开源社区提供有大量的第三方模块, 其中部分优秀的第三方模块已经得到刷新网络公司的认可, 并在官网推广
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+官网推广地址: http://www.nginx.com/resources/wiki/modules/index.html
+
+    •  nginx-upstream-jdomain                    [           https://github.com/nicholaschiasson/ngx_upstream_jdomain ]
+    •  nginx-http-dyups-module                   [                 https://github.com/yzprofile/ngx_http_dyups_module ]
+    •  nginx-cookie-limit-req-module             [            https://github.com/limithit/ngx_cookie_limit_req_module ]
+    •  nginx-echo-module                         [                     https://github.com/openresty/echo-nginx-module ]
+    •  nginx-echo-stream-module                  [              https://github.com/openresty/stream-echo-nginx-module ]
+    •  nginx-elastic-client                      [                  https://github.com/Taymindis/nginx-elastic-client ]
+    •  nginx-ey-balancer                         [                      https://github.com/ezmobius/nginx-ey-balancer ]
+    •  nginx-upstream-healthcheck-module         [               https://github.com/cep21/healthcheck_nginx_upstreams ]
+    •  nginx-auth-ldap                           [                           https://github.com/kvspb/nginx-auth-ldap ]
+    •  nginx-sticky-module                       [         https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng ]
+    •  nginx-tcp-proxy                           [                https://github.com/yaoweibin/nginx_tcp_proxy_module ]
+
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
