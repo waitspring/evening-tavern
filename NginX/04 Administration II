@@ -17,7 +17,7 @@ HTTP 配置块能够内嵌子配置项与配置块, 子配置块直接继承父�
 HTTP 配置块能够内嵌的子配置块主要有:
 
     •  SERVER   配置块, 主要用于定义软件在 HTTP/HTTPS 协议层的网站代理服务, 其具体数量不定
-    •  LOCATION 配置块
+    •  LOCATION 配置块, 主要用于定义软件在 HTTP/HTTPS 协议层的路由分发规则, 其具体数量不定
     •  UPSTREAM 配置块
 
 ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
@@ -41,6 +41,8 @@ HTTP 配置块能够内嵌的子配置项登记如下
 ┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
 │ Configuration                        │ Default │ Comment
 ├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ charset off;                         │    √    │ 软件不在响应头的 Content-Type 字段内标记字符集编码
+│ charset CHARSET;                     │         │ 软件应在响应头的 Content-Type 字段内标记字符集编码, 实际使用 CHARSET 编码
 │ sendfile on;                         │         │ 文件基于内核态发送到网卡设备, 文件发送效率较高
 │ sendfile off;                        │    √    │ 文件经过用户态发送到网卡设备, 文件发送效率较低
 │ send_timeout 60;                     │    √    │ 软件发送报文到对端时, 对端响应的超时时间为 60 秒
@@ -112,6 +114,7 @@ http {
     open_file_cache_errors on;
     open_file_cache_valid 90s;
 
+    charset utf-8;
     server_tokens off;
     tcp_nopush on;
     tcp_nodelay on;
@@ -185,7 +188,7 @@ SERVER 配置块能够内嵌的子配置项登记如下
 listen num [option...];
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 listen 配置项常用的可选选项有
-**  default_server                               设置 SERVER 配置块为 HTTP 配置块内的默认配置块 (可用于屏蔽 IP 地址直接访问)
+**  default_server                               设置 SERVER 配置块为 HTTP 配置块内的默认配置块
 **  deffered                                     设置 SERVER 配置块的延迟特性, 牺牲软件响应时间的同时, 提高软件的承压能力
 **  backlog=num                                  设置 TCP/backlog 队列的大小 (默认值为 -1 表示不设置)
 
@@ -199,9 +202,9 @@ listen 配置项常用的可选选项有
        4. 请求头的 Host 记录匹配到使用有正则表达式的域名记录, 例如 ~^\.season\.com$
 
 """"""""" 演示 NginX 软件的配置文件内, SERVER 配置块的使用办法
-[root ~]# vim /etc/nginx/conf.d/spring.season.com.conf
+[root ~]# vim /etc/nginx/http.d/spring.season.com.conf
 server {
-    listen 80 default_server;
+    listen 80;
     server_name spring.season.com;
     client_header_buffer_size 8k;
     client_header_timeout 300;
