@@ -183,12 +183,12 @@ SERVER 配置块能够内嵌的子配置项登记如下
 │ connection_pool_size NUM;            │         │ HTTP 连接分配到的内存池容量为 NUMkb
 │ request_pool_size 4k;                │    √    │ HTTP 请求分配到的内存池容量为 4kb
 │ request_pool_size SIZE;              │         │ HTTP 请求分配到的内存池容量为 SIZE (容量单位)
-│ root /PATH/TO/DIR;                   │         │ 定义 HTTP 配置块的根目录
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
-listen num [option...];
+listen num [ parameter... ];
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-listen 配置项常用的可选选项有
+listen 配置项能够设置软件的监听端口, 且多个 listen 配置项的监听端口对象可以重复 (都是由软件进程监听, 不存在权限冲突)
+listen 配置项常用的可选参数有
 **  default_server                               设置 SERVER 配置块为 HTTP 配置块内的默认配置块
 **  deffered                                     设置 SERVER 配置块的延迟特性, 牺牲软件响应时间的同时, 提高软件的承压能力
 **  backlog=num                                  设置 TCP/backlog 队列的大小 (默认值为 -1 表示不设置)
@@ -203,12 +203,10 @@ listen 配置项常用的可选选项有
        4. 请求头的 Host 记录匹配到使用有正则表达式的域名记录, 例如 ~^\.season\.com$
 
 """"""""" 演示 NginX 软件的配置文件内, SERVER 配置块的使用办法
-[root ~]# mkdir -p /var/nginx && chown -R nginx:nginx /var/nginx
-[root ~]# sudo -u nginx touch /var/nginx/{403.html,404.html,500.html,50x.html}
-[root ~]# vim /etc/nginx/http.d/spring.season.com.conf
+[root ~]# vim /etc/nginx/http.d/foo.season.com.conf
 server {
     listen 80;
-    server_name spring.season.com;
+    server_name foo.season.com;
     client_header_buffer_size 8k;
     client_header_timeout 300;
     client_body_timeout 300;
