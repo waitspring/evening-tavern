@@ -183,6 +183,7 @@ SERVER 配置块能够内嵌的子配置项登记如下
 │ connection_pool_size NUM;            │         │ HTTP 连接分配到的内存池容量为 NUMkb
 │ request_pool_size 4k;                │    √    │ HTTP 请求分配到的内存池容量为 4kb
 │ request_pool_size SIZE;              │         │ HTTP 请求分配到的内存池容量为 SIZE (容量单位)
+│ root /PATH/TO/DIR;                   │         │ 定义 HTTP 配置块的根目录
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 listen num [option...];
@@ -202,6 +203,8 @@ listen 配置项常用的可选选项有
        4. 请求头的 Host 记录匹配到使用有正则表达式的域名记录, 例如 ~^\.season\.com$
 
 """"""""" 演示 NginX 软件的配置文件内, SERVER 配置块的使用办法
+[root ~]# mkdir -p /var/nginx && chown -R nginx:nginx /var/nginx
+[root ~]# sudo -u nginx touch /var/nginx/{403.html,404.html,500.html,50x.html}
 [root ~]# vim /etc/nginx/http.d/spring.season.com.conf
 server {
     listen 80;
@@ -213,6 +216,7 @@ server {
     client_max_body_size 1024m;
     connection_pool_size 1024;
     request_pool_size 8k;
+
     ... ...
     ... ...
 }
