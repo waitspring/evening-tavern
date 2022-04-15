@@ -136,11 +136,10 @@ error_page 配置项的使用要点如下:
     •  error_page 配置项用于重定向的路由规则, 在使用 (/) 作为起始符号时, 仅触发软件的隐式重定向 (URL 信息保持不变, 但页面内容被改写)
 
 """"""""" 演示 NginX 软件的配置文件内, error_page 配置项的使用办法
-[root ~]# sudo -u nginx echo 'HTTP Status Code 401' > /var/nginx/401.html
-[root ~]# sudo -u nginx echo 'HTTP Status Code 403' > /var/nginx/403.html
-[root ~]# sudo -u nginx echo 'HTTP Status Code 404' > /var/nginx/404.html
-[root ~]# sudo -u nginx echo 'HTTP Status Code 405' > /var/nginx/405.html
-[root ~]# sudo -u nginx echo 'HTTP Status Code 5xx' > /var/nginx/5xx.html
+[root ~]# sudo -u nginx mkdir -p /var/nginx/error_page
+[root ~]# sudo -u nginx echo 'HTTP Status Code 403' > /var/nginx/error_page/403.html
+[root ~]# sudo -u nginx echo 'HTTP Status Code 404' > /var/nginx/error_page/404.html
+[root ~]# sudo -u nginx echo 'HTTP Status Code 5xx' > /var/nginx/error_page/5xx.html
 [root ~]# vim /etc/nginx/nginx.conf
 ... ...
 ... ...
@@ -148,11 +147,9 @@ http {
     ... ...
     ... ...
 
-    error_page 401 /401.html;
-    error_page 403 /403.html;
-    error_page 404 /404.html;
-    error_page 405 /405.html;
-    error_page 500 501 502 503 504 505 /5xx.html;
+    error_page 403 /error_page/403.html;
+    error_page 404 /error_page/404.html;
+    error_page 500 501 502 503 504 505 /error_page/5xx.html;
     root /var/nginx;
 }
 ... ...
