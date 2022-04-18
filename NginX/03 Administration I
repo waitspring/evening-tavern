@@ -124,7 +124,6 @@ NginX 软件的配置文件可以拆分为下述不同功能部分:
 │ ssl_engine DEVNAME;                  │         │ 配置软件进程使用 DEVNAME 作为 SSL 协议的硬件加速设备
 │ error_log /PATH/TO/FILE LEVEL;       │         │ 设置软件的错误日志等级为 LEVEL 且输出目标为 /PATH/TO/FILE 日志文件
 │ include /PATH/TO/FILE;               │         │ 加载 /PATH/TO/FILE 文件内的配置块与配置项
-│ env PAR=VALUE;                       │         │ 设置变量 PAR 的值为 VALUE
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 阅读上述表格时, 还请注意:
