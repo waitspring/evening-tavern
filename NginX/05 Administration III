@@ -161,7 +161,7 @@ http {
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 日志管理
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-访问日志文件寄存客户端请求与服务端响应的历史记录, 涵盖 4xx 类型与 5xx 类型的服务端响应错误
+访问日志文件寄存客户端请求与服务端响应的历史记录, 涵盖 4xx 类型与 5xx 类型的服务端响应错误, 主要用于定位网络链路问题
 错误日志文件寄存软件在启动与日常运行的过程中产生的错误记录
 
 log_format fmtname '... ...';
@@ -235,37 +235,46 @@ log_format 配置项的语法元素如下
 ┊                                                                                                                     ┊
 └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
 
-""""""""" 演示 NginX 软件的配置文件内, 日志格式的管理办法
+SERVER 配置块没有配置私有的日志文件时, 日志直接写入软件默认的访问日志文件与错误日志文件
+SERVER 配置块允许使用 access_log/ error_log 配置项指定私有的日志文件:
+
+    •  access_log 配置文件指定私有的访问日志文件
+    •  error_log  配置文件指定私有的错误日志文件
+    •  笔者建议把单个代理站点的访问日志与错误日志全部写入同一个站点日志文件, 这是一种比较方便调试的日志管理策略
+
+{ access_log | error_log } /path/to/logfile;
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+{ access_log | error_log } 配置项允许在 SERVER 配置块内使用, 以便特别指定访问日志文件与错误日志文件
+{ access_log | error_log } 配置项用到的语法如下
+**  access_log                                   访问日志配置项, 特别指定访问日志文件的位置
+**  error_log                                    错误日志配置项, 特别指定错误日志文件的位置
+**  /path/to/logfile                             日志文件参数, 指定日志文件的绝对路径
+
+""""""""" 演示 NginX 软件的配置文件内, 日志管理办法
 [root ~]# vim /etc/nginx/nginx.conf
 http {
     ... ...
     ... ...
 
-    log_format info '$time_iso8601 INFO [$status] $remote_addr:$remote_port $http_referer';
-    log_format error '$time_iso8601 ERROR [$status] $remote_addr:$remote_port $http_referer';
+    log_format stic '$time_iso8601 INFO $status $remote_addr:$remote_port $request_filename';
+    log_format http '$time_iso8601 INFO $status $remote_addr:$remote_port $server_name:$server_port$request_uri '
+                    '$upstream_addr $upstream_response_time(s)';
+
+    ... ...
+    ... ...
+}
+[root ~]# vim /etc/nginx/http.d/foo.season.com.conf
+server {
+    ... ...
+    ... ...
+
+    access_log /var/log/nginx/foo.season.com.log stic;
+    error_log  /var/log/nginx/foo.season.com.log;
 
     ... ...
     ... ...
 }
 --------------------------------------------------------------------------------------------------------------------- ✻
-
-
-
-
-
-
-
-SERVER 配置块没有私有的日志文件配置时, 日志数据写入软件默认的访问日志文件与错误日志文件 (使用软件编译时填写的日志文件路径)
-SERVER 配置块具备私有的日志文件配置时, 日志数据写入特别指定的访问日志文件与错误日志文件, 需要使用到 access_log/ error_log 配置项
-
-{ access_log | error_log } /path/to/logfile [ format ];
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-{ access_log | error_log } 配置项允许在 SERVER 配置块内使用, 以便特别指定访问日志文件与错误日志文件
-{ access_log | error_log } 配置项用到的语法如下
-**  access_log                                   访问日志配置项, 特别指定访问日志文件
-**  error_log                                    错误日志配置项, 特别指定错误日志文件
-**  /path/to/logfile                             日志文件参数, 指定日志文件的绝对路径
-**  format                                       日志格式参数, 该参数应当在 HTTP 配置块内提前定义好, 省略则使用通用格式
 
 
 
