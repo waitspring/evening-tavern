@@ -249,8 +249,12 @@ SERVER 配置块允许使用 access_log/ error_log 配置项指定私有的日�
 http {
     ... ...
     ... ...
-    log_format stic '$time_iso8601 INFO $status $remote_addr:$remote_port $request_filename';
-    log_format http '$time_iso8601 INFO $status $remote_addr:$remote_port $server_name:$server_port$request_uri '
+    map $time_iso8601 $fmtime {
+        default $time_iso8601;
+        '~^(?<ymd>\d{4}-\d{2}-\d{2})T(?<hms>\d{2}:\d{2}:\d{2}).*$' '$ymd $hms';
+    }
+    log_format stic '$fmtime INFO $status $remote_addr:$remote_port $request_filename';
+    log_format http '$fmtime INFO $status $remote_addr:$remote_port $server_name:$server_port$request_uri '
                     '$upstream_addr $upstream_response_time(s)';
     ... ...
     ... ...
