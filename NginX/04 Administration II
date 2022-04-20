@@ -135,8 +135,6 @@ http {
     include /etc/nginx/mime.types;
     include /etc/nginx/http.d/*.conf;            | 建议把单个 HTTP/HTTPS 协议层的网站代理服务, 单独放置一个配置文件
 }                                                | 并使用加载的方式, 纳入到软件的配置文件
-... ...
-... ...
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
@@ -213,7 +211,6 @@ server {
     client_max_body_size 1024m;
     connection_pool_size 1024;
     request_pool_size 8k;
-
     ... ...
     ... ...
 }
