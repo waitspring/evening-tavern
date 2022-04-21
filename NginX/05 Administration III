@@ -256,8 +256,6 @@ http {
     log_format stic '$fmtime INFO $status $remote_addr:$remote_port $request_filename';
     log_format http '$fmtime INFO $status $remote_addr:$remote_port $server_name:$server_port$request_uri '
                     '$upstream_addr $upstream_response_time(s)';
-    ... ...
-    ... ...
 }
 [root ~]# vim /etc/nginx/http.d/foo.season.com.conf
 server {

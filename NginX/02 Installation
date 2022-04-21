@@ -168,6 +168,7 @@ perl-Digest-SHA1.x86_64
 --user=nginx \
 --group=nginx \
 --with-debug \
+--with-stream \
 --with-http_ssl_module \
 --with-http_realip_module \
 --with-http_flv_module \
