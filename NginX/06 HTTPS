@@ -65,6 +65,21 @@ default_crl_days   = 30                          # 定义 PCA 站点的新签发
 default_md         = sha256                      # 定义 PCA 站点默认使用的加密算法
 ... ...
 ... ...
+policy             = policy_match                # 要求 PCA 站点使用严格的 policy_match 策略组作为审计策略组
+[ policy_match ]
+countryName             = match                  # 严格要求 CSR 申请文件内 C  字段与 PCA 站点相符合
+stateOrProvinceName     = match                  # 严格要求 CSR 申请文件内 ST 字段与 PCA 站点相符合
+organizationName        = match                  # 严格要求 CSR 申请文件内 O  字段与 PCA 站点相符合
+organizationalUnitName  = optional               # 允许 CSR 申请文件内 OU 字段与 PCA 站点不一致
+commonName              = supplied               # 允许 CSR 申请文件提供独特的 CN 字段
+emailAddress            = optional               # 允许 CSR 申请文件内 EM 字段与 PCA 站点不一致
+[ policy_anything ]
+countryName             = optional               # 允许 CSR 申请文件内 C  字段与 PCA 站点不一致
+stateOrProvinceName     = optional               # 允许 CSR 申请文件内 ST 字段与 PCA 站点不一致
+organizationName        = optional               # 允许 CSR 申请文件内 O  字段与 PCA 站点不一致
+organizationalUnitName  = optional               # 允许 CSR 申请文件内 OU 字段与 PCA 站点不一致
+commonName              = supplied               # 允许 CSR 申请文件提供独特的 CN 字段
+emailAddress            = optional               # 允许 CSR 申请文件内 EM 字段与 PCA 站点不一致
 
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Doing Simple │
@@ -81,6 +96,7 @@ server:~$ mkdir -p /etc/pki/CA/csr
 server:~$ touch /etc/pki/CA/index.txt
 server:~$ echo 000000 > /etc/pki/CA/serial
 server:~$ openssl genrsa -out /etc/pki/CA/private/cakey.pem
+server:~$ sed -i -r 's/^(policy[[:space:]]*=[[:space:]]*)(policy_match)$/\1policy_anything/g' /etc/pki/tls/openssl.conf
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" [服务端] 编写 PCA 站点的 CSR (Certificate Signing Request) 申请文件
@@ -105,18 +121,14 @@ server:~$ openssl ca -selfsign \
                      -batch \
                      -in /etc/pki/CA/csr/pca.com.csr \
                      -out /etc/pki/CA/cacert.pem
-server:~$ cat /etc/pki/CA/index.txt
-
-
-
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" [客户端] 编写 WEB 站点的 CSR (Certificate Signing Request) 申请文件
-client:~$ openssl genrsa -out /etc/nginx/conf/cert.d/repo.season.com.pem
+client:~$ openssl genrsa -out /etc/nginx/conf/cert.d/season.com.pem
 client:~$ openssl req -new \
                       -days 365 \
-                      -key /etc/nginx/conf/cert.d/repo.season.com.pem \
-                      -out /etc/nginx/conf/cert.d/repo.season.com.csr
+                      -key /etc/nginx/conf/cert.d/season.com.pem \
+                      -out /etc/nginx/conf/cert.d/season.com.csr
 
 -----
 Country Name [XX]: CN                            | 填写证书申请人的国籍代码, 中国代码为 CN
@@ -127,64 +139,25 @@ Organizational Unit Name: Devops                 | 填写证书申请人的部�
 Common Name: *.season.com                        | 填写证书申请人需要 SSL 加密的域名 (支持申请通配域名)
 Email Address: info@season.com                   | 填写证书申请人的邮箱地址
 
-client:~$ scp /etc/nginx/conf/cert.d/repo.season.com.csr pca.season.com:/etc/pki/CA/csr
+client:~$ scp /etc/nginx/conf/cert.d/season.com.csr pca.season.com:/etc/pki/CA/csr
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" [服务端] 签发 WEB 站点的 HTTPS 证书文件
+server:~$ openssl ca -batch \
+                     -in /etc/pki/CA/csr/season.com.csr \
+                     -out /etc/pki/CA/certs/season.com.crt
+server:~$ scp /etc/pki/CA/certs/season.com.crt web.season.com:/etc/nginx/conf/cert.d
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+配置 HTTPS 证书
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
-本示例将演示 HTTPS 自颁发证书的制作办法:
 
-    1. 构建 PCA 站点
-    2. 编写 CSR (Certificate Signing Request) 申请文件
-    3. 签发 HTTPS 证书
 
-""""""""" 构建 PCA 站点
-[root ~]# yum install -y openssl.x86_64, openssl-devel.x86_64
-[root ~]# touch /etc/pki/CA/index.txt
-[root ~]# echo 000000 > /etc/pki/CA/serial
-[root ~]# openssl genrsa -out /etc/pki/CA/private/cakey.pem
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 编写 CSR (Certificate Signing Request) 申请文件
-[root ~]# openssl req -new \
-                      -days 365 \
-                      -key /etc/pki/CA/private/cakey.pem \
-                      -out /etc/nginx/conf/cert.d/repo.season.com.csr
-
------
-Country Name [XX]: CN                            | 填写证书申请人的国籍代码, 中国代码为 CN
-State/ Province Name (Full Name): Zhejiang       | 填写证书申请人的省份名称
-Locality Name [Default City]: Hangzhou           | 填写证书申请人的城市名称
-Organization Name [Default Company Ltd]: Season  | 填写证书申请人的单位名称
-Organizational Unit Name: Devops                 | 填写证书申请人的部门名称
-Common Name: *.season.com                        | 填写证书申请人需要 SSL 加密的域名 (支持申请通配域名)
-Email Address: info@season.com                   | 填写证书申请人的邮箱地址
-
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 签发 HTTPS 证书
-[root ~]# openssl ca -selfsign \
-                     -batch \
-                     -in /etc/nginx/conf/cert.d/repo.season.com.csr
-[root ~]# tree /etc/pki/CA
-
-/etc/pki/CA
-│
-├─── certs
-├─── crl
-├─── index.txt
-├─── index.txt.attr
-├─── newcerts
-│    │
-│    └─── 00.pem
-├─── private
-│    │
-│    └─── cakey.pem
-└─── serial
-
---------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
