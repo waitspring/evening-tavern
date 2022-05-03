@@ -69,6 +69,71 @@ default_md         = sha256                      # 定义 PCA 站点默认使用
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Doing Simple │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+本示例演示 PCA 站点的构建过程, 以及私用的 HTTPS 证书凭证的制作办法
+本示例使用到的主机资源如下:
+
+    •  PCA Server: pca.season.com (2 核心 / 4GB 内存 / 100GB 存储)
+    •  PCA Client: web.season.com (2 核心 / 4GB 内存 / 100GB 存储)
+
+""""""""" [服务端] 构建 PCA 站点的文件目录
+server:~$ yum install -y openssl.x86_64, openssl-devel.x86_64
+server:~$ mkdir -p /etc/pki/CA/csr
+server:~$ touch /etc/pki/CA/index.txt
+server:~$ echo 000000 > /etc/pki/CA/serial
+server:~$ openssl genrsa -out /etc/pki/CA/private/cakey.pem
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" [服务端] 编写 PCA 站点的 CSR (Certificate Signing Request) 申请文件
+server:~$ openssl req -new \
+                      -days 365 \
+                      -key /etc/pki/CA/private/cakey.pem \
+                      -out /etc/pki/CA/csr/pca.com.csr
+
+-----
+Country Name [XX]: CN                            | 填写 PCA 法人的国籍代码, 中国代码为 CN
+State/ Province Name (Full Name): Zhejiang       | 填写 PCA 法人的省份名称
+Locality Name [Default City]: Hangzhou           | 填写 PCA 法人的城市名称
+Organization Name [Default Company Ltd]: PCA     | 填写 PCA 法人的单位名称
+Organizational Unit Name: Devops                 | 填写 PCA 法人的部门名称
+Common Name: *.pca.com                           | 填写 PCA 法人需要 SSL 加密的域名 (支持申请通配域名)
+Email Address: info@pca.com                      | 填写 PCA 法人的邮箱地址
+
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" [服务端] 签发 PCA 站点的 HTTPS 证书文件
+server:~$ openssl ca -selfsign \
+                     -batch \
+                     -in /etc/pki/CA/csr/pca.com.csr \
+                     -out /etc/pki/CA/cacert.pem
+server:~$ cat /etc/pki/CA/index.txt
+
+
+
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" [客户端] 编写 WEB 站点的 CSR (Certificate Signing Request) 申请文件
+client:~$ openssl genrsa -out /etc/nginx/conf/cert.d/repo.season.com.pem
+client:~$ openssl req -new \
+                      -days 365 \
+                      -key /etc/nginx/conf/cert.d/repo.season.com.pem \
+                      -out /etc/nginx/conf/cert.d/repo.season.com.csr
+
+-----
+Country Name [XX]: CN                            | 填写证书申请人的国籍代码, 中国代码为 CN
+State/ Province Name (Full Name): Zhejiang       | 填写证书申请人的省份名称
+Locality Name [Default City]: Hangzhou           | 填写证书申请人的城市名称
+Organization Name [Default Company Ltd]: Season  | 填写证书申请人的单位名称
+Organizational Unit Name: Devops                 | 填写证书申请人的部门名称
+Common Name: *.season.com                        | 填写证书申请人需要 SSL 加密的域名 (支持申请通配域名)
+Email Address: info@season.com                   | 填写证书申请人的邮箱地址
+
+client:~$ scp /etc/nginx/conf/cert.d/repo.season.com.csr pca.season.com:/etc/pki/CA/csr
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+
+
 本示例将演示 HTTPS 自颁发证书的制作办法:
 
     1. 构建 PCA 站点
@@ -78,7 +143,7 @@ default_md         = sha256                      # 定义 PCA 站点默认使用
 """"""""" 构建 PCA 站点
 [root ~]# yum install -y openssl.x86_64, openssl-devel.x86_64
 [root ~]# touch /etc/pki/CA/index.txt
-[root ~]# echo 01 > /etc/pki/CA/serial
+[root ~]# echo 000000 > /etc/pki/CA/serial
 [root ~]# openssl genrsa -out /etc/pki/CA/private/cakey.pem
 --------------------------------------------------------------------------------------------------------------------- ✻
 
@@ -101,8 +166,24 @@ Email Address: info@season.com                   | 填写证书申请人的邮�
 
 """"""""" 签发 HTTPS 证书
 [root ~]# openssl ca -selfsign \
+                     -batch \
                      -in /etc/nginx/conf/cert.d/repo.season.com.csr
 [root ~]# tree /etc/pki/CA
+
+/etc/pki/CA
+│
+├─── certs
+├─── crl
+├─── index.txt
+├─── index.txt.attr
+├─── newcerts
+│    │
+│    └─── 00.pem
+├─── private
+│    │
+│    └─── cakey.pem
+└─── serial
+
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
