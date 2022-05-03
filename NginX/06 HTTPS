@@ -51,21 +51,21 @@ PCA 站点的主配置文件为: /etc/pki/tls/openssl.conf
 ... ...
 ... ...
 [ CA_default ]
-dir                = /etc/pki/CA                 # 定义 PCA 站点的资源根目录
-certs              = $dir/certs                  # 定义 PCA 站点的已颁发 HTTPS 证书的文件保存目录
-new_certs_dir      = $dir/newcerts               # 定义 PCA 站点的新签发 HTTPS 证书的文件保存目录
-crl                = $dir/crl.pem                # 定义 PCA 站点默认用于吊销 HTTPS 证书的密钥文件
-crl_dir            = $dir/crl                    # 定义 PCA 站点的已吊销 HTTPS 证书的文件保存目录
-database           = $dir/index.txt              # 定义 PCA 站点的索引文件, 该文件需要人工创建
-certificate        = $dir/cacert.pem             # 定义 PCA 站点默认用于颁发 HTTPS 证书的密钥文件
-private_key        = $dir/private/cakey.pem      # 定义 PCA 站点默认使用的私钥文件
-serial             = $dir/serial                 # 定义 PCA 站点当前使用的序列号
-default_days       = 365                         # 定义 PCA 站点的新签发 HTTPS 证书的有效期为 365 个自然天
-default_crl_days   = 30                          # 定义 PCA 站点的新签发 HTTPS 证书的前置吊销提示期为 30 个自然天
-default_md         = sha256                      # 定义 PCA 站点默认使用的加密算法
+dir                     = /etc/pki/CA            # 定义 PCA 站点的资源根目录
+certs                   = $dir/certs             # 定义 PCA 站点的已颁发 HTTPS 证书的文件保存目录
+new_certs_dir           = $dir/newcerts          # 定义 PCA 站点的新签发 HTTPS 证书的文件保存目录
+crl                     = $dir/crl.pem           # 定义 PCA 站点默认用于吊销 HTTPS 证书的密钥文件
+crl_dir                 = $dir/crl               # 定义 PCA 站点的已吊销 HTTPS 证书的文件保存目录
+database                = $dir/index.txt         # 定义 PCA 站点的索引文件, 该文件需要人工创建
+certificate             = $dir/cacert.pem        # 定义 PCA 站点默认用于颁发 HTTPS 证书的密钥文件
+private_key             = $dir/private/cakey.pem # 定义 PCA 站点默认使用的私钥文件
+serial                  = $dir/serial            # 定义 PCA 站点当前使用的序列号
+default_days            = 365                    # 定义 PCA 站点的新签发 HTTPS 证书的有效期为 365 个自然天
+default_crl_days        = 30                     # 定义 PCA 站点的新签发 HTTPS 证书的前置吊销提示期为 30 个自然天
+default_md              = sha256                 # 定义 PCA 站点默认使用的加密算法
 ... ...
 ... ...
-policy             = policy_match                # 要求 PCA 站点使用严格的 policy_match 策略组作为审计策略组
+policy                  = policy_match           # 要求 PCA 站点使用严格的 policy_match 策略组作为审计策略组
 [ policy_match ]
 countryName             = match                  # 严格要求 CSR 申请文件内 C  字段与 PCA 站点相符合
 stateOrProvinceName     = match                  # 严格要求 CSR 申请文件内 ST 字段与 PCA 站点相符合
@@ -96,7 +96,7 @@ server:~$ mkdir -p /etc/pki/CA/csr
 server:~$ touch /etc/pki/CA/index.txt
 server:~$ echo 000000 > /etc/pki/CA/serial
 server:~$ openssl genrsa -out /etc/pki/CA/private/cakey.pem
-server:~$ sed -i -r 's/^(policy[[:space:]]*=[[:space:]]*)(policy_match)$/\1policy_anything/g' /etc/pki/tls/openssl.conf
+server:~$ sed -i -r 's/^(policy[[:space:]]*=[[:space:]]*)(policy_match)$/\1policy_anything/g' /etc/pki/tls/openssl.cnf
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" [服务端] 编写 PCA 站点的 CSR (Certificate Signing Request) 申请文件
@@ -124,16 +124,16 @@ server:~$ openssl ca -selfsign \
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" [客户端] 编写 WEB 站点的 CSR (Certificate Signing Request) 申请文件
-client:~$ openssl genrsa -out /etc/nginx/conf/cert.d/season.com.pem
+client:~$ openssl genrsa -out /etc/nginx/cert.d/season.com.pem
 client:~$ openssl req -new \
                       -days 365 \
-                      -key /etc/nginx/conf/cert.d/season.com.pem \
-                      -out /etc/nginx/conf/cert.d/season.com.csr
+                      -key /etc/nginx/cert.d/season.com.pem \
+                      -out /etc/nginx/cert.d/season.com.csr
 
 -----
 Country Name [XX]: CN                            | 填写证书申请人的国籍代码, 中国代码为 CN
-State/ Province Name (Full Name): Zhejiang       | 填写证书申请人的省份名称
-Locality Name [Default City]: Hangzhou           | 填写证书申请人的城市名称
+State/ Province Name (Full Name): Chongqing      | 填写证书申请人的省份名称
+Locality Name [Default City]: Chongqing          | 填写证书申请人的城市名称
 Organization Name [Default Company Ltd]: Season  | 填写证书申请人的单位名称
 Organizational Unit Name: Devops                 | 填写证书申请人的部门名称
 Common Name: *.season.com                        | 填写证书申请人需要 SSL 加密的域名 (支持申请通配域名)
@@ -146,6 +146,11 @@ client:~$ scp /etc/nginx/conf/cert.d/season.com.csr pca.season.com:/etc/pki/CA/c
 server:~$ openssl ca -batch \
                      -in /etc/pki/CA/csr/season.com.csr \
                      -out /etc/pki/CA/certs/season.com.crt
+server:~$ cat /etc/pki/CA/index.txt
+
+V         230503120523Z    00    unknown         /C=CN/ST=Zhejiang/L=Hangzhou/O=PCA/OU=Devops/CN=*.pca.com
+V         230503120612Z    01    unknown         /C=CN/ST=Chongqing/L=Chongqing/O=Season/OU=Devops/CN=*.season.com
+
 server:~$ scp /etc/pki/CA/certs/season.com.crt web.season.com:/etc/nginx/conf/cert.d
 --------------------------------------------------------------------------------------------------------------------- ✻
 
