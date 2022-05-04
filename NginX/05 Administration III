@@ -29,6 +29,7 @@ LOCATION 配置块能够内嵌的子配置项登记如下
 ├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
 │ location URI {}                      │         │ 定义 LOCATION 配置块的路由规则, 并标记 LOCATION 配置块的作用域
 │ root /PATH/TO/DIR;                   │         │ 定义 LOCATION 配置块的根目录
+│ alias /PATH/TO/DIR;                  │         │ 定义 LOCATION 配置块的根目录
 │ index index.html;                    │    √    │ 定义 LOCATION 配置块的根文件为 /PATH/TO/DIR/index.html 资源文件
 │ index FILENAME;                      │         │ 定义 LOCATION 配置块的根文件为 /PATH/TO/DIR/FILENAME 资源文件
 │ autoindex on;                        │         │ 缺失 LOCATION 配置块的根文件时, 展示 LOCATION 配置块的根目录结构
@@ -38,6 +39,12 @@ LOCATION 配置块能够内嵌的子配置项登记如下
 │ autoindex_localtime on;              │         │ 展示 LOCATION 配置块的根目录结构时, 使用服务端的时间戳
 │ autoindex_localtime off;             │    √    │ 展示 LOCATION 配置块的根目录结构时, 使用客户端的时间戳
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+基于 LOCATION 配置块定义资源根目录时, 还请注意:
+
+    •  LOCATION 配置块内不允许同时使用 root 配置项与 alias 配置项, 两者互斥冲突
+    •  LOCATION 配置块内使用 root  配置项定义资源根目录时, 客户端发出的请求实际命中为 /PATH/TO/DIR/$uri 的资源内容
+    •  LOCATION 配置块内使用 alias 配置项定义资源根目录时, 具有一定的路径除重要求, 不建议使用该配置项
 
 location [ option ] uri {}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

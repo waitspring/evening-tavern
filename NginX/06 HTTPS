@@ -90,6 +90,12 @@ emailAddress            = optional               # 允许 CSR 申请文件内 EM
     •  PCA Server: pca.season.com (2 核心 / 4GB 内存 / 100GB 存储)
     •  PCA Client: web.season.com (2 核心 / 4GB 内存 / 100GB 存储)
 
+本示例的演示步骤可以总结为:
+
+    1. 搭建 PCA 站点
+    2. 基于 WEB 站点准备 CSR (Certificate Signing Request) 申请文件
+    3. 使用 PCA 站点签发 CRT 证书
+
 """"""""" [服务端] 构建 PCA 站点的文件目录
 server:~$ yum install -y openssl.x86_64, openssl-devel.x86_64
 server:~$ mkdir -p /etc/pki/CA/csr
@@ -99,7 +105,7 @@ server:~$ openssl genrsa -out /etc/pki/CA/private/cakey.pem
 server:~$ sed -i -r 's/^(policy[[:space:]]*=[[:space:]]*)(policy_match)$/\1policy_anything/g' /etc/pki/tls/openssl.cnf
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-""""""""" [服务端] 编写 PCA 站点的 CSR (Certificate Signing Request) 申请文件
+""""""""" [服务端] 编写 PCA 站点的 CSR 申请文件
 server:~$ openssl req -new \
                       -days 365 \
                       -key /etc/pki/CA/private/cakey.pem \
@@ -123,7 +129,7 @@ server:~$ openssl ca -selfsign \
                      -out /etc/pki/CA/cacert.pem
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-""""""""" [客户端] 编写 WEB 站点的 CSR (Certificate Signing Request) 申请文件
+""""""""" [客户端] 编写 WEB 站点的 CSR 申请文件
 client:~$ openssl genrsa -out /etc/nginx/cert.d/season.com.pem
 client:~$ openssl req -new \
                       -days 365 \
@@ -201,13 +207,11 @@ http {
         listen                  80  default;
         listen                  443 default ssl;
         server_name             default;
-
         ssl_certificate         /etc/nginx/cert.d/season.com.crt;
         ssl_certificate_key     /etc/nginx/cert.d/season.com.pem;
         ssl_session_timeout     10m;
         ssl_protocols           TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
         ssl_ciphers             ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
-
         access_log              /var/log/nginx/default.log static;
         error_log               /var/log/nginx/default.log;
     }
