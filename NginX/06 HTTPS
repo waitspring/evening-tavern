@@ -157,12 +157,63 @@ server:~$ scp /etc/pki/CA/certs/season.com.crt web.season.com:/etc/nginx/conf/ce
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-配置 HTTPS 证书
+HTTPS 证书的配置
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HTTPS 证书的配置要点有:
 
+    •  HTTPS 证书仅允许编写在 SERVER 配置块内
+    •  HTTPS 证书需要配合 SSL 端口监听使用, 具体由 SERVER 配置块的 listen 配置项掌握开关
+    •  
 
+HTTPS 证书的配置项登记如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ ssl_certificate cert.pem;            │    √    │ 开启 HTTP SSL 加密通信时, 使用主配置文件同级目录下的 cert.pem 作为公版证书
+│ ssl_certificate /PATH/TO/FILE;       │         │ 开启 HTTP SSL 加密通信时, 使用指定目录下的文件作为公版证书
+│ ssl_certificate_key cert.pem;        │    √    │ 开启 HTTP SSL 加密通信时, 使用主配置文件同级目录下的 cert.pem 作为私钥文件
+│ ssl_certificate_key /PATH/TO/FILE;   │         │ 开启 HTTP SSL 加密通信时, 使用指定目录下的文件作为私钥文件
+│ ssl_session_cache off;               │    √    │ 开启 HTTP SSL 加密通信时, 禁止客户端重新启动一个已被关闭的用户会话
+│ ssl_session_cache none;              │         │ 开启 HTTP SSL 加密通信时, 允许客户端重新启动一个已被关闭的用户会话
+│ ssl_session_timeout 5m;              │    √    │ 开启 HTTP SSL 加密通信时, 用户会话的有效期为 5 分钟
+│ ssl_session_timeout TIME;            │         │ 开启 HTTP SSL 加密通信时, 用户会话的有效期为 TIME 时间长度
+│ ssl_protocols SSLv2 SSLv3 TLSv1;     │    √    │ 开启 HTTP SSL 加密通信时, 要求加密 SSLv2/ SSLv3/ TLSv1 通信协议的传输数据
+│ ssl_protocols PROTOCOL...;           │         │ 开启 HTTP SSL 加密通信时, 要求加密 PROTOCOL... 通信协议的传输数据
+│ ssl_prefer_server_ciphers off;       │    √    │ 允许客户端的 SSLv3/ TLSv1 协议的密码优先级高于服务端
+│ ssl_prefer_server_ciphers on;        │         │ 禁止客户端的 SSLv3/ TLSv1 协议的密码优先级高于服务端
+│ ssl_ciphers CIPHER...;               │         │ 允许 HTTP SSL 加密通信使用的密码格式有 CIPHER... 等类型
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
+阅读上述表格时, 还请注意:
 
+    •  常用的 SSL 协议有网景通信公司编制的 SSLv1/ SSLv2/ SSLv3, 国际互联网工程任务组编制的 TLSv1.0/ TLSv1.1/ TLSv1.2/ TLSv1.3
+    •  使用命令 $(openssl ciphers) 能够测试当前主机支持的全部密码格式, 便于人们编写 ssl_ciphers 配置项
+    •  实际上 ssl_session_cache 配置项允许使用表达式为每个用户会话分配碎片化的内存资源, 牺牲主机整体性能的同时, 提高用户会话的响应
+
+""""""""" 演示 NginX 软件的配置文件内, HTTPS 证书的配置办法
+[root ~]# vim /etc/nginx/nginx.conf
+... ...
+... ...
+http {
+    ... ...
+    ... ...
+    # this namespace reject request from ipv4 address
+    server {
+        listen                  80  default;
+        listen                  443 default ssl;
+        server_name             default;
+
+        ssl_certificate         /etc/nginx/cert.d/season.com.crt;
+        ssl_certificate_key     /etc/nginx/cert.d/season.com.pem;
+        ssl_session_timeout     10m;
+        ssl_protocols           TLSv1.0 TLSv1.1 TLSv1.2 TLSv1.3;
+        ssl_ciphers             ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+
+        access_log              /var/log/nginx/default.log static;
+        error_log               /var/log/nginx/default.log;
+    }
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
