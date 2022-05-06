@@ -45,7 +45,7 @@ server {
 从零开始搭建一个静态资源站点, 这个演示案例支持 YUM 资源站点与 PIP 资源站点, 同时支持 PDF 文件站点
 从零开始搭建一个静态资源站点需要使用到下述资源:
 
-    •  Server: server.season.com (2 核心 / 4GB 内存 / 100GB 存储)
+    •  Server: server.season.com (2 核心 / 4GB 内存 / 100GB 存储) (主机已经编译安装 NginX 软件)
     •  Client: client.season.com (2 核心 / 4GB 内存 / 100GB 存储)
 
 """"""""" [服务端] 插入并挂载 RHEL7 操作系统的 ISO 光盘
@@ -61,11 +61,86 @@ server:~$ mount -a                               | 挂载 ISO 光盘
 """"""""" [服务端] 下载并安装 Python 语言的软件包库
 server:~$ mkdir -p /mnt/python                   | 创建 Python 软件包的资源根目录
 server:~$ pip install pip2pi                     | 安装 Python 软件包的专业化管理工具
-server:~$ 
+server:~$ cat > ~/demo.txt << EOF                | 编写 Python 软件包的私有化安装列表
+django
+diesel
+flask
+pip
+tornado
+scrapy
+EOF
+server:~$ pip2tgz /mnt/python -r ~/demo.txt      | 下载相应的 Python 软件包到指定目录
+server:~$ dir2pi /mnt/python                     | 为私有化的 Python 仓库目录构建索引
 --------------------------------------------------------------------------------------------------------------------- ✻
 
+""""""""" [服务端] 基于 NginX 服务配置静态站点
+server:~$ vim /etc/nginx/static.d/repo.season.com.conf
+server {
+    listen                      80;
+    server_name                 repo.season.com;
+    client_header_buffer_size   8k;
+    client_header_timeout       300;
+    client_body_timeout         300;
+    client_body_buffer_size     1m;
+    client_max_body_size        1024m;
+    connection_pool_size        1024;
+    request_pool_size           8k;
+    access_log                  /var/log/nginx/repo.season.com.log static;
+    error_log                   /var/log/nginx/repo.season.com.log;
+    location / {
+        rewrite ^(.*)$ https://$host$1 permanent;
+    }
+}
+server {
+    listen                      443 ssl;
+    server_name                 repo.season.com;
+    ssl_certificate             /etc/nginx/cert.d/season.com.crt;
+    ssl_certificate_key         /etc/nginx/cert.d/season.com.pem;
+    ssl_session_timeout         10m;
+    ssl_protocols               TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_ciphers                 ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+    client_header_buffer_size   8k;
+    client_header_timeout       300;
+    client_body_timeout         300;
+    client_body_buffer_size     1m;
+    client_max_body_size        1024m;
+    connection_pool_size        1024;
+    request_pool_size           8k;
+    access_log                  /var/log/nginx/repo.season.com.log static;
+    error_log                   /var/log/nginx/repo.season.com.log;
+    autoindex                   on;
+    autoindex_localtime         on;
+    autoindex_exact_size        off;
+    root                        /mnt;
+}
+server:~$ systemctl reload nginx.service
+server:~$ systemctl status nginx.service
+--------------------------------------------------------------------------------------------------------------------- ✻
 
+""""""""" [客户端] 使用静态站点作为 YUM 资源站点
+client:~$ cat > /etc/yum.repos.d/iso.repo << EOF
+[ISO]
+name = ISO Repo
+gpgkey = https://repo.season.com/iso/RPM-GPG-KEY-redhat-release
+gpgcheck = 1
+enabled = 1
+baseurl = https://repo.season.com/iso/
+EOF
+client:~$ sed -i -r '/^gpgcheck.*$/a\sslverify=false' /etc/yum.conf
+client:~$ yum clean all && yum makecache
+client:~$ yum install -y xorg-x11-apps.x86_64
+--------------------------------------------------------------------------------------------------------------------- ✻
 
+""""""""" [客户端] 使用静态站点作为 PIP 资源站点
+client:~$ mkdir -p ~/.pip
+client:~$ cat > ~/.pip/pip.conf << EOF
+[global]
+index-url = https://repo.season.com/python/simple
+[install]
+trusted-host = repo.season.com
+EOF
+client:~$ pip install --upgrade pip
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
