@@ -168,12 +168,20 @@ if 配置项常用正则表达式判断文件系统的属性:
 server {
     ... ...
     ... ...
-    if (!-e $request_uri) {
-        echo "sorry, this is 404 page"
+    location ~* "^/pay/([a-z0-9\-\_\.]*)" {
+        if ($request_uri ~* "^/pay/api")        { proxy_pass http://pay-api;        }
+        if ($request_uri ~* "^/pay/signature")  { proxy_pass http://pay-signature;  }
+        if ($request_uri ~* "^/pay/sms")        { proxy_pass http://pay-sms;        }
+        if ($request_uri ~* "^/pay/quickmoney") { proxy_pass http://pay-quickmoney; }
+        return 404;
     }
-    location / {
-        if ($request_uri ~* "/(.*)\.png") {
-            root /var/nginx/photo;
+    location ~* "^/iso/([a-z0-9\-\_\.]*)" {
+        autoindex on;
+        autoindex_exact_size off;
+        autoindex_localtime on;
+        root /mnt;
+        if (!-e $request_filename) {
+            echo "this is a demo page for 404 error";
         }
     }
 }
