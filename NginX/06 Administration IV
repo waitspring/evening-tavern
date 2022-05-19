@@ -179,8 +179,12 @@ http {
         default $time_iso8601;
         '~^(?<ymd>\d{4}-\d{2}-\d{2})T(?<hms>\d{2}:\d{2}:\d{2}).*$' '$ymd $hms';
     }
-    log_format demo '$fmtime INFO $status $remote_addr:$remote_port $request_filename';
-    log_format show '$fmtime INFO $status $remote_addr:$remote_port $server_name:$server_port$request_uri '
+    map $msec $fmsec {
+        default '';
+        '~^\d+\.(?<sec>\d{3})' '$sec';
+    }
+    log_format demo '$fmtime.$fmsec INFO $status $remote_addr:$remote_port $request_filename';
+    log_format show '$fmtime.$fmsec INFO $status $remote_addr:$remote_port $server_name:$server_port$request_uri '
                     '$upstream_addr $upstream_response_time(s)';
 }
 [root ~]# vim /etc/nginx/http.d/foo.season.com.conf

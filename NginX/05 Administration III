@@ -135,13 +135,14 @@ if 配置项常用简洁模式判断文件系统的属性:
 
 if 配置项常用正则表达式判断文件系统的属性:
 
-    •  if ($request_uri =   "conexp") {}         使用常量表达式 conexp 编写匹配规则, 若变量等于规则, 条件判断为真
+    •  if ($request_uri =   "conexp") {}         使用常量字符串 conexp 编写匹配规则, 若变量等于规则, 条件判断为真
     •  if ($request_uri ~   "regexp") {}         使用正则表达式 regexp 编写匹配规则, 若变量区分大小写时命中规则, 条件判断为真
     •  if ($request_uri ~*  "regexp") {}         使用正则表达式 regexp 编写匹配规则, 若变量不分大小写时命中规则, 条件判断为真
-    •  if ($request_uri !=  "conexp") {}         使用常量表达式 conexp 编写匹配规则, 若变量不等于规则, 条件判断为真
+    •  if ($request_uri !=  "conexp") {}         使用常量字符串 conexp 编写匹配规则, 若变量不等于规则, 条件判断为真
     •  if ($request_uri !~  "regexp") {}         使用正则表达式 regexp 编写匹配规则, 若变量区分大小写时未命中规则, 条件判断为真
     •  if ($request_uri !~* "regexp") {}         使用正则表达式 regexp 编写匹配规则, 若变量不分大小写时未命中规则, 条件判断为真
 
+正则表达式 (Regular Expression: REGEXP) 又被称作规则表达式, 其本质是一种操作单行字符串的逻辑公式
 正则表达式的标准语法登记如下
 ┌─────────────┬──────────────────────────────────┬─────────────────────────────────────────────────────────────────────
 │ ^           │ "^A"         (eg: "Apache"   )   │ 在字符串的开头处匹配指定的 'a' 字符 1 次
@@ -173,6 +174,7 @@ server {
         if ($request_uri ~* "^/pay/signature")  { proxy_pass http://pay-signature;  }
         if ($request_uri ~* "^/pay/sms")        { proxy_pass http://pay-sms;        }
         if ($request_uri ~* "^/pay/quickmoney") { proxy_pass http://pay-quickmoney; }
+        if ($request_uri ~* "^/pay/checkmoney") { proxy_pass http://pay-checkmoney; }
         return 404;
     }
     location ~* "^/iso/([a-z0-9\-\_\.]*)" {
@@ -182,7 +184,33 @@ server {
         root /mnt;
         if (!-e $request_filename) {
             echo "this is a demo page for 404 error";
+            return 404;
         }
+    }
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 演示 NginX 软件的配置文件内, 使用 IF 配置块构建复杂的逻辑结构
+[root ~]# vim /etc/nginx/nginx.conf
+http {
+    ... ...
+    ... ...
+    set $demo 0;
+    if ($host = "spring.season.com") {
+        set $demo 1;
+    }
+    if ($host = "summer.season.com") {
+        set $demo 1;
+    }
+    if ($host = "autumn.season.com") {
+        set $demo 1;
+    }
+    if ($host = "winter.season.com") {
+        set $demo 1;
+    }
+    if ($demo = 0) {
+        echo "this is a demo page for 404 error";
+        return 404;
     }
 }
 --------------------------------------------------------------------------------------------------------------------- ✻
