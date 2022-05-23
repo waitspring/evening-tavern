@@ -200,9 +200,9 @@ listen num [ parameter... ];
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 listen 配置项能够设置软件的监听端口, 且多个 listen 配置项的监听端口对象可以重复 (都是由软件进程监听, 不存在权限冲突)
 listen 配置项常用的可选参数有
-**  default_server                               设置 SERVER 配置块为 HTTP 配置块内的默认配置块
-**  deffered                                     设置 SERVER 配置块的延迟特性, 牺牲软件响应时间的同时, 提高软件的承压能力
-**  backlog=num                                  设置 TCP/backlog 队列的大小 (默认值为 -1 表示不设置)
+::  default_server                               设置 SERVER 配置块为 HTTP 配置块内的默认配置块
+::  deffered                                     设置 SERVER 配置块的延迟特性, 牺牲软件响应时间的同时, 提高软件的承压能力
+::  backlog=num                                  设置 TCP/backlog 队列的大小 (默认值为 -1 表示不设置)
 
 使用 server_name 配置项时, 还请注意:
 
