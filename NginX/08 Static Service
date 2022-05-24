@@ -64,14 +64,48 @@ rewrite 配置项可选的重定向模式登记如下
 ┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
 │ Mode                                 │ Default │ Comment
 ├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
-│ last                                 │         │ 使用 302 状态码临时重定向请求的 URL 信息, 且继续向下匹配 LOCATION 配置块
-│ break                                │         │ 使用 302 状态码临时重定向请求的 URL 信息, 且跳出本次匹配
-│ permanent                            │         │ 使用 301 状态码永久重定向请求的 URL 信息
-│ redirect                             │         │ 使用 302 状态码临时重定向请求的 URL 信息
+│ last                                 │         │ 使用 302 状态码临时重定向请求的 URL 信息, 并使用新的 URL 匹配全部 LOCATION
+│ break                                │         │ 使用 302 状态码临时重定向请求的 URL 信息, 并使用新的 URL 匹配其他 LOCATION
+│ permanent                            │         │ 使用 301 状态码永久重定向请求的 URL 信息, 并使用新的 URL 发起新的请求
+│ redirect                             │         │ 使用 302 状态码临时重定向请求的 URL 信息, 并使用新的 URL 发起新的请求
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 """"""""" 
-[root ~]# 
+[root ~]# mkdir -p /var/nginx/download/{music,vedio}
+[root ~]# echo "music" > /var/nginx/download/music/index.html
+[root ~]# echo "vedio" > /var/nginx/download/vedio/index.html
+[root ~]# vim /etc/nginx/static.d/repo.season.com.conf
+server {
+    ... ...
+    ... ...
+    root /var/nginx;
+    location ~* "^/download/([a-z0-9\-\_\.]*)" {
+        # 当前 LOCATION 配置块引导请求进入一个死循环, 最终返回 500 状态码作为错误响应
+        rewrite "^(/download)/music/(.*)$" $1/vedio/index.html last;
+        rewrite "^(/download)/vedio/(.*)$" $1/music/index.html last;
+    }
+}
+server {
+    ... ...
+    ... ...
+    root /var/nginx;
+    location ~* "^/download/([a-z0-9\-\_\.]*)" {
+        # 路由到 /download/[music|vedio]/* 的请求始终访问 $1/vedio/index.html 文件
+        rewrite "^(/download)/music/(.*)$" $1/vedio/index.html break;
+        rewrite "^(/download)/vedio/(.*)$" $1/music/index.html last;
+    }
+}
+server {
+    ... ...
+    ... ...
+    root /var/nginx;
+    location ~* "^/download/([a-z0-9\-\_\.]*)" {
+        # 路由到 /download/music/* 的请求访问 $1/vedio/index.html 文件
+        # 路由到 /download/vedio/* 的请求访问 $1/music/index.html 文件
+        rewrite "^(/download)/music/(.*)$" $1/vedio/index.html break;
+        rewrite "^(/download)/vedio/(.*)$" $1/music/index.html break;
+    }
+}
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
