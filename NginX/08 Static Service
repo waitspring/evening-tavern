@@ -79,31 +79,31 @@ server {
     ... ...
     ... ...
     root /var/nginx;
-    location ~* "^/download/([a-z0-9\-\_\.]*)" {
+    location ~* '^/download/([a-z0-9\-\_\.]*)' {
         # 当前 LOCATION 配置块引导请求进入一个死循环, 最终返回 500 状态码作为错误响应
-        rewrite "^(/download)/music/(.*)$" $1/vedio/index.html last;
-        rewrite "^(/download)/vedio/(.*)$" $1/music/index.html last;
+        rewrite '^(/download)/music/(.*)$' $1/vedio/index.html last;
+        rewrite '^(/download)/vedio/(.*)$' $1/music/index.html last;
     }
 }
 server {
     ... ...
     ... ...
     root /var/nginx;
-    location ~* "^/download/([a-z0-9\-\_\.]*)" {
+    location ~* '^/download/([a-z0-9\-\_\.]*)' {
         # 路由到 /download/[music|vedio]/* 的请求始终访问 $1/vedio/index.html 文件
-        rewrite "^(/download)/music/(.*)$" $1/vedio/index.html break;
-        rewrite "^(/download)/vedio/(.*)$" $1/music/index.html last;
+        rewrite '^(/download)/music/(.*)$' $1/vedio/index.html break;
+        rewrite '^(/download)/vedio/(.*)$' $1/music/index.html last;
     }
 }
 server {
     ... ...
     ... ...
     root /var/nginx;
-    location ~* "^/download/([a-z0-9\-\_\.]*)" {
+    location ~* '^/download/([a-z0-9\-\_\.]*)' {
         # 路由到 /download/music/* 的请求访问 $1/vedio/index.html 文件
         # 路由到 /download/vedio/* 的请求访问 $1/music/index.html 文件
-        rewrite "^(/download)/music/(.*)$" $1/vedio/index.html break;
-        rewrite "^(/download)/vedio/(.*)$" $1/music/index.html break;
+        rewrite '^(/download)/music/(.*)$' $1/vedio/index.html break;
+        rewrite '^(/download)/vedio/(.*)$' $1/music/index.html break;
     }
 }
 --------------------------------------------------------------------------------------------------------------------- ✻

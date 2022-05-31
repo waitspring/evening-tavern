@@ -103,6 +103,7 @@ SERVER 配置块有下述专门用于转发请求的子配置项
 │ proxy_buffer_size SIZE;              │         │ 转发响应时, 每个请求响应允许使用的内存资源上限为 SIZE
 │ proxy_busy_buffers_size SIZE;        │         │
 │ proxy_temp_file_write_size SIZE;     │         │
+│ proxy_pass SERVER;                   │         │
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 阅读上述表格时, 还请注意:
@@ -172,12 +173,12 @@ SERVER {
         *  Access-Control-Allow-Credentials:  设置服务端是否允许客户端请求在 CORS 内容中附带 Cookie 信息
         *  Access-Control-Allow-Methods:      设置服务端放行跨域请求的请求方法的范围, 仅允许固定几种方法的请求不受到服务端检查
         *  Access-Control-Allow-Headers:      设置服务端
-        *  Access-Control-Max-Age:
+        *  Access-Control-Max-Age:            设置服务端接受预检命令 (OPTIONS) 之后, 预检有效期的时间长度
 
     阅读上述描述时, 还请注意:
 
         •  如果 Access-Control-Allow-Credentials 的值为真 (true), 那么 Access-Control-Allow-Origin 的值不应配置为通配符 (*)
-        •
+        •  如果 
 
     跨域的情境举例如下
     ┌────────────────────────────────────────────┬─────────────────────────────────────────────────────────────────────
@@ -203,9 +204,13 @@ SERVER {
     ... ...
     add_header Access-Control-Allow-Origin $http_origin;
     add_header Access-Control-Allow-Credentials true;
-    add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";
+    add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
     add_header Access-Control-Allow-Headers $http_access_control_request_headers;
     add_header Access-Control-Max-Age 86400;
+
+    if ($request_method = 'OPTIONS') {
+        return 200;
+    }
 }
 --------------------------------------------------------------------------------------------------------------------- ✻
 
@@ -218,17 +223,11 @@ SERVER {
 
     如何解决域名动态解析
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    默认的, NginX 软件转发请求到域名时, 仅有第一次转发需要使用 DNS 服务解析域名, 域名的解析记录随即被软件缓存
+    默认的, NginX 软件优先使用自身缓存的域名记录来解析域名, 这会导致一个问题:
 
-
-
-
-
-
-
-1. 配置常规的正向代理服务
-2. 如何解决因动态 IP 导致的 NginX 缓存失真问题 ???
-
-
+        1. 如果服务端域名使用动态解析
+        2.
 
 
 
