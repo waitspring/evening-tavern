@@ -59,6 +59,8 @@ server 配置项常用的可选参数有
 
 """"""""" 演示 NginX 软件的配置文件内, UPSTREAM 配置块的使用办法
 [root ~]# vim /etc/nginx/http.d/foo.season.com.conf
+... ...
+... ...
 upstream foo_upstream_com {
     ip_hash;
     server 172.16.0.100:8081 fail_timeout=20s max_fails=3 down;
@@ -73,9 +75,9 @@ upstream foo_upstream_com {
 转发请求
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 UPSTREAM 配置块主要用于定义软件在 HTTP/HTTPS 协议层的负载均衡机制, SERVER 配置块则负责引导请求进入 HTTP/HTTPS 协议层的负载均衡组
-UPSTREAM 配置块与 SERVER 配置块相互协作使用, 才能实现软件的反向代理服务
+UPSTREAM 配置块与 SERVER 配置块/ LOCATION 配置块相互协作使用, 才能实现软件的反向代理服务
 
-SERVER 配置块有下述专门用于转发请求的子配置项
+SERVER 配置块/ LOCATION 配置块有下述专门用于转发请求的子配置项
 ┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
 │ Configuration                        │ Default │ Comment
 ├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
@@ -103,7 +105,7 @@ SERVER 配置块有下述专门用于转发请求的子配置项
 │ proxy_buffer_size SIZE;              │         │ 转发响应时, 每个请求响应允许使用的内存资源上限为 SIZE
 │ proxy_busy_buffers_size SIZE;        │         │
 │ proxy_temp_file_write_size SIZE;     │         │
-│ proxy_pass SERVER;                   │         │ 设置请求的转发目的地
+│ proxy_pass DEST;                     │         │ 设置请求的转发目的地为 DEST (允许 URL, UPSTREAM 组名, 变量等多种格式)
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 阅读上述表格时, 还请注意:
@@ -141,10 +143,15 @@ SERVER 配置块有下述专门用于转发请求的子配置项
 
 proxy_pass { URL | backname };
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+proxy_pass 配置项仅允许在 LOCATION 配置块内部使用, 用于把请求转发到固定的目标地址, 目标地址支持 URL, UPSTREAM 组名, 变量等多种格式
+proxy_pass 配置项的使用要点如下:
+
+    •  使用 URL 作为目标地址时, 如果 URL 带有路由则请求被转发给绝路路径, 否则请求被转发给相对路径
+    •  使用 backname 作为目标地址时, 相应的 UPSTREAM 配置块应当提前定义
 
 """"""""" 演示 NginX 软件的配置文件内, 转发请求的编写方法
 [root ~]# vim /etc/nginx/http.d/foo.season.com.conf
-SERVER {
+server {
     ... ...
     ... ...
     proxy_redirect off;
@@ -156,6 +163,23 @@ SERVER {
     proxy_buffer_size 128k;
     proxy_busy_buffers_size 1m;
     proxy_temp_file_write_size 2m;
+
+    location /demo_1/ {
+        # 请求 .../demo_1/index.html 转发为请求 .../demo_1/index.html
+        proxy_pass http://www.nginx.com;
+    }
+    location /demo_2/ {
+        # 请求 .../demo_2/index.html 转发为请求 .../index.html
+        proxy_pass http://www.nginx.com/;
+    }
+    location /demo_3/ {
+        # 请求 .../demo_3/index.html 转发为请求 .../chckindex.html
+        proxy_pass http://www.nginx.com/chck;
+    }
+    location /demo_4/ {
+        # 请求 .../demo_4/index.html 转发为请求 .../chck/index.html
+        proxy_pass http://www.nginx.com/chck/;
+    }
 }
 --------------------------------------------------------------------------------------------------------------------- ✻
 
