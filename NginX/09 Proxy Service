@@ -149,7 +149,7 @@ proxy_pass 配置项的使用要点如下:
     •  使用 URL 作为目标地址时, 如果 URL 带有路由则请求被转发给绝路路径, 否则请求被转发给相对路径
     •  使用 backname 作为目标地址时, 相应的 UPSTREAM 配置块应当提前定义
 
-""""""""" 演示 NginX 软件的配置文件内, 转发请求的编写方法
+""""""""" 演示 NginX 软件的配置文件内, 转发请求相关的参数配置方法
 [root ~]# vim /etc/nginx/http.d/foo.season.com.conf
 server {
     ... ...
@@ -163,7 +163,14 @@ server {
     proxy_buffer_size 128k;
     proxy_busy_buffers_size 1m;
     proxy_temp_file_write_size 2m;
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
 
+""""""""" 演示 NginX 软件的配置文件内, 转发请求的编写方法
+[root ~]# vim /etc/nginx/http.d/foo.season.com.conf
+server {
+    ... ...
+    ... ...
     location /demo_1/ {
         # 请求 .../demo_1/index.html 转发为请求 .../demo_1/index.html
         proxy_pass http://www.nginx.com;
