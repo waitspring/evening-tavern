@@ -118,3 +118,45 @@ server {
 
 
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+如何解决若干 HTTP/HTTPS 请求中夹杂 WS/WSS 请求的问题?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WS/WSS 协议是一种由 HTML5 页面使用的通信协议, 已被大多数的浏览器兼容
+WS/WSS 协议的核心特性为:
+
+    •  TCP 连接一旦建立, 便可以构建起持久化的连接
+    •  服务端可以主动向客户端推送数据, 而非像传统的 HTTP/HTTPS 协议长连接, 服务端只能等待客户端的请求并响应
+
+使用 HTTP/HTTPS 协议代理请求时, 若请求使用 WSS 协议层 (即请求为 WebSocket 类型), 则使用下述特殊配置放行
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ proxy_set_header Connection 'Upgrade';                                                                              │
+│ proxy_set_header Upgrade $http_upgrade;                                                                             │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+    •  请求头使用键值对 Connection: Upgrade 标记一个键名为 Upgrade 的 hop-by-hop 键值对
+    •  请求头使用键值对 Upgrade: WebSocket 把请求升级为 WS/WSS 协议
+
+""""""""" 演示 NginX 软件的配置文件内, 如何避免域名解析记录失真
+[root ~]# vim /etc/nginx/http.d/foo.season.com.conf
+server {
+    ... ...
+    ... ...
+    proxy_redirect off;
+    proxy_set_header Host $host;
+    proxy_set_header Connection 'Upgrade';
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_connect_timeout 86400;
+    proxy_read_timeout 86400;
+    proxy_send_timeout 86400;
+    proxy_buffers 8 512k;
+    proxy_buffer_size 128k;
+    proxy_busy_buffers_size 1m;
+    proxy_temp_file_write_size 2m;
+    location / {
+        proxy_pass http://www.nginx.com;
+    }
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
