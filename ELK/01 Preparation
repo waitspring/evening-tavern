@@ -12,13 +12,13 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ELK 项目的发展历程
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ELK 项目当前由弹性搜索公司 (Elastic Search) 负责迭代与维护
-ELK 项目是互联网生态中最常见的日志数据处理器, 下辖 Elasticsearch (E)/ Logstash (L)/ Kibana (K)/ Filebeat 四款不同软件:
+ELK 项目当前由弹性搜索公司 (Elastic Stack) 负责迭代与维护, 是互联网生态中最常见的日志数据处理项目
+ELK 项目下辖 Elasticsearch (E)/ Logstash (L)/ Kibana (K)/ Filebeat 四款不同软件:
 
     •  Elasticsearch  --  最初由伦敦的开源工程师班农 (Shay Banon) 发布, 负责搜索分析日志数据, 为保证数据安全, 通常使用集群模式部署
     •  Logstash       --  最初由旧金山的开源工程师西塞 (Jordan Sissel) 发布, 负责转换汇总日志数据
-    •  Kibana         --  最初由凤凰城的开源工程师拉希德 (Rashid Khan) 发布, 负责使用 WEB 提供日志数据的可视化服务
-    •  Filebeat       --  负责采集日志数据, 本身是 Beats 项目的一员
+    •  Kibana         --  最初由凤凰城的开源工程师拉希德 (Rashid Khan) 发布, 基于 WEB 工具提供日志数据的可视化服务
+    •  Filebeat       --  负责采集日志数据, 本身是弹性搜索公司 Beats 项目的一员
 
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                                                                                                                     │
@@ -38,10 +38,10 @@ ELK 项目是互联网生态中最常见的日志数据处理器, 下辖 Elastic
 
 ELK 项目的发展历程清晰简单
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-**  2004 年, 班农使用 Java 语言, 基于 Apache Lucene 的源码编写出 Compass 软件
-**  2009 年, 梦想主机 (Dream Host) 的在职员工西塞使用 Ruby 语言编写出 Logstash 软件
-**  2010 年, 班农使用 Java 语言, 基于 Compass 的源码编写出 Elasticsearch 软件
-**  2012 年, 摩根大通 (J.P. Morgan) 的在职员工拉希德使用 TypeScript 语言编写出 Kibana 软件
+**  2004 年, 班农使用 Java 语言编写出 Compass 软件 (基于 Apache Lucene 的源码二次开发得到的结果)
+**  2009 年, 西塞使用 Ruby 语言编写出 Logstash 软件
+**  2010 年, 班农使用 Java 语言编写出 Elasticsearch 软件 (基于 Compass 的源码二次开发得到的结果)
+**  2012 年, 拉希德使用 TypeScript 语言编写出 Kibana 软件
 **  2013 年, Elasticsearch/ Logstash/ Kibana 三款软件的作者携手创业, 创立弹性搜索公司
 **  2015 年, 弹性搜索公司与亚马逊云 (AWS) 合作, 推出 SaaS 服务
 **  2016 年, 弹性搜索公司发布 Beats 项目 (Filebeat/ Packetbeat/ Metricbeat/ Auditbeat/ Winlogbeat/ Heartbeat/ ...)
@@ -49,20 +49,21 @@ ELK 项目的发展历程清晰简单
 
 ELK 项目的版本编号在早期较混乱, 其主要表现在于下辖软件的版本编号和发版计划不一致, 但自 2015 年起这一问题已得到较大改善
 ┌────────────┬──────────┬─────────────────────────────────────────────────────────────────────────────────────────────┐
-│            │          │ • Java REST API Client                                                                      │
-│ 2016-10-27 │ 5.0.0    │ • Lucene 6.x                                                                                │
-│            │          │ • Node.js 6.9.0                                                                             │
+│            │          │ • Elasticsearch upgrade to Lucene 6.x                                                       │
+│ 2016-10-27 │ 5.0.0    │ • Kibana upgrade to NodeJS 6.x                                                              │
+│            │          │ • ELK support Java API                                                                      │
 ├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
-│            │          │ • CCS (cross cluster search)                                                                │
-│ 2017-11-15 │ 6.0.0    │ • Lucene 7.x                                                                                │
-│            │          │ • multiple pipelines with logstash.yml/pipelins.yml                                         │
+│            │          │ • Elasticsearch upgrade to Lucene 7.x                                                       │
+│ 2017-11-15 │ 6.0.0    │ • Kibana upgrade to NodeJS 8.x                                                              │
+│            │          │ • ELK support for running multiple pipelines in the same Logstash instance                  │
 ├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
-│            │          │ • OCSP stapling                                                                             │
-│ 2019-04-11 │ 7.0.0    │ • SPDY                                                                                      │
-│            │          │ • connection proxy                                                                          │
+│            │          │ • Elasticsearch upgrade to Lucene 8.x                                                       │
+│ 2019-04-11 │ 7.0.0    │ • Kibana upgrade to NodeJS 10.x                                                             │
+│            │          │ • Kibana use a new UI theme                                                                 │
 ├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
-│            │          │ • UNIX domain socket                                                                        │
-│ 2014-04-24 │ 1.6.0    │ • Lucene 9.x                                                                                │
+│            │          │ • Elasticsearch upgrade to Lucene 9.x                                                       │
+│ 2022-02-11 │ 8.0.0    │ • Kibana support models to bring NLP use cases to the Elastic Stack                         │
+│            │          │ • Logstash support UTF-16 and other multi-byte-character when reading log files             │
 └────────────┴──────────┴─────────────────────────────────────────────────────────────────────────────────────────────┘
 
 
