@@ -12,14 +12,15 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ELK 项目的发展历程
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ELK 项目当前由弹性搜索公司 (Elastic Stack) 负责迭代与维护, 是互联网生态中最常见的日志数据处理项目
+ELK 项目当前由弹性搜索公司 (Elastic Stack) 负责迭代与维护, 已是互联网生态中最常见的日志数据处理项目
 ELK 项目下辖 Elasticsearch (E)/ Logstash (L)/ Kibana (K)/ Filebeat 四款不同软件:
 
     •  Elasticsearch  --  最初由伦敦的开源工程师班农 (Shay Banon) 发布, 负责搜索分析日志数据, 为保证数据安全, 通常使用集群模式部署
     •  Logstash       --  最初由旧金山的开源工程师西塞 (Jordan Sissel) 发布, 负责转换汇总日志数据
-    •  Kibana         --  最初由凤凰城的开源工程师拉希德 (Rashid Khan) 发布, 基于 WEB 工具提供日志数据的可视化服务
+    •  Kibana         --  最初由凤凰城的开源工程师可汗 (Rashid Khan) 发布, 基于 WEB 工具提供日志数据的可视化服务
     •  Filebeat       --  负责采集日志数据, 本身是弹性搜索公司 Beats 项目的一员
 
+ELK 项目的拓扑图展示如下
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                                                                                                                     │
 │    ┌────────────────────┐          ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐                      ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐                   │
@@ -41,10 +42,10 @@ ELK 项目的发展历程清晰简单
 **  2004 年, 班农使用 Java 语言编写出 Compass 软件 (基于 Apache Lucene 的源码二次开发得到的结果)
 **  2009 年, 西塞使用 Ruby 语言编写出 Logstash 软件
 **  2010 年, 班农使用 Java 语言编写出 Elasticsearch 软件 (基于 Compass 的源码二次开发得到的结果)
-**  2012 年, 拉希德使用 TypeScript 语言编写出 Kibana 软件
+**  2012 年, 可汗使用 TypeScript 语言编写出 Kibana 软件
 **  2013 年, Elasticsearch/ Logstash/ Kibana 三款软件的作者携手创业, 创立弹性搜索公司
 **  2015 年, 弹性搜索公司与亚马逊云 (AWS) 合作, 推出 SaaS 服务
-**  2016 年, 弹性搜索公司发布 Beats 项目 (Filebeat/ Packetbeat/ Metricbeat/ Auditbeat/ Winlogbeat/ Heartbeat/ ...)
+**  2016 年, 弹性搜索公司筹建 Beats 项目, 涵盖 Filebeat/ Packetbeat/ Metricbeat/ Auditbeat/ Winlogbeat/ Heartbeat/ ...
 **  2018 年, 弹性搜索公司在纽交所 (NYSE) 上市, 使用 ESTC 作为股票代码
 
 ELK 项目的版本编号在早期较混乱, 其主要表现在于下辖软件的版本编号和发版计划不一致, 但自 2016 年起这一问题已得到较大改善
@@ -185,18 +186,22 @@ ELK 项目的日志规范
 ELK 项目用作业务日志数据处理项目时, 通常会提前约束业务日志的格式
 ELK 项目建议的日志规范如下 (本文档使用下述日志规范作为示例):
 
-    2021-03-05 11:57:15.111 DEBUG This is debug demo.
-    2021-03-05 11:57:16.111 INFO This is info demo.
-    2021-03-05 11:57:17.111 WARN This is warn demo.
-    2021-03-05 11:57:18.111 ERROR This is error demo.
-            at org.apache.hadoop.util.Shell.checkHadoopHomeInner(Shell.java:448) ~[hadoop-common-2.8.0.jar:?]
-            at org.apache.hadoop.util.Shell.checkHadoopHome(Shell.java:419) ~[hadoop-common-2.8.0.jar:?]
-            at org.apache.hadoop.util.Shell.<clinit>(Shell.java:496) [hadoop-common-2.8.0.jar:?]
-            at org.apache.hadoop.util.StringUtils.<clinit>(StringUtils.java:79) [hadoop-common-2.8.0.jar:?]
-            at org.apache.hadoop.conf.Configuration.getBoolean(Configuration.java:1445) [hadoop-common-2.8.0.jar:?]
-            at com.cherrish.hadoop.TestHBase2.init(TestHBase2.java:28) [bin/:?]
-            at com.cherrish.hadoop.TestHBase2.listTables(TestHBase2.java:107) [bin/:?]
-            at com.cherrish.hadoop.TestHBase2.main(TestHBase2.java:17) [bin/:?]
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│   $(date +"%Y-%m-%d %H:%M:%S.%3N") ${LEVEL} ${MESSAGE}                                                              │
+│   =================================================================                                                 │
+│   2021-03-05 11:57:15.111 DEBUG This is debug demo.                                                                 │
+│   2021-03-05 11:57:16.111 INFO This is info demo.                                                                   │
+│   2021-03-05 11:57:17.111 WARN This is warn demo.                                                                   │
+│   2021-03-05 11:57:18.111 ERROR This is error demo.                                                                 │
+│           at org.apache.hadoop.util.Shell.checkHadoopHomeInner(Shell.java:448) ~[hadoop-common-2.8.0.jar:?]         │
+│           at org.apache.hadoop.util.Shell.checkHadoopHome(Shell.java:419) ~[hadoop-common-2.8.0.jar:?]              │
+│           at org.apache.hadoop.util.Shell.<clinit>(Shell.java:496) [hadoop-common-2.8.0.jar:?]                      │
+│           at org.apache.hadoop.util.StringUtils.<clinit>(StringUtils.java:79) [hadoop-common-2.8.0.jar:?]           │
+│           at org.apache.hadoop.conf.Configuration.getBoolean(Configuration.java:1445) [hadoop-common-2.8.0.jar:?]   │
+│           at com.cherrish.hadoop.TestHBase2.init(TestHBase2.java:28) [bin/:?]                                       │
+│           at com.cherrish.hadoop.TestHBase2.listTables(TestHBase2.java:107) [bin/:?]                                │
+│           at com.cherrish.hadoop.TestHBase2.main(TestHBase2.java:17) [bin/:?]                                       │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
 
 
