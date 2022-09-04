@@ -86,8 +86,8 @@ ELK 项目的官方网站与 GitHub 第三方开源社区, 清华大学开源软
     •  Logstash                                  [                         .../downloads/logstash/logstash-6.8.23.rpm ]
     •  Kibana                                    [                      .../downloads/kibana/kibana-6.8.23-x86_64.rpm ]
     •  Filebeat                                  [            .../downloads/beats/filebeat/filebeat-6.8.23-x86_64.rpm ]
-    •  ZooKeeper                                 [                                                                    ]
-    •  Kafka                                     [                                                                    ]
+    •  ZooKeeper                                 [                                 https://kafka.apache.org/downloads ]
+    •  Kafka                                     [                         https://zookeeper.apache.org/releases.html ]
 
 
 
