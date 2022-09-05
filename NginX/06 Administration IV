@@ -200,7 +200,7 @@ server {
     ... ...
     ... ...
     access_log /var/log/nginx/foo.season.com.log demo;
-    error_log  /var/log/nginx/foo.season.com.log;
+    error_log  /var/log/nginx/foo.season.com.err;
 }
 --------------------------------------------------------------------------------------------------------------------- ✻
 
