@@ -1,0 +1,221 @@
+ ,     ______ ______, __      
+/|   |(_) |  (_) | /|/  \  () 
+ |___|    |      |  |___/  /\ 
+ |   |\ _ |    _ |  |     /  \
+ |   |/(_/    (_/   |    /(__/
+                              
+                              
+--  This document was created by Xuanming in 2022, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HTTPS 证书
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HTTPS 证书服务的全称是 HTTP SSL 证书服务, 使用数字证书颁发机构 CA 颁发的正版 HTTPS 证书凭证实现
+HTTPS 证书服务使用 SSL 协议加密客户端浏览器与网络服务器之间的传输数据, 实现高强度的单向加密传输 (防劫持/ 防监听/ 防篡改)
+HTTPS 证书凭证有下述不同类型:
+
+    •  DV 域名型  --  公信等级一般, 多用于个人博客与个人网站, CA 机构不审核组织与企业的真实性
+    •  OV 企业型  --  公信等级较好, 多用于社区组织与教育机构, CA 机构要审核组织与企业的真实性
+    •  EV 增强型  --  公信等级良好, 多用于政府组织与金融机构与大型商业网站, CA 机构严格审核组织与企业的营业资格与服务资质
+
+HTTPS 证书凭证的颁发机构有
+┌────────────────────────────┬───────────────────┬──────────────────────┬──────────────────────┬──────────────────────┐
+│ CA                         │ Country           │        DV SSL        │        OV SSL        │        EV SSL        │
+├────────────────────────────┼───────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ DigiCert (Symantec)        │ America           │          √           │          √           │          √           │
+├────────────────────────────┼───────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ GeoTrust                   │ America           │          √           │          √           │          √           │
+├────────────────────────────┼───────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ GlobalSign                 │ America           │          √           │          √           │                      │
+├────────────────────────────┼───────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ CFCA                       │ China             │                      │          √           │          √           │
+├────────────────────────────┼───────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ vTrus                      │ China             │          √           │          √           │                      │
+├────────────────────────────┼───────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ WoSign                     │ China             │          √           │                      │                      │
+└────────────────────────────┴───────────────────┴──────────────────────┴──────────────────────┴──────────────────────┘
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PCA 站点
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+正版的 HTTPS 证书凭证仅允许 CA 机构颁发
+私用的 HTTPS 证书凭证则使用 PCA (Private CA) 站点颁发, PCA 站点制作的自颁发 HTTPS 证书常见于 OA/ CRM 等局域网服务
+
+PCA 站点的依赖软件包有: openssl.x86_64, openssl-devel.x86_64
+PCA 站点的主配置文件为: /etc/pki/tls/openssl.conf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... ...
+... ...
+[ CA_default ]
+dir                     = /etc/pki/CA            # 定义 PCA 站点的资源根目录
+certs                   = $dir/certs             # 定义 PCA 站点的已颁发 HTTPS 证书的文件保存目录
+new_certs_dir           = $dir/newcerts          # 定义 PCA 站点的新签发 HTTPS 证书的文件保存目录
+crl                     = $dir/crl.pem           # 定义 PCA 站点默认用于吊销 HTTPS 证书的密钥文件
+crl_dir                 = $dir/crl               # 定义 PCA 站点的已吊销 HTTPS 证书的文件保存目录
+database                = $dir/index.txt         # 定义 PCA 站点的索引文件, 该文件需要人工创建
+certificate             = $dir/cacert.pem        # 定义 PCA 站点默认用于颁发 HTTPS 证书的密钥文件
+private_key             = $dir/private/cakey.pem # 定义 PCA 站点默认使用的私钥文件
+serial                  = $dir/serial            # 定义 PCA 站点当前使用的序列号
+default_days            = 365                    # 定义 PCA 站点的新签发 HTTPS 证书的有效期为 365 个自然天
+default_crl_days        = 30                     # 定义 PCA 站点的新签发 HTTPS 证书的前置吊销提示期为 30 个自然天
+default_md              = sha256                 # 定义 PCA 站点默认使用的加密算法
+... ...
+... ...
+policy                  = policy_match           # 要求 PCA 站点使用严格的 policy_match 策略组作为审计策略组
+[ policy_match ]
+countryName             = match                  # 严格要求 CSR 申请文件内 C  字段与 PCA 站点相符合
+stateOrProvinceName     = match                  # 严格要求 CSR 申请文件内 ST 字段与 PCA 站点相符合
+organizationName        = match                  # 严格要求 CSR 申请文件内 O  字段与 PCA 站点相符合
+organizationalUnitName  = optional               # 允许 CSR 申请文件内 OU 字段与 PCA 站点不一致
+commonName              = supplied               # 允许 CSR 申请文件提供独特的 CN 字段
+emailAddress            = optional               # 允许 CSR 申请文件内 EM 字段与 PCA 站点不一致
+[ policy_anything ]
+countryName             = optional               # 允许 CSR 申请文件内 C  字段与 PCA 站点不一致
+stateOrProvinceName     = optional               # 允许 CSR 申请文件内 ST 字段与 PCA 站点不一致
+organizationName        = optional               # 允许 CSR 申请文件内 O  字段与 PCA 站点不一致
+organizationalUnitName  = optional               # 允许 CSR 申请文件内 OU 字段与 PCA 站点不一致
+commonName              = supplied               # 允许 CSR 申请文件提供独特的 CN 字段
+emailAddress            = optional               # 允许 CSR 申请文件内 EM 字段与 PCA 站点不一致
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Doing Simple │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+本示例演示 PCA 站点的构建过程, 以及私用的 HTTPS 证书凭证的制作办法
+本示例使用到的主机资源如下:
+
+    •  PCA Server: pca.season.com (2 核心 / 4GB 内存 / 100GB 存储)
+    •  PCA Client: web.season.com (2 核心 / 4GB 内存 / 100GB 存储)
+
+本示例的演示步骤可以总结为:
+
+    1. 搭建 PCA 站点
+    2. 基于 WEB 站点准备 CSR (Certificate Signing Request) 申请文件
+    3. 使用 PCA 站点签发 CRT 证书
+
+""""""""" [服务端] 构建 PCA 站点的文件目录
+server:~$ yum install -y openssl.x86_64, openssl-devel.x86_64
+server:~$ mkdir -p /etc/pki/CA/csr
+server:~$ touch /etc/pki/CA/index.txt
+server:~$ echo 000000 > /etc/pki/CA/serial
+server:~$ openssl genrsa -out /etc/pki/CA/private/cakey.pem
+server:~$ sed -i -r 's/^(policy[[:space:]]*=[[:space:]]*)(policy_match)$/\1policy_anything/g' /etc/pki/tls/openssl.cnf
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" [服务端] 编写 PCA 站点的 CSR 申请文件
+server:~$ openssl req -new \
+                      -days 365 \
+                      -key /etc/pki/CA/private/cakey.pem \
+                      -out /etc/pki/CA/csr/pca.com.csr
+
+-----
+Country Name [XX]: CN                            | 填写 PCA 法人的国籍代码, 中国代码为 CN
+State/ Province Name (Full Name): Zhejiang       | 填写 PCA 法人的省份名称
+Locality Name [Default City]: Hangzhou           | 填写 PCA 法人的城市名称
+Organization Name [Default Company Ltd]: PCA     | 填写 PCA 法人的单位名称
+Organizational Unit Name: Devops                 | 填写 PCA 法人的部门名称
+Common Name: *.pca.com                           | 填写 PCA 法人需要 SSL 加密的域名 (支持申请通配域名)
+Email Address: info@pca.com                      | 填写 PCA 法人的邮箱地址
+
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" [服务端] 签发 PCA 站点的 HTTPS 证书文件
+server:~$ openssl ca -selfsign \
+                     -batch \
+                     -in /etc/pki/CA/csr/pca.com.csr \
+                     -out /etc/pki/CA/cacert.pem
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" [客户端] 编写 WEB 站点的 CSR 申请文件
+client:~$ openssl genrsa -out /etc/nginx/cert.d/season.com.pem
+client:~$ openssl req -new \
+                      -days 365 \
+                      -key /etc/nginx/cert.d/season.com.pem \
+                      -out /etc/nginx/cert.d/season.com.csr
+
+-----
+Country Name [XX]: CN                            | 填写证书申请人的国籍代码, 中国代码为 CN
+State/ Province Name (Full Name): Chongqing      | 填写证书申请人的省份名称
+Locality Name [Default City]: Chongqing          | 填写证书申请人的城市名称
+Organization Name [Default Company Ltd]: Season  | 填写证书申请人的单位名称
+Organizational Unit Name: Devops                 | 填写证书申请人的部门名称
+Common Name: *.season.com                        | 填写证书申请人需要 SSL 加密的域名 (支持申请通配域名)
+Email Address: info@season.com                   | 填写证书申请人的邮箱地址
+
+client:~$ scp /etc/nginx/conf/cert.d/season.com.csr pca.season.com:/etc/pki/CA/csr
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" [服务端] 签发 WEB 站点的 HTTPS 证书文件
+server:~$ openssl ca -batch \
+                     -in /etc/pki/CA/csr/season.com.csr \
+                     -out /etc/pki/CA/certs/season.com.crt
+server:~$ cat /etc/pki/CA/index.txt
+
+V         230503120523Z    00    unknown         /C=CN/ST=Zhejiang/L=Hangzhou/O=PCA/OU=Devops/CN=*.pca.com
+V         230503120612Z    01    unknown         /C=CN/ST=Chongqing/L=Chongqing/O=Season/OU=Devops/CN=*.season.com
+
+server:~$ scp /etc/pki/CA/certs/season.com.crt web.season.com:/etc/nginx/conf/cert.d
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HTTPS 证书的配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HTTPS 证书的配置要点有:
+
+    •  HTTPS 证书仅允许编写在 SERVER 配置块内
+    •  HTTPS 证书需要配合 SSL 端口监听使用, 具体由 SERVER 配置块的 listen 配置项掌握开关
+
+HTTPS 证书的配置项登记如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ ssl_certificate cert.pem;            │    √    │ 开启 HTTP SSL 加密通信时, 使用主配置文件同级目录下的 cert.pem 作为公版证书
+│ ssl_certificate /PATH/TO/FILE;       │         │ 开启 HTTP SSL 加密通信时, 使用指定目录下的文件作为公版证书
+│ ssl_certificate_key cert.pem;        │    √    │ 开启 HTTP SSL 加密通信时, 使用主配置文件同级目录下的 cert.pem 作为私钥文件
+│ ssl_certificate_key /PATH/TO/FILE;   │         │ 开启 HTTP SSL 加密通信时, 使用指定目录下的文件作为私钥文件
+│ ssl_session_cache off;               │    √    │ 开启 HTTP SSL 加密通信时, 禁止客户端重新启动一个已被关闭的用户会话
+│ ssl_session_cache none;              │         │ 开启 HTTP SSL 加密通信时, 允许客户端重新启动一个已被关闭的用户会话
+│ ssl_session_timeout 5m;              │    √    │ 开启 HTTP SSL 加密通信时, 用户会话的有效期为 5 分钟
+│ ssl_session_timeout TIME;            │         │ 开启 HTTP SSL 加密通信时, 用户会话的有效期为 TIME 时间长度
+│ ssl_protocols SSLv2 SSLv3 TLSv1;     │    √    │ 开启 HTTP SSL 加密通信时, 要求加密 SSLv2/ SSLv3/ TLSv1 通信协议的传输数据
+│ ssl_protocols PROTOCOL...;           │         │ 开启 HTTP SSL 加密通信时, 要求加密 PROTOCOL... 通信协议的传输数据
+│ ssl_prefer_server_ciphers off;       │    √    │ 允许客户端的 SSLv3/ TLSv1 协议的密码优先级高于服务端
+│ ssl_prefer_server_ciphers on;        │         │ 禁止客户端的 SSLv3/ TLSv1 协议的密码优先级高于服务端
+│ ssl_ciphers CIPHER...;               │         │ 允许 HTTP SSL 加密通信使用的密码格式有 CIPHER... 等类型
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+阅读上述表格时, 还请注意:
+
+    •  常用的 SSL 协议有网景通信公司编制的 SSLv2/ SSLv3, 国际互联网工程任务组编制的 TLSv1/ TLSv1.1/ TLSv1.2/ TLSv1.3
+    •  使用命令 $(openssl ciphers) 能够测试当前主机支持的全部密码格式, 便于人们编写 ssl_ciphers 配置项
+    •  实际上 ssl_session_cache 配置项允许使用表达式为每个用户会话分配碎片化的内存资源, 牺牲主机整体性能的同时, 提高用户会话的响应
+
+""""""""" 演示 NginX 软件的配置文件内, HTTPS 证书的配置办法
+[root ~]# vim /etc/nginx/nginx.conf
+... ...
+... ...
+http {
+    ... ...
+    ... ...
+    # this namespace reject request from ipv4 address
+    server {
+        listen                  80  default;
+        listen                  443 default ssl;
+        server_name             default;
+        ssl_certificate         /etc/nginx/cert.d/season.com.crt;
+        ssl_certificate_key     /etc/nginx/cert.d/season.com.pem;
+        ssl_session_timeout     10m;
+        ssl_protocols           TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+        ssl_ciphers             ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+        access_log              /var/log/nginx/default.log static;
+    }
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
