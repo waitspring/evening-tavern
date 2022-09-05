@@ -1,0 +1,194 @@
+ , __                                                           
+/|/  \                            ()                o           
+ |___/ ,_    __                   /\  _   ,_            __   _  
+ |    /  |  /  \_/\/  |   |      /  \|/  /  |  |  |_|  /    |/  
+ |       |_/\__/  /\_/ \_/|/    /(__/|__/   |_/ \/  |_/\___/|__/
+                         /|                                     
+                         \|                                     
+--  This document was created by Xuanming in 2022, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+UPSTREAM 配置块
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+UPSTREAM 配置块是 HTTP 配置块的子配置块, 主要用于定义软件在 HTTP/HTTPS 协议层的负载均衡机制, 其具体数量不定
+UPSTREAM 配置块的内嵌配置项十分丰富, 官方与社区都从自身视角给出过不少功能模块, 但本文档仅介绍最基本的, 用于构建反向代理服务的配置项
+
+┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+┊                                                                                                                     ┊
+┊   HTTP PART {                                                                                                       ┊
+┊       ... ...                                                                                                       ┊
+┊       SERVER {                                                                                                      ┊
+┊           ... ...                                                                                                   ┊
+┊       }                                                                                                             ┊
+┊       UPSTREAM {                                                                                                    ┊
+┊           ... ...                                                                                                   ┊
+┊       }                                                                                                             ┊
+┊   }                                                                                                                 ┊
+┊                                                                                                                     ┊
+└╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+
+UPSTREAM 配置块能够内嵌的子配置项登记如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ ip_hash;                             │         │ 基于请求的客户端地址 $remote_addr 开启会话保持
+│ server HOST;                         │         │ 标记负载均衡组内的上游服务节点
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+upstream backname {};
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+upstream 配置项能够标记 UPSTREAM 配置块的作用域, 并使用 backname 常量命名 UPSTREAM 配置块, 以便其余配置项调用 UPSTREAM 配置块
+
+server host [ parameter... ];
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+server 配置项标记负载均衡组内的上游服务节点, 常量 host 登记上游服务节点的位置, 支持 IPv4/ IPv6/ 域名在内的多种格式
+server 配置项常用的可选参数有
+::  weight=num                             [ 1 ] 设置上游服务节点在负载均衡组里面的权重系数, 系数越大则权重越高
+::  fail_timeout=time                    [ 10s ] 设置上游服务节点的灰度时间单位, 该时间单位内上游服务节点连续响应失败若干次则下线
+::  max_fails=num                          [ 1 ] 配合 fail_timeout=time 参数使用, 允许上游服务节点在时间单位内响应失败若干次
+::  backup                                       设置上游服务节点为备份节点
+::  down                                         静态设置上游服务节点为下线状态
+
+使用 server 配置项时, 还请注意:
+
+    •  max_fails 参数的值设置为 0 值时, 则软件不检查上游服务节点的失败次数
+    •  backup 参数与 ip_hash 配置项互斥
+    •  down 参数仅能够与 ip_hash 配置项配合使用
+
+""""""""" 演示 NginX 软件的配置文件内, UPSTREAM 配置块的使用办法
+[root ~]# vim /etc/nginx/http.d/foo.season.com.conf
+... ...
+... ...
+upstream foo_upstream_com {
+    ip_hash;
+    server 172.16.0.100:8081 fail_timeout=20s max_fails=3 down;
+    server 172.16.0.101:8081 fail_timeout=20s max_fails=3;
+    server 172.16.0.101:8081 fail_timeout=20s max_fails=3;
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+转发请求
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+UPSTREAM 配置块主要用于定义软件在 HTTP/HTTPS 协议层的负载均衡机制, SERVER 配置块则负责引导请求进入 HTTP/HTTPS 协议层的负载均衡组
+UPSTREAM 配置块与 SERVER 配置块/ LOCATION 配置块相互协作使用, 才能实现软件的反向代理服务
+
+SERVER 配置块/ LOCATION 配置块有下述专门用于转发请求的子配置项
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ proxy_method METHOD;                 │         │ 转发请求时, 重置请求方法为 METHOD 方法
+│ proxy_hide_header FIELD;             │         │ 转发响应时, 隐藏响应头部的 FIELD 字段
+│ proxy_pass_header FIELD;             │         │ 转发响应时, 显示响应头部的 FIELD 字段
+│ proxy_pass_request_headers on;       │    √    │ 转发请求时, 一并转发 HTTP 包头
+│ proxy_pass_request_headers off;      │         │ 转发请求时, 不再转发 HTTP 包头
+│ proxy_pass_request_body on;          │    √    │ 转发请求时, 一并转发 HTTP 包体
+│ proxy_pass_request_body off;         │         │ 转发请求时, 不再转发 HTTP 包体
+│ proxy_redirect default;              │    √    │ 转发响应时, 若响应结果为重定向请求, 重组响应头中的 location 字段值
+│ proxy_redirect off;                  │         │ 转发响应时, 若响应结果为重定向请求, 保持响应头中的 location 字段值保持不变
+│ proxy_set_header FIELD VALUE;        │         │ 转发请求时, 设置请求头部的 FIELD 字段的值为 VALUE
+│ proxy_connect_timeout 60;            │    √    │ 转发请求时, 设置客户端请求连接服务端的超时时间为 60 秒
+│ proxy_connect_timeout NUM;           │         │ 转发请求时, 设置客户端请求连接服务端的超时时间为 NUM 秒
+│ proxy_read_timeout 60;               │    √    │ 转发连接建立之后, 两次读操作之间的最大等待时间为 60 秒
+│ proxy_read_timeout NUM;              │         │ 转发连接建立之后, 两次读操作之间的最大等待时间为 NUM 秒
+│ proxy_send_timeout 60;               │    √    │ 转发连接建立之后, 两次写操作之间的最大等待时间为 60 秒
+│ proxy_send_timeout NUM;              │         │ 转发连接建立之后, 两次写操作之间的最大等待时间为 NUM 秒
+│ proxy_buffering on;                  │    √    │ 转发响应时, 使用内存资源缓存响应内容 (服务响应较快, 但会增加内存资源的开销)
+│ proxy_buffering off;                 │         │ 转发响应时, 使用磁盘资源暂存响应内容 (服务响应较慢)
+│ proxy_buffers 8 4k;                  │    √    │ 转发响应时, 用于缓存响应内容的内存资源为 8 个 4kb 大小的资源块
+│ proxy_buffers NUM SIZE;              │         │ 转发响应时, 用于缓存响应内容的内存资源为 NUM 个 SIZE 大小的资源块
+│ proxy_buffer_size 4k;                │    √    │ 转发响应时, 每个请求响应允许使用的内存资源上限为 4kb
+│ proxy_buffer_size SIZE;              │         │ 转发响应时, 每个请求响应允许使用的内存资源上限为 SIZE
+│ proxy_busy_buffers_size SIZE;        │         │
+│ proxy_temp_file_write_size SIZE;     │         │
+│ proxy_pass DEST;                     │         │ 设置请求的转发目的地为 DEST (允许 URL, UPSTREAM 组名, 变量等多种格式)
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+阅读上述表格时, 还请注意:
+
+    •  HTTP/HTTPS 请求的整体状态由下述常见字段描述
+       *  Request URL:                           [ 客户端请求使用的 URL 连接 ]
+       *  Request Method:                        [ 客户端请求使用的访问方法 ]
+       *  Status Code:                           [ 客户端请求获得的服务端响应状态码 ]
+       *  Remote Address:                        [ 客户端请求到达的服务端套接字地址 ]
+       *  Referrer Policy:                       [ 客户端请求在配置请求头的 Referer 字段的值时, 使用的配置策略 ]
+    •  HTTP/HTTPS 请求头的常见字段有
+       *  Accept:                                [ 客户端接受的互联网内容扩展类型 (MIME) ]
+       *  Accept-Charset:                        [ 客户端接受的字符集类型 ]
+       *  Accept-Encoding:                       [ 客户端接受的数据编码类型 ]
+       *  Accept-Language:                       [ 客户端接受的内容语言类型 ]
+       *  Authorization:                         [ 客户端从服务端拿到的授权凭据, 使用该凭据使得请求通过服务端的审核验证 ]
+       *  Cache-Control:                         [ 客户端发出的请求使用何种缓存管理机制 ]
+       *  Connection:                            [ 客户端发出的请求是否从属于一个持久化连接 ]
+       *  Content-Length:                        [ 客户端发出的请求的正文长度 ]
+       *  Cookie:                                [ 客户端从服务端拿到的唯一编号 (ID), 使用该唯一编号 (ID) 实现持久化连接 ]
+       *  From:                                  [ 客户端使用的电子邮件地址 ]
+       *  Host:                                  [ 客户端发起访问时, 使用的访问套接字 ]
+       *  Pragma:                                [ HTTP/1.0 协议的遗留字段, 没有特殊含义 ]
+       *  Referer:                               [ 客户端发起 GET  请求的来源地址, 服务端可以使用该字段防止盗链 ]
+       *  Origin:                                [ 客户端发起 POST 请求的来源地址, 服务端可以使用该字段防止盗链 ]
+       *  User-Agent:                            [ 客户端的工具类型, 例如 "Chrome/101.0.4951.64", "Safari/537.36" ]
+    •  HTTP/HTTPS 响应头的常见字段有
+       *  Connection:                            [ 服务端给出的响应是否从属于一个持久化连接 ]
+       *  Content-Length:                        [ 服务端给出的响应的正文长度 ]
+       *  Content-Type:                          [ 服务端给出的响应的互联网内容扩展类型 (MIME) ]
+       *  Date:                                  [ 服务端给出响应时的本地时间戳 ]
+       *  Last-Modified:                         [ 服务端给出响应的内容, 其文件自带的操作系统时间戳 ]
+       *  Location:                              [ 服务端给出的响应为一个重定向资源时, 使用该字段标记重定向资源的位置 ]
+       *  Server:                                [ 服务端的软件名称 (默认包含有版本信息) ]
+
+proxy_pass { URL | backname };
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+proxy_pass 配置项仅允许在 LOCATION 配置块内部使用, 用于把请求转发到固定的目标地址, 目标地址支持 URL, UPSTREAM 组名, 变量等多种格式
+proxy_pass 配置项的使用要点如下:
+
+    •  使用 URL 作为目标地址时, 如果 URL 带有路由则请求被转发给绝路路径, 否则请求被转发给相对路径
+    •  使用 backname 作为目标地址时, 相应的 UPSTREAM 配置块应当提前定义
+
+""""""""" 演示 NginX 软件的配置文件内, 转发请求相关的参数配置方法
+[root ~]# vim /etc/nginx/http.d/foo.season.com.conf
+server {
+    ... ...
+    ... ...
+    proxy_redirect off;
+    proxy_set_header Host $host;
+    proxy_connect_timeout 86400;
+    proxy_read_timeout 86400;
+    proxy_send_timeout 86400;
+    proxy_buffers 8 512k;
+    proxy_buffer_size 128k;
+    proxy_busy_buffers_size 1m;
+    proxy_temp_file_write_size 2m;
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 演示 NginX 软件的配置文件内, 转发请求的编写方法
+[root ~]# vim /etc/nginx/http.d/foo.season.com.conf
+server {
+    ... ...
+    ... ...
+    location /demo_1/ {
+        # 请求 .../demo_1/index.html 转发为请求 .../demo_1/index.html
+        proxy_pass http://www.nginx.com;
+    }
+    location /demo_2/ {
+        # 请求 .../demo_2/index.html 转发为请求 .../index.html
+        proxy_pass http://www.nginx.com/;
+    }
+    location /demo_3/ {
+        # 请求 .../demo_3/index.html 转发为请求 .../chckindex.html
+        proxy_pass http://www.nginx.com/chck;
+    }
+    location /demo_4/ {
+        # 请求 .../demo_4/index.html 转发为请求 .../chck/index.html
+        proxy_pass http://www.nginx.com/chck/;
+    }
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+

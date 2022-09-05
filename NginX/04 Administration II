@@ -1,0 +1,234 @@
+  ___,                                                                              _    _ 
+ /   |     |             o          o                        o                     | |  | |
+|    |   __|   _  _  _       _  _       , _|_  ,_    __, _|_     __   _  _         | |  | |
+|    |  /  |  / |/ |/ |  |  / |/ |  |  / \_|  /  |  /  |  |  |  /  \_/ |/ |      _ |/ _ |/ 
+ \__/\_/\_/|_/  |  |  |_/|_/  |  |_/|_/ \/ |_/   |_/\_/|_/|_/|_/\__/   |  |_/    \_/\/\_/\/
+                                                                                           
+                                                                                           
+--  This document was created by Xuanming in 2022, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HTTP 配置块
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HTTP 配置块是配置文件内可选的配置块, 主要用于定义软件在 HTTP/HTTPS 协议层的相关服务
+HTTP 配置块能够内嵌子配置项与配置块, 子配置块直接继承父配置块的配置项, 同时又能够重载父配置块的配置项
+HTTP 配置块能够内嵌的子配置块主要有:
+
+    •  SERVER      配置块, 主要用于定义软件在 HTTP/HTTPS 协议层的网站代理服务, 其具体数量不定
+    •  SERVER IF   配置块, 主要用于定义软件在 HTTP/HTTPS 协议层的逻辑条件跳转, 其具体数量不定
+    •  LOCATION    配置块, 主要用于定义软件在 HTTP/HTTPS 协议层的路由分发规则, 其具体数量不定
+    •  LOCATION IF 配置块, 主要用于定义软件在 HTTP/HTTPS 协议层的逻辑条件跳转, 其具体数量不定, 且语法与 SERVER IF 配置块一致
+    •  UPSTREAM    配置块, 主要用于定义软件在 HTTP/HTTPS 协议层的负载均衡机制, 其具体数量不定
+
+┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+┊                                                                                                                     ┊
+┊   HTTP PART {                                                                                                       ┊
+┊       ... ...                                                                                                       ┊
+┊       SERVER PART {                                                                                                 ┊
+┊           ... ...                                                                                                   ┊
+┊           SERVER IF PART {                                                                                          ┊
+┊               ... ...                                                                                               ┊
+┊           }                                                                                                         ┊
+┊           LOCATION PART {                                                                                           ┊
+┊               ... ...                                                                                               ┊
+┊               LOCATION IF PART {                                                                                    ┊
+┊                   ... ...                                                                                           ┊
+┊               }                                                                                                     ┊
+┊           }                                                                                                         ┊
+┊       }                                                                                                             ┊
+┊       UPSTREAM {                                                                                                    ┊
+┊           ... ...                                                                                                   ┊
+┊       }                                                                                                             ┊
+┊   }                                                                                                                 ┊
+┊                                                                                                                     ┊
+└╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+
+HTTP 配置块能够内嵌的子配置项登记如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ charset off;                         │    √    │ 软件不在响应头的 Content-Type 字段内标记字符集编码
+│ charset CHARSET;                     │         │ 软件应在响应头的 Content-Type 字段内标记字符集编码, 实际使用 CHARSET 编码
+│ sendfile on;                         │         │ 文件基于内核态发送到网卡设备, 文件发送效率较高
+│ sendfile off;                        │    √    │ 文件经过用户态发送到网卡设备, 文件发送效率较低
+│ send_timeout 60;                     │    √    │ 软件发送报文到对端时, 对端响应的超时时间为 60 秒
+│ send_timeout NUM;                    │         │ 软件发送报文到对端时, 对端响应的超时时间为 NUM 秒
+│ open_file_cache max=NUM;             │         │ 启用基于内存资源的文件缓存, 限制文件缓存的数量上限为 NUM 份文件句柄
+│ open_file_cache off;                 │    √    │ 禁用基于内存资源的文件缓存
+│ open_file_cache_errors on;           │         │ 启用基于内存资源的文件错误缓存
+│ open_file_cache_errors off;          │    √    │ 禁用基于内存资源的文件错误缓存
+│ open_file_cache_valid 60s;           │    √    │ 软件每隔 60 秒检查一遍文件缓存信息是否有效
+│ open_file_cache_valid TIME;          │         │ 软件每隔 TIME 时间长度检查一遍文件缓存信息是否有效
+│ server_tokens on;                    │    √    │ 请求出错时, 软件在响应结果中添加版本信息
+│ server_tokens off;                   │         │ 请求出错时, 软件在响应结果中屏蔽版本信息
+│ lingering_close on;                  │    √    │ 软件在关闭网络连接前, 智能化处理客户端发送给软件的报文数据
+│ lingering_close off;                 │         │ 软件在关闭网络连接前, 完全不处理客户端发送给软件的报文数据
+│ lingering_close always;              │         │ 软件在关闭网络连接前, 必须要处理客户端发送给软件的报文数据
+│ lingering_timeout 5s;                │    √    │ 软件在关闭网络连接前, 允许连接拥有 5 秒的空闲时间, 超时则关闭连接
+│ lingering_timeout TIME;              │         │ 软件在关闭网络连接前, 允许连接拥有 TIME 时间长度的空闲时间, 超时则关闭连接
+│ lingering_time 30s;                  │    √    │ 软件在关闭网络连接时, 允许客户端在 30 秒内发送完最后的报文数据
+│ lingering_time TIME;                 │         │ 软件在关闭网络连接时, 允许客户端在 TIME 时间长度内发送完最后的报文数据
+│ tcp_nopush on;                       │         │ 启用操作系统的 tcp_nopush 机制
+│ tcp_nopush off;                      │    √    │ 禁用操作系统的 tcp_nopush 机制
+│ tcp_nodelay on;                      │    √    │ 启用操作系统的 tcp_nodelay 机制
+│ tcp_nodelay off;                     │         │ 禁用操作系统的 tcp_nodelay 机制
+│ keepalive_timeout 75;                │    √    │ 长连接连续空闲 75 秒之后, 软件关闭该空闲长连接
+│ keepalive_timeout NUM;               │         │ 长连接连续空闲 NUM 秒之后, 软件关闭该空闲长连接
+│ keepalive_requests 100;              │    √    │ 长连接的并发请求上限为 100 个请求
+│ keepalive_requests NUM;              │         │ 长连接的并发请求上限为 NUM 个请求
+│ merge_slashes on;                    │    √    │ 软件自动合并请求路由中连续的路径符号 (/), 例如 /dir///demo -> /dir/demo
+│ merge_slashes off;                   │         │ 软件不会处理请求路由中连续的路径符号 (/)
+│ resolver ADDR;                       │         │ 使用 ADDR 作为 DNS 服务器
+│ resolver_timeout 30s;                │    √    │ 配置 DNS 服务的响应超时时间为 30 秒
+│ resolver_timeout TIME;               │         │ 配置 DNS 服务的响应超时时间为 TIME 时间长度
+│ default_type text/plain;             │    √    │ 软件在无法锚定 MIME 与文件扩展名之间的映射关系时, 默认使用 text/plain 类型
+│ default_type MIME;                   │         │ 软件在无法锚定 MIME 与文件扩展名之间的映射关系时, 默认使用 MIME 类型
+│ include /PATH/TO/FILE;               │         │ 加载 /PATH/TO/FILE 文件内的配置块与配置项
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+HTTP 配置块能够内嵌的 GZIP 文件压缩的相关子配置项登记如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ gzip on;                             │         │ 启用基于 GZIP 算法的文件压缩功能
+│ gzip off;                            │    √    │ 禁用基于 GZIP 算法的文件压缩功能
+│ gzip_vary on;                        │         │ 要添加 vary: accept-encoding 键值对到响应头
+│ gzip_vary off;                       │    √    │ 不添加 vary: accept-encoding 键值对到响应头
+│ gzip_buffers 4 8k;                   │    √    │ 基于 GZIP 算法执行文件压缩时, 软件申请 4 * 8kb 大小的内存资源作为缓冲区
+│ gzip_buffers NUM SIZE;               │         │ 基于 GZIP 算法执行文件压缩时, 软件申请 NUM * SIZE 大小的内存资源作为缓冲区
+│ gzip_comp_level 1;                   │    √    │ 使用 1 级压缩比 (压缩效果不明显, 但压缩速度快)
+│ gzip_comp_level NUM;                 │         │ 使用 NUM 级压缩比, 且 NUM ∈ [1, 9] 区间
+│ gzip_min_length 0;                   │    √    │ 凡是容量大于 1kb 的文件皆做 GZIP 压缩
+│ gzip_min_length NUM;                 │         │ 仅有容量大于 NUMkb 的文件才做 GZIP 压缩
+│ gzip_http_version 1.1;               │    √    │ 连接对端为遵守 HTTP 1.1 通信协议的浏览器时, 才执行 GZIP 压缩
+│ gzip_http_version 1.0;               │         │ 连接对端为遵守 HTTP 1.0 通信协议的浏览器时, 才执行 GZIP 压缩
+│ gzip_types text/html;                │    √    │ 压缩 text/html 类型的文件
+│ gzip_types MIME;                     │         │ 压缩 MIME 类型的文件, 多个 MIME 类型之间使用空格符号分割
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+""""""""" 演示 NginX 软件的配置文件内, HTTP 配置块的使用办法
+[root ~]# mkdir -p /etc/nginx/http.d
+[root ~]# vim /etc/nginx/nginx.conf
+... ...
+... ...
+http {
+    sendfile on;
+    send_timeout 300;
+
+    open_file_cache max=65535;
+    open_file_cache_errors on;
+    open_file_cache_valid 90s;
+
+    charset utf-8;
+    server_tokens off;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 300;
+    keepalive_requests 300;
+
+    gzip on;
+    gzip_vary on;
+    gzip_buffers 8 128k;
+    gzip_comp_level 3;
+    gzip_min_length 512k;
+    gzip_types text/plain text/css application/javascript application/xml;
+    gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+
+    resolver 223.5.5.5 223.6.6.6;
+    resolver_timeout 10s;
+
+    default_type application/octet-stream;
+    include /etc/nginx/mime.types;
+    include /etc/nginx/http.d/*.conf;            | 建议把单个 HTTP/HTTPS 协议层的网站代理服务, 单独放置一个配置文件
+}                                                | 并使用加载的方式, 纳入到软件的配置文件
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SERVER 配置块
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SERVER 配置块是 HTTP 配置块的子配置块, 主要用于定义软件在 HTTP/HTTPS 协议层的网站代理服务, 其具体数量不定
+SERVER 配置块能够进一步内嵌 LOCATION 子配置块, 由此实现代理路由的效果
+
+┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+┊                                                                                                                     ┊
+┊   SERVER PART {                                                                                                     ┊
+┊       ... ...                                                                                                       ┊
+┊       SERVER IF PART {                                                                                              ┊
+┊           ... ...                                                                                                   ┊
+┊       }                                                                                                             ┊
+┊       LOCATION PART {                                                                                               ┊
+┊           ... ...                                                                                                   ┊
+┊           LOCATION IF PART {                                                                                        ┊
+┊               ... ...                                                                                               ┊
+┊           }                                                                                                         ┊
+┊       }                                                                                                             ┊
+┊   }                                                                                                                 ┊
+┊                                                                                                                     ┊
+└╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+
+SERVER 配置块能够内嵌的子配置项登记如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ listen 80;                           │    √    │ 设置软件监听主机的 80 端口
+│ listen NUM;                          │         │ 设置软件监听主机的 NUM 端口
+│ server_name RECORD;                  │         │ 设置软件代理的站点名称为 RECORD
+│ client_header_buffer_size 1k;        │    √    │ HTTP 包头分配到的内存资源容量为 1kb
+│ client_header_buffer_size SIZE;      │         │ HTTP 包头分配到的内存资源容量为 SIZE (容量单位)
+│ client_header_timeout 60;            │    √    │ HTTP 408 Request Timeout 响应的触发阈值为 60 秒
+│ client_header_timeout NUM;           │         │ HTTP 408 Request Timeout 响应的触发阈值为 NUM 秒
+│ client_body_timeout 60;              │    √    │ HTTP 408 Request Timeout 响应的触发阈值为 60 秒
+│ client_body_timeout NUM;             │         │ HTTP 408 Request Timeout 响应的触发阈值为 NUM 秒
+│ client_body_in_file_only on;         │         │ HTTP 包体存储在磁盘中并生成相应文件, 请求结束时保留 HTTP 包体文件
+│ client_body_in_file_only off;        │    √    │ HTTP 包体寄存在内存中, 这种方式读写效率较高
+│ client_body_in_file_only clean;      │         │ HTTP 包体存储在磁盘中并生成相应文件, 请求结束时删除 HTTP 包体文件
+│ client_body_buffer_size 8k;          │    √    │ HTTP 包体分配到的内存资源容量为 8kb
+│ client_body_buffer_size SIZE;        │         │ HTTP 包体分配到的内存资源容量为 SIZE (容量单位)
+│ client_max_body_size 1m;             │    √    │ HTTP 包体允许的尺寸上限为 1mb
+│ client_max_body_size SIZE;           │         │ HTTP 包体允许的尺寸上限为 SIZE (容量单位)
+│ connection_pool_size 256;            │    √    │ HTTP 连接分配到的内存池容量为 256kb
+│ connection_pool_size NUM;            │         │ HTTP 连接分配到的内存池容量为 NUMkb
+│ request_pool_size 4k;                │    √    │ HTTP 请求分配到的内存池容量为 4kb
+│ request_pool_size SIZE;              │         │ HTTP 请求分配到的内存池容量为 SIZE (容量单位)
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+listen num [ parameter... ];
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+listen 配置项能够设置软件的监听端口, 且多个 listen 配置项的监听端口对象可以重复 (都是由软件进程监听, 不存在权限冲突)
+listen 配置项常用的可选参数有
+::  default_server                               设置 SERVER 配置块为 HTTP 配置块内的默认配置块
+::  deffered                                     设置 SERVER 配置块的延迟特性, 牺牲软件响应时间的同时, 提高软件的承压能力
+::  backlog=num                                  设置 TCP/backlog 队列的大小 (默认值为 -1 表示不设置)
+
+使用 server_name 配置项时, 还请注意:
+
+    •  不同 SERVER 配置块内, 允许使用相同的域名记录
+    •  请求头的 Host 记录同时匹配到不同 SERVER 配置块内的多个域名记录时, 按照下述优先级规则命中实际的域名记录
+       1. 请求头的 Host 记录完全匹配到域名记录, 例如 spring.season.com
+       2. 请求头的 Host 记录匹配到通配符 (*) 在前面的域名记录, 例如 *.season.com
+       3. 请求头的 Host 记录匹配到通配符 (*) 在后面的域名记录, 例如 spring.season.*
+       4. 请求头的 Host 记录匹配到使用有正则表达式的域名记录, 例如 ~^\.season\.com$
+
+""""""""" 演示 NginX 软件的配置文件内, SERVER 配置块的使用办法
+[root ~]# vim /etc/nginx/http.d/foo.season.com.conf
+server {
+    listen 80;
+    server_name foo.season.com;
+    client_header_buffer_size 8k;
+    client_header_timeout 300;
+    client_body_timeout 300;
+    client_body_buffer_size 1m;
+    client_max_body_size 1024m;
+    connection_pool_size 1024;
+    request_pool_size 8k;
+    ... ...
+    ... ...
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
