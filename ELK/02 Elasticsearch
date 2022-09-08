@@ -1,0 +1,51 @@
+ ___  _                                                 _     
+/ (_)| |              o                                | |    
+\__  | |  __,   , _|_     __   ,   _   __,   ,_    __  | |    
+/    |/  /  |  / \_|  |  /    / \_|/  /  |  /  |  /    |/ \   
+\___/|__/\_/|_/ \/ |_/|_/\___/ \/ |__/\_/|_/   |_/\___/|   |_/
+                                                              
+                                                              
+--  This document was created by Xuanming in 2022, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的安装过程
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的安装途经有:
+
+    •  使用 RPM 包直接安装 (优先推荐使用 RPM 包直接安装)
+    •  使用源码安装, 源码的 TGZ 压缩包可以基于 GitHub/ ELK Stack 社区站点下载
+        •  https://github.com/elastic/elasticsearch/releases
+        •  https://artifacts.elastic.co/downloads/elasticsearch
+
+Elasticsearch 软件若使用 RPM 包直接安装, 可以得到下述文件
+┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
+│ Path                                           │ F/D │ Comment
+├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
+│ /etc/elasticseach/elasticsearch.yml            │  F  │ 软件的主配置文件
+│ /etc/elasticseach/jvm.options                  │  F  │ 软件的 JVM 启动参数配置文件
+│ /etc/elasticseach/log4j2.properties            │  F  │ 软件的 Log4j2 日志参数配置文件
+│ /etc/init.d/elasticsearch                      │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
+│ /usr/lib/systemd/system/elasticsearch.service  │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件
+│ /var/lib/elasticsearch                         │  D  │ 软件的库目录
+│ /var/run/elasticsearch                         │  D  │ 软件的进程目录
+│ /var/log/elasticsearch                         │  D  │ 软件的日志目录
+│ /usr/share/elasticsearch                       │  D  │ 软件的文档目录
+└────────────────────────────────────────────────┴─────┴────────────────────────────────────────────────────────────────
+
+""""""""" 使用 RPM 包直接安装 Elasticsearch 软件
+[root ~]# rpm -ivh /srv/elasticsearch-6.8.23.rpm
+[root ~]# rpm -qs elasticsearch | grep -v /usr/share/elasticsearch
+[root ~]# vim /etc/elasticseach/elasticsearch.yml
+[root ~]# vim /etc/elasticseach/jvm.options
+[root ~]# systemctl enable elasticsearch.service
+[root ~]# systemctl  start elasticsearch.service
+[root ~]# systemctl status elasticsearch.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的配置文件
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
