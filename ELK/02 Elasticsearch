@@ -49,3 +49,16 @@ Elasticsearch 软件若使用 RPM 包直接安装, 可以得到下述文件
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Elasticsearch 软件的配置文件
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的主配置文件 /etc/elasticseach/elasticsearch.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# cluster.name: my-application
+# node.name: node-1
+# node.attr.rack: r1
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+
+
+
+
+
+
