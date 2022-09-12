@@ -39,9 +39,12 @@ Elasticsearch 软件若使用 RPM 包直接安装, 可以得到下述文件
 [root ~]# rpm -qs elasticsearch | grep -v /usr/share/elasticsearch
 [root ~]# vim /etc/elasticseach/elasticsearch.yml
 [root ~]# vim /etc/elasticseach/jvm.options
+[root ~]# sed -i -r '/^LimitNPROC=*/a\LimitMEMLOCK=infinity' /usr/lib/systemd/system/elasticsearch.service
+[root ~]# systemctl daemon-reload
 [root ~]# systemctl enable elasticsearch.service
 [root ~]# systemctl  start elasticsearch.service
 [root ~]# systemctl status elasticsearch.service
+[root ~]# curl http://spring.season.com:9200
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
@@ -51,12 +54,96 @@ Elasticsearch 软件的配置文件
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Elasticsearch 软件的主配置文件 /etc/elasticseach/elasticsearch.yml
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# cluster.name: my-application
-# node.name: node-1
-# node.attr.rack: r1
+# cluster.name: my-application                   Elasticsearch 集群的名称
+# node.name: node-1                              Elasticsearch 集群内, 当前节点的名称, 支持域名与 IPv4/IPv6 书写格式
+# node.attr.rack: r1                             Elasticsearch 集群内, 当前节点的自定义属性 (eg. 示例中的值 r1 表示机柜编号)
+# node.master: true                              Elasticsearch 集群内, 当前节点允许被选举为控制节点
+# node.data: true                                Elasticsearch 集群内, 当前节点允许被使用为数据节点
+# node.ingest: true                              Elasticsearch 集群内, 当前节点允许被使用为管道节点
+path.data: /var/lib/elasticsearch                Elasticsearch 集群内, 当前节点使用的索引数据存储目录
+path.logs: /var/log/elasticsearch                Elasticsearch 集群内, 当前节点使用的日志数据存储目录
+# bootstrap.memory_lock: true                    Elasticsearch 集群内, 当前节点启动则立刻锁定内存资源
+# network.host: 192.168.0.1                      Elasticsearch 集群的 HTTP 服务监听范围
+# http.port: 9200                                Elasticsearch 集群的 HTTP 服务监听端口
+# transport.tcp.port: 9300                       Elasticsearch 集群的 TCP 服务监听端口, 集群的 TCP 服务监听端口用于集群间通信
+# discovery.zen.ping.unicast.hosts: []           Elasticsearch 集群的节点列表, 支持域名与 IPv4/IPv6 书写格式
+# discovery.zen.minimum_master_nodes: 1          Elasticsearch 集群内, 控制节点数量下限值 (master 数量 / 2 + 1)
+# gateway.recover_after_nodes: 1                 Elasticsearch 集群若执行重启, 则在第 n 个节点启动完成时开始恢复索引数据
+# action.destructive_requires_name: true         Elasticsearch 集群内, 删除索引数据时必须显式使用索引名称 (禁止使用正则表达式)
+
+""""""""" 演示控制节点的 /etc/elasticseach/elasticsearch.yml 文件的基本配置
+master:~$ cat /etc/elasticseach/elasticsearch.yml
+cluster.name: season
+node.name: spring.season.com
+node.attr.rack: nothing
+node.master: true
+node.data: false
+node.ingest: false
 path.data: /var/lib/elasticsearch
 path.logs: /var/log/elasticsearch
+bootstrap.memory_lock: true
+network.host: spring.season.com
+http.port: 9200
+transport.tcp.port: 9300
+discovery.zen.ping.unicast.hosts: ["spring.season.com", "summer.season.com", "autumn.season.com", "winter.season.com"]
+discovery.zen.minimum_master_nodes: 1
+gateway.recover_after_nodes: 1
+action.destructive_requires_name: true
+--------------------------------------------------------------------------------------------------------------------- ✻
 
+""""""""" 演示数据节点的 /etc/elasticseach/elasticsearch.yml 文件的基本配置
+slaver:~$ cat /etc/elasticseach/elasticsearch.yml
+cluster.name: season
+node.name: summer.season.com
+node.attr.rack: nothing
+node.master: false
+node.data: true
+node.ingest: true
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+bootstrap.memory_lock: true
+network.host: summer.season.com
+http.port: 9200
+transport.tcp.port: 9300
+discovery.zen.ping.unicast.hosts: ["spring.season.com", "summer.season.com", "autumn.season.com", "winter.season.com"]
+discovery.zen.minimum_master_nodes: 1
+gateway.recover_after_nodes: 1
+action.destructive_requires_name: true
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+Elasticsearch 软件的 JVM 启动参数配置文件 /etc/elasticseach/jvm.options
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^-.*$ 类型的参数配置不依赖于 JDK 版本, 例如: -Xms1g
+# ^[[:digit:]]+:-.*$ 类型的参数配置仅当 JDK 版本严格等于指定版本时生效, 例如: 8:-XX:+PrintGCDetails
+# ^[[:digit:]]+-:-.*$ 类型的参数配置仅当 JDK 版本大于等于指定版本时生效, 例如: 10-:-XX:UseAVX=2
+# ^[[:digit:]]+-[[:digit:]]+:-.*$ 类型的参数配置仅当 JDK 版本位于指定版本区间时生效, 例如: 8-13:-XX:+UseConcMarkSweepGC
+-Xms1g                                           Elasticsearch 服务的 JVM 堆内存下限, JVM 堆内存的上下限的值应保持一致
+-Xmx1g                                           Elasticsearch 服务的 JVM 堆内存上限, JVM 堆内存的上下限的值应保持一致
+-Xss1m                                           Elasticsearch 服务的 JVM 堆栈单位容量
+-Dfile.encoding=UTF-8                            Elasticsearch 服务使用 UTF-8 字符集
+-Dlog4j.shutdownHookEnabled=false
+-Dlog4j2.disable.jmx=true
+-Dlog4j2.formatMsgNoLookups=true
+
+""""""""" 演示 /etc/elasticseach/jvm.options 文件的基本配置
+master:~$ cat /etc/elasticseach/jvm.options
+-Xms6g
+-Xmx6g
+-Xss1m
+... ...
+... ...
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的底层说明
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的数据副本一致性原理说明:
+
+    •  
+    •
+    •
 
 
 
