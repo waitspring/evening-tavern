@@ -1,0 +1,63 @@
+   _                               _     
+\_|_)                             | |    
+  |     __   __,  , _|_  __,   ,  | |    
+ _|    /  \_/  | / \_|  /  |  / \_|/ \   
+(/\___/\__/ \_/|/ \/ |_/\_/|_/ \/ |   |_/
+              /|                         
+              \|                         
+--  This document was created by Xuanming in 2022, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的安装过程
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的安装途经有:
+
+    •  使用 RPM 包直接安装 (优先推荐使用 RPM 包直接安装)
+    •  使用源码安装, 源码的 TGZ 压缩包可以基于 GitHub/ ELK Stack 社区站点下载
+        •  https://github.com/elastic/logstash/releases
+        •  https://www.elastic.co/cn/downloads/logstash
+
+Logstash 软件若使用 RPM 包直接安装, 可以得到下述文件
+┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
+│ Path                                           │ F/D │ Comment
+├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
+│ /etc/logstash/logstash.yml                     │  F  │ 软件的主配置文件
+│ /etc/logstash/pipelines.yml                    │  F  │ 软件的日志管道配置文件 (通常用于加载日志管道配置目录)
+│ /etc/logstash/conf.d                           │  D  │ 软件的日志管道配置目录 (通常用于配置日志管道)
+│ /etc/logstash/jvm.options                      │  F  │ 软件的 JVM 启动参数配置文件
+│ /etc/logstash/log4j2.properties                │  F  │ 软件的 Log4j2 日志参数配置文件
+│ /etc/init.d/logstash                           │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
+│ /usr/lib/systemd/system/logstash.service       │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件
+│ /usr/share/logstash                            │  D  │ 软件的文档目录
+│ /var/lib/logstash                              │  D  │ 软件的数据目录
+│ /var/log/logstash                              │  D  │ 软件的日志目录
+└────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
+
+""""""""" 使用 RPM 包直接安装 Logstash 软件
+[root ~]# rpm -ivh /srv/logstash-6.8.23.rpm
+[root ~]# rpm -qs logstash | grep -v /usr/share/logstash
+[root ~]# vim /etc/logstash/logstash.yml
+[root ~]# vim /etc/logstash/jvm.options
+[root ~]# vim /etc/logstash/pipelines.yml
+[root ~]# vim /etc/logstash/conf.d/default.conf
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enable logstash.service
+[root ~]# systemctl  start logstash.service
+[root ~]# systemctl status logstash.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的配置文件
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的主配置文件 /etc/logstash/logstash.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+

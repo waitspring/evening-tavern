@@ -17,7 +17,7 @@ Elasticsearch 软件的安装途经有:
     •  使用 RPM 包直接安装 (优先推荐使用 RPM 包直接安装)
     •  使用源码安装, 源码的 TGZ 压缩包可以基于 GitHub/ ELK Stack 社区站点下载
         •  https://github.com/elastic/elasticsearch/releases
-        •  https://artifacts.elastic.co/downloads/elasticsearch
+        •  https://www.elastic.co/cn/downloads/elasticsearch
 
 Elasticsearch 软件若使用 RPM 包直接安装, 可以得到下述文件
 ┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
@@ -28,11 +28,11 @@ Elasticsearch 软件若使用 RPM 包直接安装, 可以得到下述文件
 │ /etc/elasticseach/log4j2.properties            │  F  │ 软件的 Log4j2 日志参数配置文件
 │ /etc/init.d/elasticsearch                      │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
 │ /usr/lib/systemd/system/elasticsearch.service  │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件
-│ /var/lib/elasticsearch                         │  D  │ 软件的库目录
-│ /var/run/elasticsearch                         │  D  │ 软件的进程目录
-│ /var/log/elasticsearch                         │  D  │ 软件的日志目录
 │ /usr/share/elasticsearch                       │  D  │ 软件的文档目录
-└────────────────────────────────────────────────┴─────┴────────────────────────────────────────────────────────────────
+│ /var/lib/elasticsearch                         │  D  │ 软件的数据目录
+│ /var/log/elasticsearch                         │  D  │ 软件的日志目录
+│ /var/run/elasticsearch                         │  D  │ 软件的进程目录
+└────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
 
 """"""""" 使用 RPM 包直接安装 Elasticsearch 软件
 [root ~]# rpm -ivh /srv/elasticsearch-6.8.23.rpm
@@ -60,8 +60,8 @@ Elasticsearch 软件的主配置文件 /etc/elasticseach/elasticsearch.yml
 # node.master: true                              Elasticsearch 集群内, 当前节点允许被选举为控制节点
 # node.data: true                                Elasticsearch 集群内, 当前节点允许被使用为数据节点
 # node.ingest: true                              Elasticsearch 集群内, 当前节点允许被使用为管道节点
-path.data: /var/lib/elasticsearch                Elasticsearch 集群内, 当前节点使用的索引数据存储目录
-path.logs: /var/log/elasticsearch                Elasticsearch 集群内, 当前节点使用的日志数据存储目录
+# path.data: /var/lib/elasticsearch              Elasticsearch 集群内, 当前节点使用的索引数据存储目录
+# path.logs: /var/log/elasticsearch              Elasticsearch 集群内, 当前节点使用的日志数据存储目录
 # bootstrap.memory_lock: true                    Elasticsearch 集群内, 当前节点启动则立刻锁定内存资源
 # network.host: 192.168.0.1                      Elasticsearch 集群的 HTTP 服务监听范围
 # http.port: 9200                                Elasticsearch 集群的 HTTP 服务监听端口
