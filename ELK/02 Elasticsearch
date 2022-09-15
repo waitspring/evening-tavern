@@ -28,7 +28,7 @@ Elasticsearch 软件若使用 RPM 包直接安装, 可以得到下述文件
 │ /etc/elasticseach/log4j2.properties            │  F  │ 软件的 Log4j2 日志参数配置文件
 │ /etc/init.d/elasticsearch                      │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
 │ /usr/lib/systemd/system/elasticsearch.service  │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件
-│ /usr/share/elasticsearch                       │  D  │ 软件的文档目录
+│ /usr/share/elasticsearch                       │  D  │ 软件的安装目录
 │ /var/lib/elasticsearch                         │  D  │ 软件的数据目录
 │ /var/log/elasticsearch                         │  D  │ 软件的日志目录
 │ /var/run/elasticsearch                         │  D  │ 软件的进程目录
