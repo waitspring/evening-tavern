@@ -129,6 +129,8 @@ Elasticsearch 软件的 JVM 启动参数配置文件 /etc/elasticseach/jvm.optio
 -Dlog4j.shutdownHookEnabled=false
 -Dlog4j2.disable.jmx=true
 -Dlog4j2.formatMsgNoLookups=true
+... ...
+... ...
 
 """"""""" 演示 /etc/elasticseach/jvm.options 文件的基本配置
 master:~$ cat /etc/elasticseach/jvm.options

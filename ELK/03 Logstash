@@ -73,7 +73,7 @@ Logstash 软件的主配置文件 /etc/logstash/logstash.yml
 [root ~]# cat /etc/logstash/logstash.yml
 node.name: logstash.season.com
 pipeline.id: main
-pipeline.java_execution: false
+pipeline.java_execution: true
 pipeline.workers: 4
 pipeline.batch.size: 256
 pipeline.batch.delay: 50
@@ -85,8 +85,31 @@ http.port: 9600
 log.level: info
 --------------------------------------------------------------------------------------------------------------------- ✻
 
+Logstash 软件的 JVM 启动参数配置文件 /etc/logstash/jvm.options
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-Xms1g                                           Logstash 服务的 JVM 堆内存下限 (务必小于等于 -Xmx 参数的值)
+-Xmx1g                                           Logstash 服务的 JVM 堆内存上限 (务必大于等于 -Xms 参数的值)
+-Xss1m                                           Logstash 服务的 JVM 堆栈单位容量
+-XX:CMSInitiatingOccupancyFraction=75
+-XX:+UseCMSInitiatingOccupancyOnly
+-XX:+UseConcMarkSweepGC
+... ...
+... ...
+
+""""""""" 演示 /etc/logstash/jvm.options 文件的基本配置
+[root ~]# cat /etc/logstash/jvm.options
+-Xms6g
+-Xmx6g
+-Xss1m
+... ...
+... ...
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的管道配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
 
