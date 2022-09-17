@@ -14,7 +14,7 @@ Logstash 软件的安装过程
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Logstash 软件的安装途经有:
 
-    •  使用 YUM 源直接安装
+    •  使用 YUM 源直接安装 (需要单独配置 Elastic Stack 软件仓库的 YUM 源)
     •  使用 RPM 包直接安装 (优先推荐使用 RPM 包直接安装)
     •  使用源码安装, 源码的 TGZ 压缩包可以基于 GitHub/ ELK Stack 社区站点下载
         •  https://github.com/elastic/logstash/releases
@@ -58,6 +58,7 @@ Logstash 软件的主配置文件 /etc/logstash/logstash.yml
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # node.name: demo                                Logstash 节点使用的名称标识
 # pipeline.id: main                              Logstash 节点使用的管道标识
+# pipeline.java_execution: false                 Logstash 节点关闭 Java 内核引擎
 # pipeline.workers: 1                            Logstash 节点启动单个线程管理数据管道 (参数值建议与 CPU 核心数量保持一致)
 # pipeline.batch.size: 125                       Logstash 节点启动单个线程最多同时处理 125 个数据事件
 # pipeline.batch.delay: 50                       Logstash 节点在分发数据事件时, 分发动作每次间隔 50 毫秒
@@ -66,12 +67,13 @@ Logstash 软件的主配置文件 /etc/logstash/logstash.yml
 # path.logs: /var/log/logstash                   Logstash 节点使用的日志文件存储目录
 # http.host: 127.0.0.1                           Logstash 节点使用的 HTTP 服务监听范围
 # http.port: 9600                                Logstash 节点使用的 HTTP 服务监听端口
-# log.level: info                                Logstash 节点输出 INFO 以上的日志
+# log.level: info                                Logstash 节点仅输出 INFO 级别以上的软件运行日志
 
 """"""""" 演示 /etc/logstash/logstash.yml 文件的基本配置
 [root ~]# cat /etc/logstash/logstash.yml
 node.name: logstash.season.com
 pipeline.id: main
+pipeline.java_execution: false
 pipeline.workers: 4
 pipeline.batch.size: 256
 pipeline.batch.delay: 50
@@ -108,6 +110,16 @@ Logstash 软件的 JVM 启动参数配置文件 /etc/logstash/jvm.options
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Logstash 软件的管道配置
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的管道配置通常由下述区段组成:
+
+
+
+
+
+
+
+
+
 
 
 

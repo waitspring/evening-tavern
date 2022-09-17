@@ -14,6 +14,7 @@ Elasticsearch 软件的安装过程
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Elasticsearch 软件的安装途经有:
 
+    •  使用 YUM 源直接安装 (需要单独配置 Elastic Stack 软件仓库的 YUM 源)
     •  使用 RPM 包直接安装 (优先推荐使用 RPM 包直接安装)
     •  使用源码安装, 源码的 TGZ 压缩包可以基于 GitHub/ ELK Stack 社区站点下载
         •  https://github.com/elastic/elasticsearch/releases
