@@ -126,7 +126,8 @@ Elasticsearch 软件的 JVM 启动参数配置文件 /etc/elasticseach/jvm.optio
 -Xms1g                                           Elasticsearch 服务的 JVM 堆内存下限, JVM 堆内存的上下限的值应保持一致
 -Xmx1g                                           Elasticsearch 服务的 JVM 堆内存上限, JVM 堆内存的上下限的值应保持一致
 -Xss1m                                           Elasticsearch 服务的 JVM 堆栈单位容量
--Dfile.encoding=UTF-8                            Elasticsearch 服务使用 UTF-8 字符集
+-Dfile.encoding=UTF-8                            Elasticsearch 服务的 JVM 使用 UTF-8 字符集
+-XX:ParallelGCThreads=4                          Elasticsearch 服务的 JVM 启动 4 个并发线程 (参数值建议与 CPU 核心数量一致)
 -Dlog4j.shutdownHookEnabled=false
 -Dlog4j2.disable.jmx=true
 -Dlog4j2.formatMsgNoLookups=true
