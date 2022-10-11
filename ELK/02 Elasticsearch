@@ -38,8 +38,9 @@ Elasticsearch 软件若使用 RPM 包直接安装, 可以得到下述文件
 """"""""" 使用 RPM 包直接安装 Elasticsearch 软件
 [root ~]# rpm -ivh /srv/elasticsearch-6.8.23.rpm
 [root ~]# rpm -qs elasticsearch | grep -v /usr/share/elasticsearch
-[root ~]# vim /etc/elasticseach/elasticsearch.yml
-[root ~]# vim /etc/elasticseach/jvm.options
+[root ~]# vim /etc/elasticsearch/elasticsearch.yml
+[root ~]# vim /etc/elasticsearch/jvm.options
+[root ~]# vim /etc/elasticsearch/log4j2.properties
 [root ~]# sed -i -r '/^LimitNPROC=*/a\LimitMEMLOCK=infinity' /usr/lib/systemd/system/elasticsearch.service
 [root ~]# systemctl daemon-reload
 [root ~]# systemctl enable elasticsearch.service
