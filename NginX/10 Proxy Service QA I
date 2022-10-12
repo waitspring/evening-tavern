@@ -194,13 +194,15 @@ server {
     proxy_busy_buffers_size 1m;
     proxy_temp_file_write_size 2m;
     location /product/ {
-        proxy_pass http://$host/;                | 重构请求为 https://foo.season.com/check/demo.html
+        # 请求被重构为 https://foo.season.com/check/demo.html
+        proxy_pass http://$host/;
     }
     location /check/ {
         autoindex on;
         autoindex_localtime on;
         autoindex_exact_size off;
-        root /var/nginx/project/v1.0.1;          | 请求 https://foo.season.com/check/demo.html 命中静态资源
+        # 请求目前写作 https://foo.season.com/check/demo.html 可以命中静态资源
+        root /var/nginx/project/v1.0.1;
     }
 }
 --------------------------------------------------------------------------------------------------------------------- ✻
