@@ -39,9 +39,9 @@ Logstash 软件若使用 RPM 包直接安装, 可以得到下述文件
 """"""""" 使用 RPM 包直接安装 Logstash 软件
 [root ~]# rpm -ivh /srv/logstash-6.8.23.rpm
 [root ~]# rpm -qs logstash | grep -v /usr/share/logstash
-[root ~]# /usr/share/logstash/bin/logstash -e 'input{stdin{}}output{stdout{codec=>rubydebug{}}}'
+[root ~]# vim /etc/logstash/debug.conf
+[root ~]# /usr/share/logstash/bin/logstash -f /etc/logstash/debug.conf
 [root ~]# vim /etc/logstash/logstash.yml
-[root ~]# vim 
 [root ~]# systemctl daemon-reload
 [root ~]# systemctl enable logstash.service
 [root ~]# systemctl  start logstash.service
