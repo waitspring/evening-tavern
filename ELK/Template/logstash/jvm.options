@@ -2,7 +2,6 @@
 -Xmx6g
 -Xss1m
 
--XX:+UseParallelGC=4
 -XX:+UseConcMarkSweepGC
 -XX:+UseCMSInitiatingOccupancyOnly
 -XX:+HeapDumpOnOutOfMemoryError

@@ -32,6 +32,7 @@ Logstash 软件若使用 RPM 包直接安装, 可以得到下述文件
 │ /etc/init.d/logstash                           │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
 │ /usr/lib/systemd/system/logstash.service       │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件
 │ /usr/share/logstash                            │  D  │ 软件的安装目录
+│ /usr/share/logstash/bin/logstash               │  F  │ 软件的执行文件
 │ /var/lib/logstash                              │  D  │ 软件的数据目录
 │ /var/log/logstash                              │  D  │ 软件的日志目录
 └────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
@@ -39,13 +40,54 @@ Logstash 软件若使用 RPM 包直接安装, 可以得到下述文件
 """"""""" 使用 RPM 包直接安装 Logstash 软件
 [root ~]# rpm -ivh /srv/logstash-6.8.23.rpm
 [root ~]# rpm -qs logstash | grep -v /usr/share/logstash
-[root ~]# vim /etc/logstash/debug.conf
-[root ~]# /usr/share/logstash/bin/logstash -f /etc/logstash/debug.conf
 [root ~]# vim /etc/logstash/logstash.yml
+[root ~]# vim /etc/logstash/jvm.options
+[root ~]# vim /etc/logstash/log4j2.properties
 [root ~]# systemctl daemon-reload
 [root ~]# systemctl enable logstash.service
 [root ~]# systemctl  start logstash.service
 [root ~]# systemctl status logstash.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的日常管理
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的执行文件为 /usr/share/logstash/bin/logstash
+
+/usr/share/logstash/bin/logstash [option...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/share/logstash/bin/logstash 执行文件是软件的日常管理工具, 默认用于启动 Logstash 软件的服务进程
+/usr/share/logstash/bin/logstash 执行文件常用的可选选项有
+::  -n        --node.name=NAME                   指定 Logstash 服务节点的名称 (默认为 localhost.localdomain)
+::  -f        --path.config=/PATH/TO/FILE        指定 Logstash 服务节点的配置文件
+::  -e        --config.string=STR                指定 Logstash 服务节点的配置语句
+::  -h        --help                             输出帮助信息
+
+""""""""" 使用命令行直接启动 Logstash 软件的服务进程
+[root ~]# vim /etc/logstash/debug.conf
+[root ~]# /usr/share/logstash/bin/logstash -f /etc/logstash/debug.conf
+[root ~]# /usr/share/logstash/bin/logstash -e "                                                                       \
+input {                                                                                                               \
+    stdin {}                                                                                                          \
+}                                                                                                                     \
+filter {                                                                                                              \
+    ruby => {                                                                                                         \
+        code => \"event.set('timestamp', (event.get('@timestamp').time.localtime).strftime('%Y-%m-%d %H:%M:%S.%L'))\" \
+    }                                                                                                                 \
+    mutate {                                                                                                          \
+        remove_field => [\"@version\"]                                                                                \
+        remove_field => [\"@timestamp\"]                                                                              \
+        remove_field => [\"host\"]                                                                                    \
+    }                                                                                                                 \
+}                                                                                                                     \
+output {                                                                                                              \
+    stdout {                                                                                                          \
+        codec => rubydebug {}                                                                                         \
+    }                                                                                                                 \
+}                                                                                                                     \
+"
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
