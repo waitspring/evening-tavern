@@ -24,9 +24,10 @@ Logstash 软件若使用 RPM 包直接安装, 可以得到下述文件
 ┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
 │ Path                                           │ F/D │ Comment
 ├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
-│ /etc/logstash/logstash.yml                     │  F  │ 软件的主配置文件
-│ /etc/logstash/pipelines.yml                    │  F  │ 软件的日志管道配置文件 (通常用于加载日志管道配置目录)
-│ /etc/logstash/conf.d                           │  D  │ 软件的日志管道配置目录 (通常用于配置日志管道)
+│ /etc/logstash/logstash.yml                     │  F  │ 软件的服务配置文件 (设置服务的监听端口/ 性能参数/ 数据目录/ ...)
+│ /etc/logstash/pipelines.yml                    │  F  │ 软件的管道参数文件 (设置管道的标识参数/ 性能参数/ 配置文件/ ...)
+│ /etc/logstash/conf.d                           │  D  │ 软件的管道配置目录 (寄存日志管道配置文件)
+│ /etc/logstash/conf.d/main.conf                 │  F  │ 软件的管道配置文件 (设置单个日志管道的输入/ 过滤/ 输出组件)
 │ /etc/logstash/jvm.options                      │  F  │ 软件的 JVM 启动参数配置文件
 │ /etc/logstash/log4j2.properties                │  F  │ 软件的 Log4j2 日志参数配置文件
 │ /etc/init.d/logstash                           │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
@@ -41,6 +42,8 @@ Logstash 软件若使用 RPM 包直接安装, 可以得到下述文件
 [root ~]# rpm -ivh /srv/logstash-6.8.23.rpm
 [root ~]# rpm -qs logstash | grep -v /usr/share/logstash
 [root ~]# vim /etc/logstash/logstash.yml
+[root ~]# vim /etc/logstash/pipelines.yml
+[root ~]# vim /etc/logstash/conf.d/main.conf
 [root ~]# vim /etc/logstash/jvm.options
 [root ~]# vim /etc/logstash/log4j2.properties
 [root ~]# systemctl daemon-reload
@@ -60,14 +63,21 @@ Logstash 软件的执行文件为 /usr/share/logstash/bin/logstash
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /usr/share/logstash/bin/logstash 执行文件是软件的日常管理工具, 默认用于启动 Logstash 软件的服务进程
 /usr/share/logstash/bin/logstash 执行文件常用的可选选项有
-::  -n        --node.name=NAME                   指定 Logstash 服务节点的名称 (默认为 localhost.localdomain)
-::  -f        --path.config=/PATH/TO/FILE        指定 Logstash 服务节点的配置文件
-::  -e        --config.string=STR                指定 Logstash 服务节点的配置语句
+::  -n        --node.name=NAME                   指定 Logstash 节点的名称 (默认 localhost.localdomain)
+::            --path.settings=/PATH/TO/DIR       指定 Logstash 节点的配置文件集合 (包含 logstash.yml/ pipelines.yml/ ...)
+::  -f        --path.config=/PATH/TO/FILE        指定 Logstash 节点的日志管道配置文件
+::  -e        --config.string=STR                指定 Logstash 节点的日志管道配置语句
 ::  -h        --help                             输出帮助信息
 
+阅读上述命令时, 还请注意:
+
+    •  Logstash 软件默认使用 --path.settings 选项启动服务
+    •  Logstash 软件通常使用 --path.config   选项加载单个日志管道配置文件, 用于调试校验配置文件的准确性
+    •  Logstash 软件通常使用 --config.string 选项加载单条日志管道配置语句, 用于确认软件本身是否完好
+
 """"""""" 使用命令行直接启动 Logstash 软件的服务进程
-[root ~]# vim /etc/logstash/debug.conf
-[root ~]# /usr/share/logstash/bin/logstash -f /etc/logstash/debug.conf
+[root ~]# vim /etc/logstash/conf.d/debug.conf
+[root ~]# /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/debug.conf
 [root ~]# /usr/share/logstash/bin/logstash -e "                                                                       \
 input {                                                                                                               \
     stdin {}                                                                                                          \
@@ -95,11 +105,10 @@ output {                                                                        
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Logstash 软件的配置文件
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Logstash 软件的主配置文件 /etc/logstash/logstash.yml
+Logstash 软件的服务配置文件 /etc/logstash/logstash.yml
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# /etc/logstash/logstash.yml 配置文件内登记的参数为软件的默认参数, 默认参数的优先级较低, 允许被其余配置文件参数覆盖
+# /etc/logstash/logstash.yml 服务配置文件登记的参数为软件默认参数, 默认参数的优先级较低, 允许被其余配置文件参数覆盖
 # node.name: demo                                Logstash 节点使用的名称标识
-# pipeline.id: main                              Logstash 节点使用的管道标识
 # pipeline.java_execution: false                 Logstash 节点关闭 Java 内核引擎
 # pipeline.workers: 1                            Logstash 节点启动单个线程管理数据管道 (参数值建议与 CPU 核心数量保持一致)
 # pipeline.batch.size: 125                       Logstash 节点启动单个线程最多同时处理 125 个数据事件
@@ -110,6 +119,7 @@ Logstash 软件的主配置文件 /etc/logstash/logstash.yml
 # http.host: 127.0.0.1                           Logstash 节点使用的 HTTP 服务监听范围
 # http.port: 9600                                Logstash 节点使用的 HTTP 服务监听端口
 # log.level: info                                Logstash 节点仅输出 INFO 级别以上的软件运行日志
+
 
 """"""""" 演示 /etc/logstash/logstash.yml 文件的基本配置
 [root ~]# cat /etc/logstash/logstash.yml
@@ -125,42 +135,6 @@ http.host: logstash.season.com
 http.port: 9600
 log.level: info
 --------------------------------------------------------------------------------------------------------------------- ✻
-
-Logstash 软件的 JVM 启动参数配置文件 /etc/logstash/jvm.options
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--Xms1g                                           Logstash 服务的 JVM 堆内存下限 (务必小于等于 -Xmx 参数的值)
--Xmx1g                                           Logstash 服务的 JVM 堆内存上限 (务必大于等于 -Xms 参数的值)
--Xss1m                                           Logstash 服务的 JVM 堆栈单位容量
--XX:ParallelGCThreads=4                          Logstash 服务的 JVM 启动 4 个并发线程 (参数值建议与 CPU 核心数量一致)
--XX:CMSInitiatingOccupancyFraction=75
--XX:+UseCMSInitiatingOccupancyOnly
--XX:+UseConcMarkSweepGC
-... ...
-... ...
-
-""""""""" 演示 /etc/logstash/jvm.options 文件的基本配置
-[root ~]# cat /etc/logstash/jvm.options
--Xms6g
--Xmx6g
--Xss1m
-... ...
-... ...
---------------------------------------------------------------------------------------------------------------------- ✻
-
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Logstash 软件的管道配置
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Logstash 软件的管道配置通常由下述区段组成:
-
-
-
-
-
-
-
-
 
 
 
