@@ -81,7 +81,7 @@ Elasticsearch 软件的主配置文件 /etc/elasticseach/elasticsearch.yml
 """"""""" 演示控制节点的 /etc/elasticseach/elasticsearch.yml 文件的基本配置
 master:~$ cat /etc/elasticseach/elasticsearch.yml
 cluster.name: season
-node.name: elastic-00.season.com
+node.name: elastic-0.season.com
 node.attr.rack: nothing
 node.master: true
 node.data: false
@@ -89,10 +89,10 @@ node.ingest: false
 path.data: /var/lib/elasticsearch
 path.logs: /var/log/elasticsearch
 bootstrap.memory_lock: true
-network.host: elastic-00.season.com
+network.host: elastic-0.season.com
 http.port: 9200
 transport.tcp.port: 9300
-discovery.zen.ping.unicast.hosts: ["elastic-00.season.com", "elastic-01.season.com", "elastic-02.season.com"]
+discovery.zen.ping.unicast.hosts: ["elastic-0.season.com", "elastic-1.season.com", "elastic-2.season.com"]
 discovery.zen.minimum_master_nodes: 1
 gateway.recover_after_nodes: 1
 action.destructive_requires_name: true
@@ -101,7 +101,7 @@ action.destructive_requires_name: true
 """"""""" 演示数据节点的 /etc/elasticseach/elasticsearch.yml 文件的基本配置
 slaver:~$ cat /etc/elasticseach/elasticsearch.yml
 cluster.name: season
-node.name: elastic-01.season.com
+node.name: elastic-1.season.com
 node.attr.rack: nothing
 node.master: false
 node.data: true
@@ -109,10 +109,10 @@ node.ingest: true
 path.data: /var/lib/elasticsearch
 path.logs: /var/log/elasticsearch
 bootstrap.memory_lock: true
-network.host: elastic-01.season.com
+network.host: elastic-1.season.com
 http.port: 9200
 transport.tcp.port: 9300
-discovery.zen.ping.unicast.hosts: ["elastic-00.season.com", "elastic-01.season.com", "elastic-02.season.com"]
+discovery.zen.ping.unicast.hosts: ["elastic-0.season.com", "elastic-1.season.com", "elastic-2.season.com"]
 discovery.zen.minimum_master_nodes: 1
 gateway.recover_after_nodes: 1
 action.destructive_requires_name: true

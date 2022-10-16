@@ -21,7 +21,7 @@ cluster.name: season
 # =====================================================================================================================
 # 节点配置部分
 # =====================================================================================================================
-node.name: elastic-00.season.com
+node.name: elastic-0.season.com
 node.attr.rack: season
 
 # 当前节点为集群控制节点时, 使用下述配置
@@ -46,10 +46,10 @@ path.logs: /var/log/elasticsearch
 # 内存/ 网络配置部分
 # =====================================================================================================================
 bootstrap.memory_lock: true
-network.host: elastic-00.season.com
+network.host: elastic-0.season.com
 http.port: 9200
 transport.tcp.port: 9300
-discovery.zen.ping.unicast.hosts: ["elastic-00.season.com", "elastic-01.season.com", "elastic-01.season.com"]
+discovery.zen.ping.unicast.hosts: ["elastic-0.season.com", "elastic-1.season.com", "elastic-2.season.com"]
 discovery.zen.minimum_master_nodes: 1
 gateway.recover_after_nodes: 1
 action.destructive_requires_name: true
