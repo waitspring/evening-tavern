@@ -1,10 +1,10 @@
-   _                               _     
-\_|_)                             | |    
-  |     __   __,  , _|_  __,   ,  | |    
- _|    /  \_/  | / \_|  /  |  / \_|/ \   
-(/\___/\__/ \_/|/ \/ |_/\_/|_/ \/ |   |_/
-              /|                         
-              \|                         
+   _                               _            _ 
+\_|_)                             | |          | |
+  |     __   __,  , _|_  __,   ,  | |          | |
+ _|    /  \_/  | / \_|  /  |  / \_|/ \       _ |/ 
+(/\___/\__/ \_/|/ \/ |_/\_/|_/ \/ |   |_/    \_/\/
+              /|                                  
+              \|                                  
 --  This document was created by Xuanming in 2022, thanks for your reading
 
 
@@ -113,7 +113,6 @@ Logstash 软件的服务配置文件 /etc/logstash/logstash.yml
 # pipeline.workers: 1                            Logstash 节点启动单个线程管理数据管道 (参数值建议与 CPU 核心数量保持一致)
 # pipeline.batch.size: 125                       Logstash 节点启动单个线程最多同时处理 125 个数据事件
 # pipeline.batch.delay: 50                       Logstash 节点在分发数据事件时, 分发动作每次间隔 50 毫秒
-# pipeline.unsafe_shutdown: false                Logstash 节点关闭闪退特性, 仅当全部数据事件被推送给下游节点才会执行停服动作
 # path.data: /var/lib/logstash                   Logstash 节点使用的数据文件存储目录
 # path.logs: /var/log/logstash                   Logstash 节点使用的日志文件存储目录
 # http.host: 127.0.0.1                           Logstash 节点使用的 HTTP 服务监听范围
@@ -128,7 +127,6 @@ pipeline.java_execution: false
 pipeline.workers: 4
 pipeline.batch.size: 256
 pipeline.batch.delay: 50
-pipeline.unsafe_shutdown: false
 path.data: /var/lib/logstash
 path.logs: /var/log/logstash
 http.host: logstash.season.com
@@ -136,7 +134,26 @@ http.port: 9600
 log.level: info
 --------------------------------------------------------------------------------------------------------------------- ✻
 
+Logstash 软件的管道参数文件 /etc/logstash/pipelines.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# /etc/logstash/pipelines.yml 管道参数文件登记的参数为软件管道参数, 其优先级高于服务配置文件内登记的管道参数
+# pipeline.id: main
+# pipeline.java_execution: false                 Logstash 节点关闭 Java 内核引擎
+# pipeline.workers: 1                            Logstash 节点启动单个线程管理数据管道 (参数值建议与 CPU 核心数量保持一致)
+# pipeline.batch.size: 125                       Logstash 节点启动单个线程最多同时处理 125 个数据事件
+# pipeline.batch.delay: 50                       Logstash 节点在分发数据事件时, 分发动作每次间隔 50 毫秒
+# path.config: /etc/logstash/conf.d/main.conf    Logstash 节点加载 /etc/logstash/conf.d/main.conf 作为管道配置文件
 
+""""""""" 演示 /etc/logstash/pipelines.yml 文件的基本配置
+[root ~]# cat /etc/logstash/pipelines.yml
+- pipeline.id: main
+  pipeline.java_execution: false
+  pipeline.workers: 4
+  pipeline.batch.size: 256
+  pipeline.batch.delay: 50
+  path.config: /etc/logstash/conf.d/main.conf    | 若管道配置文件已经编写, 可以使用下述命令调试校验
+[root ~]# /usr/share/logstash/bin/logstash --path.settings /etc/logstash
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
