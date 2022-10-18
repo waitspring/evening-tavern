@@ -89,6 +89,7 @@ Logstash 软件的执行文件为 /usr/share/logstash/bin/logstash
 ::            --path.settings=/PATH/TO/DIR       指定 Logstash 节点的配置文件集合 (包含 logstash.yml/ pipelines.yml/ ...)
 ::  -f        --path.config=/PATH/TO/FILE        指定 Logstash 节点的日志管道配置文件
 ::  -e        --config.string=STR                指定 Logstash 节点的日志管道配置语句
+::  -t        --config.test_and_exit             检查配置文件的语法编写错误
 ::  -h        --help                             输出帮助信息
 
 阅读上述命令时, 还请注意:
@@ -99,6 +100,7 @@ Logstash 软件的执行文件为 /usr/share/logstash/bin/logstash
 
 """"""""" 使用命令行直接启动 Logstash 软件的服务进程
 [root ~]# vim /etc/logstash/conf.d/debug.conf
+[root ~]# /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/debug.conf -t
 [root ~]# /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/debug.conf
 [root ~]# /usr/share/logstash/bin/logstash -e "                                                                       \
 input {                                                                                                               \
@@ -174,6 +176,7 @@ Logstash 软件的管道参数文件 /etc/logstash/pipelines.yml
   pipeline.batch.size: 256
   pipeline.batch.delay: 50
   path.config: /etc/logstash/conf.d/main.conf    | 若管道配置文件已经编写, 可以使用下述命令调试校验
+[root ~]# /usr/share/logstash/bin/logstash --path.settings /etc/logstash -t
 [root ~]# /usr/share/logstash/bin/logstash --path.settings /etc/logstash
 --------------------------------------------------------------------------------------------------------------------- ✻
 
@@ -185,26 +188,26 @@ Logstash 软件的 CONF 配置文件
 Logstash 软件的 CONF 配置文件包含配置块与配置项, 其中配置块可以内嵌配置块与配置项
 Logstash 软件的 CONF 配置文件可以拆分为下述不同功能部分:
 
-    •  输入配置块 (INPUT PART)
-    •  过滤配置块 (FILTER PART)
-    •  输出配置块 (OUTPUT PART)
+    •  输入配置块 (INPUT  PART): 支持 File (标准文件)/ Stdin (标准输入)/ Kafka/ RabbitMQ 等插件
+    •  输出配置块 (OUTPUT PART): 支持 File (标准文件)/ Stdout (标准输出)/ CSV/ Kafka/ RabbitMQ/ Elasticsearch 等插件
+    •  过滤配置块 (FILTER PART): 支持 XML/ CSV/ CIDR/ Date/ GROK/ Json/ Mutate/ Ruby Split/ UUID 等插件
+    •  输入配置块/ 输出配置块是 CONF 配置文件内必要的配置块, 过滤配置块则是 CONF 配置文件内可选的配置块
 
 ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┬╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
 ┊                                               ┊                                                                     ┊
 ┊   INPUT PART {                                ┊                                                                     ┊
 ┊       ... ...                                 ┊                                                                     ┊
-┊   }                                           ┊                                                                     ┊
-┊                                               ┊                                                                     ┊
-┊   FILTER PART {                               ┊                                                                     ┊
-┊       ... ...                                 ┊                                                                     ┊
-┊   }                                           ┊                                                                     ┊
-┊                                               ┊                                                                     ┊
+┊   }                                           ┊              ┌──────────────────────────────────────┐               ┊
+┊                                               ┊              │ ┌╌╌╌╌╌╌╌╌┐   ┌╌╌╌╌╌╌╌╌┐   ┌╌╌╌╌╌╌╌╌┐ │               ┊
+┊   FILTER PART {                               ┊        ───────>┊ INPUT  ┊──>┊ FILTER ┊──>┊ OUTPUT ┊───────>         ┊
+┊       ... ...                                 ┊              │ └╌╌╌╌╌╌╌╌┘   └╌╌╌╌╌╌╌╌┘   └╌╌╌╌╌╌╌╌┘ │               ┊
+┊   }                                           ┊              │               Logstash               │               ┊
+┊                                               ┊              └──────────────────────────────────────┘               ┊
 ┊   OUTPUT PART {                               ┊                                                                     ┊
 ┊       ... ...                                 ┊                                                                     ┊
 ┊   }                                           ┊                                                                     ┊
 ┊                                               ┊                                                                     ┊
 └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┴╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
-
 
 
 
