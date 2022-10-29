@@ -16,7 +16,7 @@ ELK 项目当前由弹性搜索公司 (Elastic Stack) 负责迭代与维护, 已
 ELK 项目下辖 Elasticsearch (E)/ Logstash (L)/ Kibana (K)/ Filebeat 四款不同软件:
 
     •  Elasticsearch  --  最初由伦敦的开源工程师班农 (Shay Banon) 发布, 负责搜索分析日志数据, 为保证数据安全, 通常使用集群模式部署
-    •  Logstash       --  最初由旧金山的开源工程师西塞 (Jordan Sissel) 发布, 负责转换汇总日志数据
+    •  Logstash       --  最初由旧金山的开源工程师西塞 (Jordan Sissel) 发布, 负责汇总过滤日志数据
     •  Kibana         --  最初由凤凰城的开源工程师可汗 (Rashid Khan) 发布, 基于 WEB 工具提供日志数据的可视化服务
     •  Filebeat       --  负责采集日志数据, 本身是弹性搜索公司 Beats 项目的一员
 
