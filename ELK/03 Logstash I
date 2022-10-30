@@ -108,10 +108,11 @@ input {                                                                         
 }                                                                                                                     \
 filter {                                                                                                              \
     ruby => {                                                                                                         \
-        code => \"event.set('timestamp', (event.get('@timestamp').time.localtime).strftime('%Y-%m-%d %H:%M:%S.%L'))\" \
-        remove_field => [\"@version\", \"@timestamp\", \"host\"]                                                      \
+        code => \"event.set('timestamp', event.get('@timestamp').time.localtime + 8*60*60)\"                          \
     }                                                                                                                 \
-}                                                                                                                     \
+    ruby => {                                                                                                         \
+        code => \"event.set('@timestamp', event.get('timestamp'))\"                                                   \
+    }                                                                                                                 \
 output {                                                                                                              \
     stdout {                                                                                                          \
         codec => "rubydebug"                                                                                          \
@@ -184,7 +185,7 @@ Logstash 软件的 CONF 配置文件能够定义一个业务日志管道的输�
 Logstash 软件的 CONF 配置文件的基本单位为配置块, 配置块可以内嵌配置块和配置项
 Logstash 软件的 CONF 配置文件的基本语法规则如下:
 
-    •  使用 PART {} 的语法格式定义配置块
+    •  使用 PART {} 的语法格式定义配置块, 同一个配置块支持反复多次调用
     •  使用 NAME => VALUE 的语法格式定义配置项
     •  配置项的值支持布尔值 (Boolean)/ 数值/ 字符串/ 文件路径 (Path)/ 编码格式 (Codec)/ 字节容量 (Bytes) 在内的六种基本数据类型
        •  文件路径/ 编码格式/ 字节容量, 这三种基本数据类型本质上仍然是字符串, 需要使用双引号 "VALUE" 的语法格式编写
