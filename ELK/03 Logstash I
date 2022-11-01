@@ -243,6 +243,7 @@ if condition {
 """"""""" 演示 /etc/logstash/conf.d/debug.conf 文件的基本配置
 [root ~]# cat /etc/logstash/conf.d/debug.conf
 ... ...
+... ...
 output {
     if [message] =~ "[a-zA-Z0-9]+" {
         stdout {
