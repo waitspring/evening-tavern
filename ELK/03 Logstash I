@@ -68,7 +68,6 @@ Logstash 软件若使用 RPM 包直接安装, 可以得到下述文件
 [root ~]# vim /etc/logstash/conf.d/main.conf
 [root ~]# vim /etc/logstash/jvm.options
 [root ~]# vim /etc/logstash/log4j2.properties
-[root ~]# systemctl daemon-reload
 [root ~]# systemctl enable logstash.service
 [root ~]# systemctl  start logstash.service
 [root ~]# systemctl status logstash.service

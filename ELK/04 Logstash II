@@ -211,7 +211,7 @@ output {
         ]
         index => "season-applog-%{+YYYY.MM}"
         pool_max => 1800
-        poll_max_per_route => 600
+        pool_max_per_route => 600
         timeout => 300
     }
 }
