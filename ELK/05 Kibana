@@ -45,10 +45,36 @@ Kibana 软件若使用 RPM 包直接安装, 可以得到下述文件
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Kibana 软件的配置文件
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kibana 软件的配置文件 /etc/kibana/kibana.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# server.port: 5601                              Kibana 软件的 HTTP 服务监听端口
+# server.host: "localhost"                       Kibana 软件的 HTTP 服务监听范围
+# elasticsearch.hosts: ["http://localhost:9200"] Kibana 软件的上游索引数据库集群的连接列表
+# elasticsearch.username: "username"             Kibana 软件的上游索引数据库集群的认证用户
+# elasticsearch.password: "password"             Kibana 软件的上游索引数据库集群的认证密码
+# kibana.index: ".kibana"                        Kibana 软件在上游索引数据库集群内使用固定值作为索引
+# pid.file: /var/run/kibana.pid                  Kibana 软件的进程文件工作目录
+# logging.timezone: "Asia/Shanghai"              Kibana 软件的日志时区设置
+# i18n.locale: "zh-CN"                           Kibana 软件的区域设置, 用于配置前端界面的语言类型
+
+""""""""" 演示 /etc/kibana/kibana.yml 文件的基本配置
+[root ~]# cat /etc/kibana/kibana.yml
+server.port: 5601
+server.host: kibana.season.com
+elasticsearch.hosts: [
+    "http://elastic-0.season.com:9200",
+    "http://elastic-1.season.com:9200",
+    "http://elastic-2.season.com:9200"
+]
+kibana.index: ".kibana"
+i18n.locale: "zh-CN"
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
-
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kibana 软件的配置文件
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
 
