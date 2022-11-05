@@ -61,8 +61,6 @@ Filebeat 软件的配置文件 /etc/filebeat/filebeat.yml
 # filebeat.config.modules:                       标记软件的模型加载部分
 #   path: ${path.config}/modules.d/*.yml
 #   reload.enabled: false
-# setup.template.settings:
-#   index.number_of_shards: 1
 # output.kafka:                                  标记软件的日志消息的 Kafka 输出配置部分
 #   hosts: ["kafka.season.com:9092"]             配置日志消息的下游队列输出列表
 #   topic: "os-log"                              设置日志消息的下游队列寄存主题
@@ -83,8 +81,6 @@ filebeat.inputs:
 filebeat.config.modules:
   path: ${path.config}/modules.d/*.yml
   reload.enabled: false
-setup.template.settings:
-  index.number_of_shards: 1
 output.kafka:
   hosts: [
     "kafka-0.season.com:9092",
