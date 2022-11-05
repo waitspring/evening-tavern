@@ -1,0 +1,69 @@
+ ______    _      _                
+(_) |  o  | |    | |               
+   _|_    | |  _ | |   _   __, _|_ 
+  / | ||  |/  |/ |/ \_|/  /  |  |  
+ (_/   |_/|__/|__/\_/ |__/\_/|_/|_/
+                                   
+                                   
+--  This document was created by Xuanming in 2022, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Filebeat 软件的安装过程
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Filebeat 软件的安装途经有:
+
+    •  使用 YUM 源直接安装 (需要单独配置 Elastic Stack 软件仓库的 YUM 源)
+    •  使用 RPM 包直接安装 (优先推荐使用 RPM 包直接安装)
+    •  使用源码安装, 源码的 TGZ 压缩包可以基于 ELK Stack 社区站点下载: https://www.elastic.co/cn/downloads/filebeat
+
+Filebeat 软件若使用 RPM 包直接安装, 可以得到下述文件
+┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
+│ Path                                           │ F/D │ Comment
+├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
+│ /etc/filebeat/filebeat.yml                     │  F  │ 软件的主配置文件
+│ /etc/init.d/filebeat                           │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
+│ /usr/lib/systemd/system/filebeat.service       │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件
+│ /usr/bin/filebeat                              │  F  │ 软件的可执行文件
+│ /usr/share/filebeat                            │  D  │ 软件的安装目录
+└────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
+
+""""""""" 使用 RPM 包直接安装 Filebeat 软件
+[root ~]# rpm -ivh /srv/filebeat-6.8.23-x86_64.rpm
+[root ~]# rpm -qs filebeat | grep -v /usr/share/filebeat
+[root ~]# vim /etc/filebeat/filebeat.yml
+[root ~]# systemctl enable filebeat.service
+[root ~]# systemctl  start filebeat.service
+[root ~]# systemctl status filebeat.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Filebeat 软件的配置文件
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Filebeat 软件的配置文件 /etc/filebeat/filebeat.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /path/to/file
+  fields:
+    theme:
+  fields_under_root: true
+  multiline.pattern: ^\d{4}-\d{2}-\d{2}
+  multiline.negate: true
+  multiline.match: after
+- type: log
+
+
+
+
+
+
+
+
+
+
