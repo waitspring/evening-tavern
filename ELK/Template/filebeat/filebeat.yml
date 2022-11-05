@@ -19,22 +19,10 @@ filebeat.inputs:
 - type: log
   enabled: true
   paths:
-    - /var/log/elasticsearch/elasticsearch.log
-  fields:
-    theme: elasticsearch
-    ipaddr: demo.season.com
+    - /var/log/message
   fields_under_root: true
-  multiline.pattern: ^\d{4}-\d{2}-\d{2}
-  multiline.negate: true
-  multiline.match: after
-- type: log
-  enabled: true
-  paths:
-    - /var/log/logstash/logstash.log
   fields:
-    theme: logstash
-    ipaddr: demo.season.com
-  fields_under_root: true
+    - theme: os
   multiline.pattern: ^\d{4}-\d{2}-\d{2}
   multiline.negate: true
   multiline.match: after
@@ -60,8 +48,8 @@ setup.template.settings:
 # =====================================================================================================================
 output.kafka:
   hosts: [
-      "elastic-0.season.com",
-      "elastic-1.season.com",
-      "elastic-2.season.com"
+    "elastic-0.season.com:9092",
+    "elastic-1.season.com:9092",
+    "elastic-2.season.com:9092"
   ]
   topic: "middleware-log"

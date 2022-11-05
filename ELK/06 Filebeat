@@ -45,25 +45,54 @@ Filebeat 软件的配置文件
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Filebeat 软件的配置文件 /etc/filebeat/filebeat.yml
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# filebeat.inputs:                               标记软件的日志消息的读取配置部分
+# - type: log                                    编写日志消息的一个读取模块 (单个 YAML 配置文件能够多次编写同类型的读取模块)
+#   enabled: true                                开启日志消息的当前读取模块
+#   paths:                                       配置日志消息的文件读取列表
+#     - /var/log/message                         设置日志消息的第一个文件读取路径
+#     - /var/log/secure                          设置日志消息的第二个文件读取路径
+#   fields_under_root: true                      要求日志消息内用户添加的自定义键值对, 放置在根数据结构下
+#   fields:                                      配置日志消息内用户添加的自定义键值对列表
+#     - theme: os                                设置日志消息内用户添加的第一个自定义键值对
+#     - maker: os                                设置日志消息内用户添加的第二个自定义键值对
+#   multiline.pattern: ^\d{4}-\d{2}-\d{2}        编写日志消息的正则匹配规则
+#   multiline.negate: true                       开启日志消息的多行合并特性
+#   multiline.match: after                       开启日志消息的多行合并特性, 并使用向后合并
+# filebeat.config.modules:                       标记软件的模型加载部分
+#   path: ${path.config}/modules.d/*.yml
+#   reload.enabled: false
+# setup.template.settings:
+#   index.number_of_shards: 1
+# output.kafka:                                  标记软件的日志消息的 Kafka 输出配置部分
+#   hosts: ["kafka.season.com:9092"]             配置日志消息的下游队列输出列表
+#   topic: "os-log"                              设置日志消息的下游队列寄存主题
+
+""""""""" 演示 /etc/filebeat/filebeat.yml 文件的基本配置
+[root ~]# cat /etc/filebeat/filebeat.yml
 filebeat.inputs:
 - type: log
   enabled: true
   paths:
-    - /path/to/file
-  fields:
-    theme:
+    - /var/log/message
   fields_under_root: true
+  fields:
+    - theme: os
   multiline.pattern: ^\d{4}-\d{2}-\d{2}
   multiline.negate: true
   multiline.match: after
-- type: log
-
-
-
-
-
-
-
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+setup.template.settings:
+  index.number_of_shards: 1
+output.kafka:
+  hosts: [
+    "kafka-0.season.com:9092",
+    "kafka-1.season.com:9092",
+    "kafka-2.season.com:9092"
+  ]
+  topic: "os-log"
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 

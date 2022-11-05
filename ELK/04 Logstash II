@@ -56,6 +56,7 @@ output {                                                                        
 │ consumer_threads => 1                          │ Number  │ 插件默认用 1 个线程从上游队列消费业务日志数据 (匹配主题的分区数量)
 │ group_id => "logstash"                         │ String  │ 插件默认用 logstash 作为队列的消费者标识
 │ topics => ["logstash"]                         │ Array   │ 插件默认消费上游队列中的 logstash 主题内的数据
+│ codec => "line"                                │ Codec   │ 插件默认用数据行作为单位, 从上游队列内读取消息事件内
 └────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
 
 """"""""" 演示输入配置块内消息队列插件的使用办法
@@ -66,6 +67,7 @@ input {
         group_id          => "logstash"
         consumer_threads  => 3
         topics            => ["application-log"]
+        codec             => "json"
     }
 }
 ... ...
