@@ -54,7 +54,7 @@ output {                                                                        
 │ auto_commit_interval_ms => "5000"              │ String  │ 插件默认每 5000ms 从上游队列取一次业务日志数据
 │ bootstrap_servers => "localhost:9092"          │ String  │ 插件默认用 localhost:9092 作为上游队列的服务套接字
 │ consumer_threads => 1                          │ Number  │ 插件默认用 1 个线程从上游队列消费业务日志数据 (匹配主题的分区数量)
-│ group_id => "logstash"                         │ String  │ 插件默认用 logstash 作为队列的消费者标识
+│ group_id => "logstash"                         │ String  │ 插件默认用 logstash 作为上游队列的消费者标识
 │ topics => ["logstash"]                         │ Array   │ 插件默认消费上游队列中的 logstash 主题内的数据
 │ codec => "line"                                │ Codec   │ 插件默认用数据行作为单位, 从上游队列内读取消息事件内
 └────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ input {
         bootstrap_servers => "kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092"
         group_id          => "logstash"
         consumer_threads  => 3
-        topics            => ["application-log"]
+        topics            => ["season-application-log"]
         codec             => "json"
     }
 }
@@ -211,7 +211,7 @@ output {
             "elastic-1.season.com:9200",
             "elastic-2.season.com:9200"
         ]
-        index => "season-applog-%{+YYYY.MM}"
+        index => "season-application-log-%{+YYYY-MM}"
         pool_max => 1800
         pool_max_per_route => 600
         timeout => 300

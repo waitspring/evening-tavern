@@ -63,7 +63,7 @@ Filebeat 软件的配置文件 /etc/filebeat/filebeat.yml
 #   reload.enabled: false
 # output.kafka:                                  标记软件的日志消息的 Kafka 输出配置部分
 #   hosts: ["kafka.season.com:9092"]             配置日志消息的下游队列输出列表
-#   topic: "os-log"                              设置日志消息的下游队列寄存主题
+#   topic: "season-os-log"                       设置日志消息的下游队列寄存主题
 
 """"""""" 演示 /etc/filebeat/filebeat.yml 文件的基本配置
 [root ~]# cat /etc/filebeat/filebeat.yml
@@ -87,7 +87,7 @@ output.kafka:
     "kafka-1.season.com:9092",
     "kafka-2.season.com:9092"
   ]
-  topic: "os-log"
+  topic: "season-os-log"
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 

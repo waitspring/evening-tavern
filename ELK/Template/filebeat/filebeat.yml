@@ -45,4 +45,4 @@ output.kafka:
     "elastic-1.season.com:9092",
     "elastic-2.season.com:9092"
   ]
-  topic: "os-log"
+  topic: "season-os-log"

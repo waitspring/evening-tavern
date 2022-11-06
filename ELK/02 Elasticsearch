@@ -46,7 +46,7 @@ Elasticsearch 软件若使用 RPM 包直接安装, 可以得到下述文件
 [root ~]# systemctl enable elasticsearch.service
 [root ~]# systemctl  start elasticsearch.service
 [root ~]# systemctl status elasticsearch.service
-[root ~]# curl http://spring.season.com:9200
+[root ~]# curl http://elastic.season.com:9200
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 

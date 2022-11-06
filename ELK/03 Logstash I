@@ -229,13 +229,13 @@ if condition {
 ::  else                                         可选的关键字, 标记这是一条条件表达式的分支
 
 条件表达式 condition 的常用写作格式如下
-::  [KEY] == VALUE                               判断输入配置块的键值是否等于数值/ 字符串 VALUE
-::  [KEY] != VALUE                               判断输入配置块的键值是否不等于数值/ 字符串 VALUE
-::  [KEY] =~ VALUE                               判断输入配置块的键值能否正则匹配规则 VALUE
-::  [KEY] >= VALUE                               判断输入配置块的键值是否大于等于数值 VALUE
-::  [KEY] <= VALUE                               判断输入配置块的键值是否小于等于数值 VALUE
-::  [KEY] > VALUE                                判断输入配置块的键值是否大于数值 VALUE
-::  [KEY] < VALUE                                判断输入配置块的键值是否小于数值 VALUE
+::  [KEY] == VALUE                               判断输入配置块的键值 KEY 是否等于数值/ 字符串 VALUE
+::  [KEY] != VALUE                               判断输入配置块的键值 KEY 是否不等于数值/ 字符串 VALUE
+::  [KEY] =~ VALUE                               判断输入配置块的键值 KEY 能否正则匹配规则 VALUE
+::  [KEY] >= VALUE                               判断输入配置块的键值 KEY 是否大于等于数值 VALUE
+::  [KEY] <= VALUE                               判断输入配置块的键值 KEY 是否小于等于数值 VALUE
+::  [KEY] > VALUE                                判断输入配置块的键值 KEY 是否大于数值 VALUE
+::  [KEY] < VALUE                                判断输入配置块的键值 KEY 是否小于数值 VALUE
 
 """"""""" 演示 /etc/logstash/conf.d/debug.conf 文件的基本配置
 [root ~]# cat /etc/logstash/conf.d/debug.conf
