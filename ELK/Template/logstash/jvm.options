@@ -1,0 +1,16 @@
+-Xms6g
+-Xmx6g
+-Xss1m
+
+-XX:+UseConcMarkSweepGC
+-XX:+UseCMSInitiatingOccupancyOnly
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:CMSInitiatingOccupancyFraction=75
+
+-Djava.awt.headless=true
+-Djava.security.egd=file:/dev/urandom
+-Dfile.encoding=UTF-8
+
+-Djruby.compile.invokedynamic=true
+-Djruby.regexp.interruptible=true
+-Djruby.jit.threshold=0

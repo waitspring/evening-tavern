@@ -1,0 +1,75 @@
+ ,        _                       
+/|   / o | |                      
+ |__/    | |   __,   _  _    __,  
+ | \   | |/ \_/  |  / |/ |  /  |  
+ |  \_/|_/\_/ \_/|_/  |  |_/\_/|_/
+                                  
+                                  
+--  This document was created by Xuanming in 2022, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kibana 软件的安装过程
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kibana 软件的安装途经有:
+
+    •  使用 YUM 源直接安装 (需要单独配置 Elastic Stack 软件仓库的 YUM 源)
+    •  使用 RPM 包直接安装 (优先推荐使用 RPM 包直接安装)
+    •  使用源码安装, 源码的 TGZ 压缩包可以基于 GitHub/ ELK Stack 社区站点下载
+       •  https://github.com/elastic/kibana/releases
+       •  https://www.elastic.co/cn/downloads/kibana
+
+Kibana 软件若使用 RPM 包直接安装, 可以得到下述文件
+┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
+│ Path                                           │ F/D │ Comment
+├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
+│ /etc/kibana/kibana.yml                         │  F  │ 软件的主配置文件
+│ /etc/init.d/kibana                             │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
+│ /usr/lib/systemd/system/kibana.service         │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件
+│ /usr/share/kibana                              │  D  │ 软件的安装目录
+│ /var/lib/kibana                                │  D  │ 软件的数据目录
+└────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
+
+""""""""" 使用 RPM 包直接安装 Kibana 软件
+[root ~]# rpm -ivh /srv/kibana-6.8.23-x86_64.rpm
+[root ~]# rpm -qs kibana | grep -v /usr/share/kibana
+[root ~]# vim /etc/kibana/kibana.yml
+[root ~]# systemctl enable kibana.service
+[root ~]# systemctl  start kibana.service
+[root ~]# systemctl status kibana.service
+[root ~]# curl -I http://kibana.season.com:5601/app/kibana
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kibana 软件的配置文件
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kibana 软件的配置文件 /etc/kibana/kibana.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# server.port: 5601                              Kibana 软件的 HTTP 服务监听端口
+# server.host: "localhost"                       Kibana 软件的 HTTP 服务监听范围
+# elasticsearch.hosts: ["http://localhost:9200"] Kibana 软件的上游索引数据库集群的连接列表
+# elasticsearch.username: "username"             Kibana 软件的上游索引数据库集群的认证用户
+# elasticsearch.password: "password"             Kibana 软件的上游索引数据库集群的认证密码
+# kibana.index: ".kibana"                        Kibana 软件在上游索引数据库集群内使用固定值作为索引
+# pid.file: /var/run/kibana.pid                  Kibana 软件的进程文件工作目录
+# logging.timezone: "Asia/Shanghai"              Kibana 软件的日志时区设置
+# i18n.locale: "zh-CN"                           Kibana 软件的区域设置, 用于配置前端界面的语言类型
+
+""""""""" 演示 /etc/kibana/kibana.yml 文件的基本配置
+[root ~]# cat /etc/kibana/kibana.yml
+server.port: 5601
+server.host: kibana.season.com
+elasticsearch.hosts: [
+    "http://elastic-0.season.com:9200",
+    "http://elastic-1.season.com:9200",
+    "http://elastic-2.season.com:9200"
+]
+kibana.index: ".kibana"
+i18n.locale: "zh-CN"
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+

@@ -1,0 +1,252 @@
+   _                               _            _ 
+\_|_)                             | |          | |
+  |     __   __,  , _|_  __,   ,  | |          | |
+ _|    /  \_/  | / \_|  /  |  / \_|/ \       _ |/ 
+(/\___/\__/ \_/|/ \/ |_/\_/|_/ \/ |   |_/    \_/\/
+              /|                                  
+              \|                                  
+--  This document was created by Xuanming in 2022, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的安装过程
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的安装途经有:
+
+    •  使用 YUM 源直接安装 (需要单独配置 Elastic Stack 软件仓库的 YUM 源)
+    •  使用 RPM 包直接安装 (优先推荐使用 RPM 包直接安装)
+    •  使用源码安装, 源码的 TGZ 压缩包可以基于 GitHub/ ELK Stack 社区站点下载
+        •  https://github.com/elastic/logstash/releases
+        •  https://www.elastic.co/cn/downloads/logstash
+
+Logstash 软件若使用 RPM 包直接安装, 可以得到下述文件
+┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
+│ Path                                           │ F/D │ Comment
+├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
+│ /etc/logstash/logstash.yml                     │  F  │ 软件的服务配置文件 (设置服务的监听端口/ 性能参数/ 数据目录/ ...)
+│ /etc/logstash/pipelines.yml                    │  F  │ 软件的管道参数文件 (设置管道的标识参数/ 性能参数/ 配置文件/ ...)
+│ /etc/logstash/conf.d                           │  D  │ 软件的管道配置目录 (寄存日志管道配置文件)
+│ /etc/logstash/conf.d/main.conf                 │  F  │ 软件的管道配置文件 (设置单个日志管道的输入/ 过滤/ 输出组件)
+│ /etc/logstash/jvm.options                      │  F  │ 软件的 JVM 启动参数配置文件
+│ /etc/logstash/log4j2.properties                │  F  │ 软件的 Log4j2 日志参数配置文件
+│ /etc/init.d/logstash                           │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
+│ /usr/lib/systemd/system/logstash.service       │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件
+│ /usr/share/logstash                            │  D  │ 软件的安装目录
+│ /usr/share/logstash/bin/logstash               │  F  │ 软件的执行文件
+│ /var/lib/logstash                              │  D  │ 软件的数据目录
+│ /var/log/logstash                              │  D  │ 软件的日志目录
+└────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
+
+阅读上述表格时, 还请注意:
+
+    •  软件的服务配置文件/ 管道参数文件有一定的重合复用的参数, 若发生参数复用, 那么软件的管道参数文件的参数优先级更高
+    •  软件的管道参数文件必须定义名为 "main" 的日志管道, 此基础上可以定义多个不重名的日志管道
+
+┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+┊                                                                                                                     ┊
+┊                                              ┌───────────────┐                                                      ┊
+┊                                      ┌───────┤ pipelines.yml ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐             ┊
+┊                                      │       └───────────────┘                                        ┊             ┊
+┊             ┌────────────────┐       │       ┌───────────────┐               ┌───────────────┐        ┊             ┊
+┊             │ /etc/logstash/ ├───────┼───────┤ logstash.yml  │       ┌───────┤ main.conf     │<╌╌╌╌╌╌╌┤             ┊
+┊             └────────────────┘       │       └───────────────┘       │       └───────────────┘        ┊             ┊
+┊                                      │       ┌───────────────┐       │       ┌───────────────┐        ┊             ┊
+┊                                      └───────┤ conf.d/       ├───────┼───────┤ business.conf │<╌╌╌╌╌╌╌┤             ┊
+┊                                              └───────────────┘       │       └───────────────┘        ┊             ┊
+┊                                                                      │       ┌───────────────┐        ┊             ┊
+┊                                                                      └───────┤ debug.conf    │<╌╌╌╌╌╌╌┘             ┊
+┊                                                                              └───────────────┘                      ┊
+┊                                                                                                                     ┊
+└╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+
+""""""""" 使用 RPM 包直接安装 Logstash 软件
+[root ~]# rpm -ivh /srv/logstash-6.8.23.rpm
+[root ~]# rpm -qs logstash | grep -v /usr/share/logstash
+[root ~]# vim /etc/logstash/logstash.yml
+[root ~]# vim /etc/logstash/pipelines.yml
+[root ~]# vim /etc/logstash/conf.d/main.conf
+[root ~]# vim /etc/logstash/jvm.options
+[root ~]# vim /etc/logstash/log4j2.properties
+[root ~]# systemctl enable logstash.service
+[root ~]# systemctl  start logstash.service
+[root ~]# systemctl status logstash.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的日常管理
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的执行文件为 /usr/share/logstash/bin/logstash
+
+/usr/share/logstash/bin/logstash [option...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/share/logstash/bin/logstash 执行文件是软件的日常管理工具, 默认用于启动 Logstash 软件的服务进程
+/usr/share/logstash/bin/logstash 执行文件常用的可选选项有
+::  -n        --node.name=NAME                   指定 Logstash 节点的名称 (默认 localhost.localdomain)
+::            --path.settings=/PATH/TO/DIR       指定 Logstash 节点的配置文件集合 (包含 logstash.yml/ pipelines.yml/ ...)
+::  -f        --path.config=/PATH/TO/FILE        指定 Logstash 节点的日志管道配置文件
+::  -e        --config.string=STR                指定 Logstash 节点的日志管道配置语句
+::  -t        --config.test_and_exit             检查配置文件的语法编写错误
+::  -h        --help                             输出帮助信息
+
+阅读上述命令时, 还请注意:
+
+    •  Logstash 软件默认使用 --path.settings 选项加载整个服务配置目录
+    •  Logstash 软件通常使用 --path.config   选项加载单个管道配置文件, 用于调试校验配置文件的准确性
+    •  Logstash 软件通常使用 --config.string 选项加载单条管道配置语句, 用于确认软件本身是否完好
+
+""""""""" 使用命令行直接启动 Logstash 软件的服务进程
+[root ~]# vim /etc/logstash/conf.d/debug.conf
+[root ~]# /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/debug.conf -t
+[root ~]# /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/debug.conf
+[root ~]# /usr/share/logstash/bin/logstash -e "                                                                       \
+input {                                                                                                               \
+    stdin {}                                                                                                          \
+}                                                                                                                     \
+filter {                                                                                                              \
+    ruby => {                                                                                                         \
+        code => \"event.set('timestamp', event.get('@timestamp').time.localtime + 8*60*60)\"                          \
+    }                                                                                                                 \
+    ruby => {                                                                                                         \
+        code => \"event.set('@timestamp', event.get('timestamp'))\"                                                   \
+    }                                                                                                                 \
+output {                                                                                                              \
+    stdout {}                                                                                                         \
+}"                                                                                                                    \
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的 YAML 配置文件
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+服务配置文件 /etc/logstash/logstash.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# /etc/logstash/logstash.yml 服务配置文件登记的参数为软件默认参数, 默认参数的优先级较低, 允许被其余配置文件参数覆盖
+# node.name: demo                                Logstash 节点使用的名称标识
+# pipeline.java_execution: false                 Logstash 节点关闭 Java 内核引擎
+# pipeline.workers: 1                            Logstash 节点启动单个线程管理数据管道 (参数值建议与 CPU 核心数量保持一致)
+# pipeline.batch.size: 125                       Logstash 节点启动单个线程最多同时处理 125 个数据事件
+# pipeline.batch.delay: 50                       Logstash 节点在分发数据事件时, 分发动作每次间隔 50 毫秒
+# path.data: /var/lib/logstash                   Logstash 节点使用的数据文件存储目录
+# path.logs: /var/log/logstash                   Logstash 节点使用的日志文件存储目录
+# http.host: 127.0.0.1                           Logstash 节点使用的 HTTP 服务监听范围
+# http.port: 9600                                Logstash 节点使用的 HTTP 服务监听端口
+# log.level: info                                Logstash 节点仅输出 INFO 级别以上的软件运行日志
+
+
+""""""""" 演示 /etc/logstash/logstash.yml 文件的基本配置
+[root ~]# cat /etc/logstash/logstash.yml
+node.name: logstash.season.com
+pipeline.java_execution: false
+pipeline.workers: 4
+pipeline.batch.size: 256
+pipeline.batch.delay: 50
+path.data: /var/lib/logstash
+path.logs: /var/log/logstash
+http.host: logstash.season.com
+http.port: 9600
+log.level: info
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+管道参数文件 /etc/logstash/pipelines.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# /etc/logstash/pipelines.yml 管道参数文件登记的参数为软件管道参数, 其优先级高于服务配置文件内登记的管道参数
+# pipeline.id: main
+# pipeline.java_execution: false                 Logstash 节点关闭 Java 内核引擎
+# pipeline.workers: 1                            Logstash 节点启动单个线程管理数据管道 (参数值建议与 CPU 核心数量保持一致)
+# pipeline.batch.size: 125                       Logstash 节点启动单个线程最多同时处理 125 个数据事件
+# pipeline.batch.delay: 50                       Logstash 节点在分发数据事件时, 分发动作每次间隔 50 毫秒
+# path.config: /etc/logstash/conf.d/main.conf    Logstash 节点加载 /etc/logstash/conf.d/main.conf 作为管道配置文件
+
+""""""""" 演示 /etc/logstash/pipelines.yml 文件的基本配置
+[root ~]# cat /etc/logstash/pipelines.yml
+- pipeline.id: main
+  pipeline.java_execution: false
+  pipeline.workers: 4
+  pipeline.batch.size: 256
+  pipeline.batch.delay: 50
+  path.config: /etc/logstash/conf.d/main.conf    | 若管道配置文件已经编写, 可以使用下述命令调试校验
+[root ~]# /usr/share/logstash/bin/logstash --path.settings /etc/logstash -t
+[root ~]# /usr/share/logstash/bin/logstash --path.settings /etc/logstash
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的 CONF 配置文件
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Logstash 软件的 CONF 配置文件能够定义一个业务日志管道的输入/ 过滤/ 输出组件, 业务日志管道需由管道参数文件加载使用
+Logstash 软件的 CONF 配置文件的基本单位为配置块, 配置块可以内嵌配置块和配置项
+Logstash 软件的 CONF 配置文件的基本语法规则如下:
+
+    •  使用 PART {} 的语法格式定义配置块, 同一个配置块支持反复多次调用
+    •  使用 NAME => VALUE 的语法格式定义配置项
+    •  配置项的值支持布尔值 (Boolean)/ 数值/ 字符串/ 文件路径 (Path)/ 编码格式 (Codec)/ 字节容量 (Bytes) 在内的六种基本数据类型
+       •  文件路径/ 编码格式/ 字节容量, 这三种基本数据类型本质上仍然是字符串, 需要使用双引号 "VALUE" 的语法格式编写
+       •  编码格式作为基本数据类型, 其常用值有 csv/ edn/ json/ line/ multiline/ nmap/ plain/ rubydebug/ ...
+    •  配置项的值支持哈希 (Hash)/ 数组 (Array) 在内的两种高级数据结构   
+       •  哈希作为数据结构, 其语法格式为 {"KEY1" => "VALUE1" "KEY2" => "VALUE2" ...}
+       •  数组作为数据结构, 其语法格式为 ["VALUE1", "VALUE2", ...]
+
+┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+┊                                                                                                                     ┊
+┊   INPUT PART {                                                                                                      ┊
+┊       ... ...                                                                                                       ┊
+┊   }                                                                                                                 ┊
+┊                                                                                                                     ┊
+┊   FILTER PART {                                                                                                     ┊
+┊       IF PART {                                                                                                     ┊
+┊           ... ...                                                                                                   ┊
+┊       }                                                                                                             ┊
+┊       ... ...                                                                                                       ┊
+┊   }                                                                                                                 ┊
+┊                                                                                                                     ┊
+┊   OUTPUT PART {                                                                                                     ┊
+┊       IF PART {                                                                                                     ┊
+┊           ... ...                                                                                                   ┊
+┊       }                                                                                                             ┊
+┊       ... ...                                                                                                       ┊
+┊   }                                                                                                                 ┊
+┊                                                                                                                     ┊
+└╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+
+if condition {
+    ... ...
+} else if condition {
+    ... ...
+} else {
+    ... ...
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+日志管道的过滤/ 输出组件支持使用条件判断语句, 条件判断语句仅支持内嵌配置块
+::  if                                           固定的关键字, 标记这是一个条件表达式
+::  condition                                    必要的表达式, 支持使用变量, 常量 (布尔值/ 字符串/ 数值), 正则表达式
+::  ... ...                                      内嵌的配置块, 条件表达式为真时触发内嵌的配置块执行相应操作
+::  else if                                      可选的关键字, 标记这是一条条件表达式的分支
+::  else                                         可选的关键字, 标记这是一条条件表达式的分支
+
+条件表达式 condition 的常用写作格式如下
+::  [KEY] == VALUE                               判断输入配置块的键值 KEY 是否等于数值/ 字符串 VALUE
+::  [KEY] != VALUE                               判断输入配置块的键值 KEY 是否不等于数值/ 字符串 VALUE
+::  [KEY] =~ VALUE                               判断输入配置块的键值 KEY 能否正则匹配规则 VALUE
+::  [KEY] >= VALUE                               判断输入配置块的键值 KEY 是否大于等于数值 VALUE
+::  [KEY] <= VALUE                               判断输入配置块的键值 KEY 是否小于等于数值 VALUE
+::  [KEY] > VALUE                                判断输入配置块的键值 KEY 是否大于数值 VALUE
+::  [KEY] < VALUE                                判断输入配置块的键值 KEY 是否小于数值 VALUE
+
+""""""""" 演示 /etc/logstash/conf.d/debug.conf 文件的基本配置
+[root ~]# cat /etc/logstash/conf.d/debug.conf
+... ...
+... ...
+output {
+    if [message] =~ "[a-zA-Z0-9]+" {
+        stdout {}
+    } else {}
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+

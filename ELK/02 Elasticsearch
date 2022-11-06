@@ -1,0 +1,208 @@
+ ___  _                                                 _     
+/ (_)| |              o                                | |    
+\__  | |  __,   , _|_     __   ,   _   __,   ,_    __  | |    
+/    |/  /  |  / \_|  |  /    / \_|/  /  |  /  |  /    |/ \   
+\___/|__/\_/|_/ \/ |_/|_/\___/ \/ |__/\_/|_/   |_/\___/|   |_/
+                                                              
+                                                              
+--  This document was created by Xuanming in 2022, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的安装过程
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的安装途经有:
+
+    •  使用 YUM 源直接安装 (需要单独配置 Elastic Stack 软件仓库的 YUM 源)
+    •  使用 RPM 包直接安装 (优先推荐使用 RPM 包直接安装)
+    •  使用源码安装, 源码的 TGZ 压缩包可以基于 GitHub/ ELK Stack 社区站点下载
+        •  https://github.com/elastic/elasticsearch/releases
+        •  https://www.elastic.co/cn/downloads/elasticsearch
+
+Elasticsearch 软件若使用 RPM 包直接安装, 可以得到下述文件
+┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
+│ Path                                           │ F/D │ Comment
+├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
+│ /etc/elasticseach/elasticsearch.yml            │  F  │ 软件的主配置文件
+│ /etc/elasticseach/jvm.options                  │  F  │ 软件的 JVM 启动参数配置文件
+│ /etc/elasticseach/log4j2.properties            │  F  │ 软件的 Log4j2 日志参数配置文件
+│ /etc/init.d/elasticsearch                      │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
+│ /usr/lib/systemd/system/elasticsearch.service  │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件
+│ /usr/share/elasticsearch                       │  D  │ 软件的安装目录
+│ /var/lib/elasticsearch                         │  D  │ 软件的数据目录
+│ /var/log/elasticsearch                         │  D  │ 软件的日志目录
+│ /var/run/elasticsearch                         │  D  │ 软件的进程目录
+└────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
+
+""""""""" 使用 RPM 包直接安装 Elasticsearch 软件
+[root ~]# rpm -ivh /srv/elasticsearch-6.8.23.rpm
+[root ~]# rpm -qs elasticsearch | grep -v /usr/share/elasticsearch
+[root ~]# vim /etc/elasticsearch/elasticsearch.yml
+[root ~]# vim /etc/elasticsearch/jvm.options
+[root ~]# vim /etc/elasticsearch/log4j2.properties
+[root ~]# sed -i -r '/^LimitNPROC=*/a\LimitMEMLOCK=infinity' /usr/lib/systemd/system/elasticsearch.service
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enable elasticsearch.service
+[root ~]# systemctl  start elasticsearch.service
+[root ~]# systemctl status elasticsearch.service
+[root ~]# curl http://elastic.season.com:9200
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的配置文件
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的主配置文件 /etc/elasticseach/elasticsearch.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# cluster.name: my-application                   Elasticsearch 集群的名称
+# node.name: node-1                              Elasticsearch 集群内, 当前节点的名称, 支持域名与 IPv4/IPv6 书写格式
+# node.attr.rack: r1                             Elasticsearch 集群内, 当前节点的自定义属性 (eg. 示例中的值 r1 表示机柜编号)
+# node.master: true                              Elasticsearch 集群内, 当前节点允许被选举为控制节点
+# node.data: true                                Elasticsearch 集群内, 当前节点允许被使用为数据节点
+# node.ingest: true                              Elasticsearch 集群内, 当前节点允许被使用为管道节点
+# path.data: /var/lib/elasticsearch              Elasticsearch 集群内, 当前节点使用的索引数据存储目录
+# path.logs: /var/log/elasticsearch              Elasticsearch 集群内, 当前节点使用的日志数据存储目录
+# bootstrap.memory_lock: true                    Elasticsearch 集群内, 当前节点启动则立刻锁定内存资源
+# network.host: 192.168.0.1                      Elasticsearch 集群的 HTTP 服务监听范围
+# http.port: 9200                                Elasticsearch 集群的 HTTP 服务监听端口
+# transport.tcp.port: 9300                       Elasticsearch 集群的 TCP 服务监听端口, 集群的 TCP 服务监听端口用于集群间通信
+# discovery.zen.ping.unicast.hosts: []           Elasticsearch 集群的节点列表, 支持域名与 IPv4/IPv6 书写格式
+# discovery.zen.minimum_master_nodes: 1          Elasticsearch 集群内, 控制节点数量下限值 (master 数量 / 2 + 1)
+# gateway.recover_after_nodes: 1                 Elasticsearch 集群若执行重启, 则在第 n 个节点启动完成时开始恢复索引数据
+# action.destructive_requires_name: true         Elasticsearch 集群内, 删除索引数据时必须显式使用索引名称 (禁止使用正则表达式)
+
+阅读上述主配置文件时, 还请注意:
+
+    •  参数 "bootstrap.memory_lock: true" 需要主机 /etc/security/limits.conf 内核文件支持
+    •  参数 "bootstrap.memory_lock: true" 需要软件 /usr/lib/systemd/system/elasticsearch.service 服务单元文件支持
+
+""""""""" 演示控制节点的 /etc/elasticseach/elasticsearch.yml 文件的基本配置
+master:~$ cat /etc/elasticseach/elasticsearch.yml
+cluster.name: season
+node.name: elastic-0.season.com
+node.attr.rack: nothing
+node.master: true
+node.data: false
+node.ingest: false
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+bootstrap.memory_lock: true
+network.host: elastic-0.season.com
+http.port: 9200
+transport.tcp.port: 9300
+discovery.zen.ping.unicast.hosts: ["elastic-0.season.com", "elastic-1.season.com", "elastic-2.season.com"]
+discovery.zen.minimum_master_nodes: 1
+gateway.recover_after_nodes: 1
+action.destructive_requires_name: true
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 演示数据节点的 /etc/elasticseach/elasticsearch.yml 文件的基本配置
+slaver:~$ cat /etc/elasticseach/elasticsearch.yml
+cluster.name: season
+node.name: elastic-1.season.com
+node.attr.rack: nothing
+node.master: false
+node.data: true
+node.ingest: true
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+bootstrap.memory_lock: true
+network.host: elastic-1.season.com
+http.port: 9200
+transport.tcp.port: 9300
+discovery.zen.ping.unicast.hosts: ["elastic-0.season.com", "elastic-1.season.com", "elastic-2.season.com"]
+discovery.zen.minimum_master_nodes: 1
+gateway.recover_after_nodes: 1
+action.destructive_requires_name: true
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+Elasticsearch 软件的 JVM 启动参数配置文件 /etc/elasticseach/jvm.options
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^-.*$ 类型的参数配置不依赖于 JDK 版本, 例如: -Xms1g
+# ^[[:digit:]]+:-.*$ 类型的参数配置仅当 JDK 版本严格等于指定版本时生效, 例如: 8:-XX:+PrintGCDetails
+# ^[[:digit:]]+-:-.*$ 类型的参数配置仅当 JDK 版本大于等于指定版本时生效, 例如: 10-:-XX:UseAVX=2
+# ^[[:digit:]]+-[[:digit:]]+:-.*$ 类型的参数配置仅当 JDK 版本位于指定版本区间时生效, 例如: 8-13:-XX:+UseConcMarkSweepGC
+-Xms1g                                           Elasticsearch 服务的 JVM 堆内存下限, JVM 堆内存的上下限的值应保持一致
+-Xmx1g                                           Elasticsearch 服务的 JVM 堆内存上限, JVM 堆内存的上下限的值应保持一致
+-Xss1m                                           Elasticsearch 服务的 JVM 堆栈单位容量
+-Dfile.encoding=UTF-8                            Elasticsearch 服务的 JVM 使用 UTF-8 字符集
+-Dlog4j.shutdownHookEnabled=false
+-Dlog4j2.disable.jmx=true
+-Dlog4j2.formatMsgNoLookups=true
+... ...
+... ...
+
+""""""""" 演示 /etc/elasticseach/jvm.options 文件的基本配置
+master:~$ cat /etc/elasticseach/jvm.options
+-Xms6g
+-Xmx6g
+-Xss1m
+... ...
+... ...
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的底层说明
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件在管理业务日志数据时, 需要使用到下述多种文件:
+
+    •  同步日志文件 (Translog)    ::  默认每 30 分钟清空一次, 用于保证索引数据文件的一致性
+    •  索引数据文件 (Index Data)  ::  默认每  1 秒钟生成一次, 用于存储业务日志数据, 有归并线程执行数据文件归并动作 (segment merge)
+    •  提交记录文件 (Commit)      ::  存储索引数据文件元数据的文件
+
+┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐       ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+┊                       Commit          Translog     ┊       ┊                       Commit          Translog     ┊
+┊                   ┌────────────┐   ┌────────────┐  ┊       ┊                   ┌────────────┐   ┌────────────┐  ┊
+┊                   │    •••     │   │    •••     │  ┊       ┊                   │    •••     │   │    •••     │  ┊
+┊                   └─────┬──────┘   └────────────┘  ┊       ┊                   └─────┬──────┘   └────────────┘  ┊
+┊                         │                          ┊       ┊                         │                          ┊
+┊        ┌────────────────┼────────────────┐         ┊       ┊        ┌──╌─────────────┼──────╌─────────┐         ┊
+┊        │                │                │         ┊       ┊        │                │                │         ┊
+┊  ┌─────┴──────┐   ┌─────┴──────┐   ┌─────┴──────┐  ┊       ┊  ┌─────┴──────┐   ┌─────┴──────┐   ┌─────┴──────┐  ┊
+┊  │ Index Data │   │ Index Data │   │ Index Data │  ┊──────>┊  │ Index Data │   │ Index Data │   │ Index Data │  ┊───┐
+┊  └────────────┘   └────────────┘   └────────────┘  ┊       ┊  └────────────┘   └────────────┘   └────────────┘  ┊   │
+┊                                                    ┊       ┊                                                    ┊   │
+┊  ┌╌╌╌╌╌╌╌╌╌╌╌╌┐                                    ┊       ┊  ┌╌╌╌╌╌╌╌╌╌╌╌╌┬┬┬┬┬┬┬┬┬┬┬┬┬┐                       ┊   │
+┊  ┊   Buffer   ┊                                    ┊       ┊  ┊   Buffer   ├┼┼┼┼┼┼┼┼┼┼┼┼┤ (1)                   ┊   │
+┊  └╌╌╌╌╌╌╌╌╌╌╌╌┘                                    ┊       ┊  └╌╌╌╌╌╌╌╌╌╌╌╌┴┴┴┴┴┴┴┴┴┴┴┴┴┘                       ┊   │
+└╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘       └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘   │
+                                                                                                                      │
+┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐       ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐   │
+┊                       Commit          Translog     ┊       ┊                       Commit          Translog     ┊   │
+┊                   ┌────────────┐   ┌────────────┐  ┊       ┊                   ┌────────────┐   ┌────────────┐  ┊   │
+┊                   │   •••••    │(5)│   •••••    │  ┊       ┊                   │    ••••    │(3)│    ••••    │  ┊   │
+┊                   └─────┬──────┘   └────────────┘  ┊       ┊                   └─────┬──────┘   └────────────┘  ┊   │
+┊                         │                          ┊       ┊                         │                          ┊   │
+┊        ┌────────────────┴────────────────┐         ┊       ┊        ┌──╌─────────────┼──────╌─┬───────┐         ┊   │
+┊        │                                 │         ┊       ┊        │                │        │       │         ┊   │
+┊  ┌─────┴──────┐                    ┌─────┴──────┐  ┊       ┊  ┌─────┴──────┐   ┌─────┴──────┐ │ ┌─────┴──────┐  ┊   │
+┊  │ Index Data │                ┌──>│ Index Data │  ┊<──────┊  │ Index Data │   │ Index Data │ │ │ Index Data │  ┊<──┘
+┊  └────────────┘                │   ├────────────┤  ┊       ┊  └────────────┘   └─────┬──────┘ │ └─────┬──────┘  ┊
+┊                                ├──>│ Index Data │  ┊       ┊                         │  ┌─────┴──────┐│         ┊
+┊  ┌╌╌╌╌╌╌╌╌╌╌╌╌┬┬┬┬┬┬┬┬┬┬┬┬┬┐   │   ├────────────┤  ┊       ┊  ┌╌╌╌╌╌╌╌╌╌╌╌╌┐         │  │ Index Data ││         ┊
+┊  ┊   Buffer   ├┼┼┼┼┼┼┼┼┼┼┼┼┤   ├──>│ Index Data │  ┊       ┊  ┊   Buffer   ┊ (2)     │  └─────┬──────┘│         ┊
+┊  └╌╌╌╌╌╌╌╌╌╌╌╌┴┴┴┴┴┴┴┴┴┴┴┴┴┘   │   └────────────┘  ┊       ┊  └╌╌╌╌╌╌╌╌╌╌╌╌┘         │        │       │         ┊
+└╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘       └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│╌╌╌╌╌╌╌╌│╌╌╌╌╌╌╌│╌╌╌╌╌╌╌╌╌┘
+                                 │                                                     │        │       │
+                                 └─────────────────────────────────────────────────────┴────────┴───────┘
+                                                            segment merge (4)
+
+阅读上述图例时, 还请注意
+┌─────┬────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+│  1  │ 上游 Logstash 组件发送的业务日志数据被临时写入内存
+├─────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+│  2  │ 内存清空, 其中的业务日志数据被写入到一个新的索引数据文件 (由此会产生大量碎片化的索引数据文件)
+├─────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+│  3  │ 提交记录文件/ 同步日志文件登记上述数据写入动作
+├─────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+│  4  │ 归并线程把碎片化的索引数据文件归并为一个较大的索引数据文件, 尽可能减少索引数据文件数量
+├─────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+│  5  │ 提交记录文件/ 同步日志文件登记上述索引数据文件归并动作
+└─────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
