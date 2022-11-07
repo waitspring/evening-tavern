@@ -41,8 +41,8 @@ filebeat.config.modules:
 # =====================================================================================================================
 output.kafka:
   hosts: [
-    "elastic-0.season.com:9092",
-    "elastic-1.season.com:9092",
-    "elastic-2.season.com:9092"
+    "kafka-0.season.com:9092",
+    "kafka-1.season.com:9092",
+    "kafka-2.season.com:9092"
   ]
   topic: "season-os-log"

@@ -49,7 +49,11 @@ bootstrap.memory_lock: true
 network.host: elastic-0.season.com
 http.port: 9200
 transport.tcp.port: 9300
-discovery.zen.ping.unicast.hosts: ["elastic-0.season.com", "elastic-1.season.com", "elastic-2.season.com"]
+discovery.zen.ping.unicast.hosts: [
+    "elastic-0.season.com",
+    "elastic-1.season.com",
+    "elastic-2.season.com"
+]
 discovery.zen.minimum_master_nodes: 1
 gateway.recover_after_nodes: 1
 action.destructive_requires_name: true

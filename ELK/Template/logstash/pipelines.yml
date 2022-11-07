@@ -20,5 +20,4 @@
   pipeline.workers: 4
   pipeline.batch.size: 256
   pipeline.batch.delay: 50
-  pipeline.unsafe_shutdown: false
   path.config: /etc/logstash/conf.d/main.conf
