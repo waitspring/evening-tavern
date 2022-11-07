@@ -99,9 +99,9 @@ Logstash 软件的执行文件为 /usr/share/logstash/bin/logstash
 
 """"""""" 使用命令行直接启动 Logstash 软件的服务进程
 [root ~]# vim /etc/logstash/conf.d/debug.conf
-[root ~]# /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/debug.conf -t
-[root ~]# /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/debug.conf
-[root ~]# /usr/share/logstash/bin/logstash -e "                                                                       \
+[root ~]# sudo -u logstash /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/debug.conf -t
+[root ~]# sudo -u logstash /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/debug.conf
+[root ~]# sudo -u logstash /usr/share/logstash/bin/logstash -e "                                                      \
 input {                                                                                                               \
     stdin {}                                                                                                          \
 }                                                                                                                     \
@@ -169,8 +169,8 @@ log.level: info
   pipeline.batch.size: 256
   pipeline.batch.delay: 50
   path.config: /etc/logstash/conf.d/main.conf    | 若管道配置文件已经编写, 可以使用下述命令调试校验
-[root ~]# /usr/share/logstash/bin/logstash --path.settings /etc/logstash -t
-[root ~]# /usr/share/logstash/bin/logstash --path.settings /etc/logstash
+[root ~]# sudo -u logstash /usr/share/logstash/bin/logstash --path.settings /etc/logstash -t
+[root ~]# sudo -u logstash /usr/share/logstash/bin/logstash --path.settings /etc/logstash
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 

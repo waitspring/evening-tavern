@@ -25,7 +25,6 @@ pipeline.java_execution: false
 pipeline.workers: 4
 pipeline.batch.size: 256
 pipeline.batch.delay: 50
-pipeline.unsafe_shutdown: false
 
 
 # =====================================================================================================================
