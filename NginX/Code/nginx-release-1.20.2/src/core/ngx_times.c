@@ -73,9 +73,7 @@ void ngx_time_update(void)
 
     sec = tv.tv_sec;
     msec = tv.tv_usec / 1000;
-
     ngx_current_msec = ngx_monotonic_time(sec, msec);
-
     tp = &cached_time[slot];
 
     if (tp->sec == sec)
@@ -95,14 +93,12 @@ void ngx_time_update(void)
     }
 
     tp = &cached_time[slot];
-
     tp->sec = sec;
     tp->msec = msec;
 
     ngx_gmtime(sec, &gmt);
 
     p0 = &cached_http_time[slot][0];
-
     (void) ngx_sprintf(p0, "%s, %02d %s %4d %02d:%02d:%02d GMT",
                        week[gmt.ngx_tm_wday], gmt.ngx_tm_mday,
                        months[gmt.ngx_tm_mon - 1], gmt.ngx_tm_year,
@@ -122,14 +118,12 @@ void ngx_time_update(void)
 #endif
 
     p1 = &cached_err_log_time[slot][0];
-
     (void) ngx_sprintf(p1, "%4d-%02d-%02d %02d:%02d:%02d.%03d",
                        tm.ngx_tm_year, tm.ngx_tm_mon,
                        tm.ngx_tm_mday, tm.ngx_tm_hour,
                        tm.ngx_tm_min, tm.ngx_tm_sec, msec);
 
     p2 = &cached_http_log_time[slot][0];
-
     (void) ngx_sprintf(p2, "%02d/%s/%d:%02d:%02d:%02d %c%02i%02i",
                        tm.ngx_tm_mday, months[tm.ngx_tm_mon - 1],
                        tm.ngx_tm_year, tm.ngx_tm_hour,
@@ -138,7 +132,6 @@ void ngx_time_update(void)
                        ngx_abs(tp->gmtoff / 60), ngx_abs(tp->gmtoff % 60));
 
     p3 = &cached_http_log_iso8601[slot][0];
-
     (void) ngx_sprintf(p3, "%4d-%02d-%02dT%02d:%02d:%02d%c%02i:%02i",
                        tm.ngx_tm_year, tm.ngx_tm_mon,
                        tm.ngx_tm_mday, tm.ngx_tm_hour,
@@ -147,7 +140,6 @@ void ngx_time_update(void)
                        ngx_abs(tp->gmtoff / 60), ngx_abs(tp->gmtoff % 60));
 
     p4 = &cached_syslog_time[slot][0];
-
     (void) ngx_sprintf(p4, "%s %2d %02d:%02d:%02d",
                        months[tm.ngx_tm_mon - 1], tm.ngx_tm_mday,
                        tm.ngx_tm_hour, tm.ngx_tm_min, tm.ngx_tm_sec);
@@ -203,7 +195,6 @@ void ngx_time_sigsafe_update(void)
 
     sec = tv.tv_sec;
     msec = tv.tv_usec / 1000;
-
     tp = &cached_time[slot];
 
     if (tp->sec == sec)
@@ -223,6 +214,7 @@ void ngx_time_sigsafe_update(void)
 
     tp = &cached_time[slot];
     tp->sec = 0;
+
     ngx_gmtime(sec + cached_gmtoff * 60, &tm);
 
     p = &cached_err_log_time[slot][0];
@@ -354,7 +346,6 @@ time_t ngx_next_time(time_t when)
     when %= 3600;
     tm.tm_min = (int) (when / 60);
     tm.tm_sec = (int) (when % 60);
-
     next = mktime(&tm);
 
     if (next == -1)
