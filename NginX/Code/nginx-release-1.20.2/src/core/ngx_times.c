@@ -202,6 +202,7 @@ void ngx_time_sigsafe_update(void)
     ngx_gettimeofday(&tv);
 
     sec = tv.tv_sec;
+    msec = tv.tv_usec / 1000;
 
     tp = &cached_time[slot];
 
