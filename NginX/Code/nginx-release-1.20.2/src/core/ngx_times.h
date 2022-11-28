@@ -4,7 +4,10 @@
  * author: Igor Sysoev (Nginx Inc.)                                                                                   *
  * update: Fu Xuanming (Waitspring)                                                                                   *
  *                                                                                                                    *
- *********************************************************************************************************************/
+ **********************************************************************************************************************
+ * 
+ * change file format
+ */
 
 #ifndef _NGX_TIMES_H_INCLUDED_
 #define _NGX_TIMES_H_INCLUDED_
@@ -13,9 +16,9 @@
 #include <ngx_core.h>
 
 typedef struct {
-    time_t     sec;
+    time_t sec;
     ngx_uint_t msec;
-    ngx_int_t  gmtoff;
+    ngx_int_t gmtoff;
 } ngx_time_t;
 
 void ngx_time_init(void);
@@ -37,7 +40,6 @@ extern volatile ngx_str_t ngx_cached_http_time;
 extern volatile ngx_str_t ngx_cached_http_log_time;
 extern volatile ngx_str_t ngx_cached_http_log_iso8601;
 extern volatile ngx_str_t ngx_cached_syslog_time;
-// Milliseconds elapsed since some unspecified point in the past and truncated to ngx_msec_t, used in event timers
 extern volatile ngx_msec_t ngx_current_msec;
 
 #endif  /* _NGX_TIMES_H_INCLUDED_ */

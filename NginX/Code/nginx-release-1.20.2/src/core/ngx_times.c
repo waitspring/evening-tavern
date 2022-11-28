@@ -6,7 +6,8 @@
  *                                                                                                                    *
  **********************************************************************************************************************
  *
- * error_log timestamp format: 1978-09-28 12:00:00.000
+ * change error_log timestamp format: 1978-09-28 12:00:00.000
+ * change file format
  */
 
 #include <ngx_config.h>
@@ -31,18 +32,17 @@ volatile ngx_str_t ngx_cached_syslog_time;
 #define NGX_TIME_SLOTS 64
 
 static ngx_time_t cached_time[NGX_TIME_SLOTS];
-static u_char cached_err_log_time[NGX_TIME_SLOTS] [sizeof("1970-09-28 12:00:00.000")];
-static u_char cached_http_time[NGX_TIME_SLOTS] [sizeof("Mon, 28 Sep 1970 06:00:00 GMT")];
-static u_char cached_http_log_time[NGX_TIME_SLOTS] [sizeof("28/Sep/1970:12:00:00 +0600")];
-static u_char cached_http_log_iso8601[NGX_TIME_SLOTS] [sizeof("1970-09-28T12:00:00+06:00")];
-static u_char cached_syslog_time[NGX_TIME_SLOTS] [sizeof("Sep 28 12:00:00")];
+static u_char cached_err_log_time[NGX_TIME_SLOTS][sizeof("1970-09-28 12:00:00.000")];
+static u_char cached_http_time[NGX_TIME_SLOTS][sizeof("Mon, 28 Sep 1970 06:00:00 GMT")];
+static u_char cached_http_log_time[NGX_TIME_SLOTS][sizeof("28/Sep/1970:12:00:00 +0600")];
+static u_char cached_http_log_iso8601[NGX_TIME_SLOTS][sizeof("1970-09-28T12:00:00+06:00")];
+static u_char cached_syslog_time[NGX_TIME_SLOTS][sizeof("Sep 28 12:00:00")];
 
 static char *week[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 static char *months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 
-void ngx_time_init(void)
-{
+void ngx_time_init(void) {
     ngx_cached_err_log_time.len = sizeof("1970-09-28 12:00:00.000") - 1;
     ngx_cached_http_time.len = sizeof("Mon, 28 Sep 1970 06:00:00 GMT") - 1;
     ngx_cached_http_log_time.len = sizeof("28/Sep/1970:12:00:00 +0600") - 1;
@@ -55,8 +55,7 @@ void ngx_time_init(void)
 }
 
 
-void ngx_time_update(void)
-{
+void ngx_time_update(void) {
     u_char *p0, *p1, *p2, *p3, *p4;
     ngx_tm_t tm, gmt;
     time_t sec;
@@ -64,8 +63,7 @@ void ngx_time_update(void)
     ngx_time_t *tp;
     struct timeval tv;
 
-    if (!ngx_trylock(&ngx_time_lock))
-    {
+    if (!ngx_trylock(&ngx_time_lock)) {
         return;
     }
 
@@ -76,19 +74,15 @@ void ngx_time_update(void)
     ngx_current_msec = ngx_monotonic_time(sec, msec);
     tp = &cached_time[slot];
 
-    if (tp->sec == sec)
-    {
+    if (tp->sec == sec) {
         tp->msec = msec;
         ngx_unlock(&ngx_time_lock);
         return;
     }
 
-    if (slot == NGX_TIME_SLOTS - 1)
-    {
+    if (slot == NGX_TIME_SLOTS - 1) {
         slot = 0;
-    }
-    else
-    {
+    } else {
         slot++;
     }
 
@@ -157,8 +151,7 @@ void ngx_time_update(void)
 }
 
 
-static ngx_msec_t ngx_monotonic_time(time_t sec, ngx_uint_t msec)
-{
+static ngx_msec_t ngx_monotonic_time(time_t sec, ngx_uint_t msec) {
 #if (NGX_HAVE_CLOCK_MONOTONIC)
     struct timespec  ts;
 #if defined(CLOCK_MONOTONIC_FAST)
@@ -177,8 +170,7 @@ static ngx_msec_t ngx_monotonic_time(time_t sec, ngx_uint_t msec)
 
 
 #if !(NGX_WIN32)
-void ngx_time_sigsafe_update(void)
-{
+void ngx_time_sigsafe_update(void) {
     u_char *p, *p2;
     ngx_tm_t tm;
     time_t sec;
@@ -186,8 +178,7 @@ void ngx_time_sigsafe_update(void)
     ngx_time_t *tp;
     struct timeval tv;
 
-    if (!ngx_trylock(&ngx_time_lock))
-    {
+    if (!ngx_trylock(&ngx_time_lock)) {
         return;
     }
 
@@ -197,18 +188,14 @@ void ngx_time_sigsafe_update(void)
     msec = tv.tv_usec / 1000;
     tp = &cached_time[slot];
 
-    if (tp->sec == sec)
-    {
+    if (tp->sec == sec) {
         ngx_unlock(&ngx_time_lock);
         return;
     }
 
-    if (slot == NGX_TIME_SLOTS - 1)
-    {
+    if (slot == NGX_TIME_SLOTS - 1) {
         slot = 0;
-    }
-    else
-    {
+    } else {
         slot++;
     }
 
@@ -239,8 +226,7 @@ void ngx_time_sigsafe_update(void)
 #endif /* NGX_WIN32 */
 
 
-u_char *ngx_http_time(u_char *buf, time_t t)
-{
+u_char *ngx_http_time(u_char *buf, time_t t) {
     ngx_tm_t tm;
     ngx_gmtime(t, &tm);
 
@@ -255,8 +241,7 @@ u_char *ngx_http_time(u_char *buf, time_t t)
 }
 
 
-u_char *ngx_http_cookie_time(u_char *buf, time_t t)
-{
+u_char *ngx_http_cookie_time(u_char *buf, time_t t) {
     ngx_tm_t tm;
     ngx_gmtime(t, &tm);
 
@@ -275,21 +260,18 @@ u_char *ngx_http_cookie_time(u_char *buf, time_t t)
 }
 
 
-void ngx_gmtime(time_t t, ngx_tm_t *tp)
-{
+void ngx_gmtime(time_t t, ngx_tm_t *tp) {
     ngx_int_t yday;
     ngx_uint_t sec, min, hour, mday, mon, year, wday, days, leap;
 
-    if (t < 0)
-    {
+    if (t < 0) {
         t = 0;
     }
 
     days = t / 86400;
     sec = t % 86400;
 
-    if (days > 2932896)
-    {
+    if (days > 2932896) {
         days = 2932896;
         sec = 86399;
     }
@@ -303,8 +285,7 @@ void ngx_gmtime(time_t t, ngx_tm_t *tp)
     year = (days + 2) * 400 / (365 * 400 + 100 - 4 + 1);
     yday = days - (365 * year + year / 4 - year / 100 + year / 400);
 
-    if (yday < 0)
-    {
+    if (yday < 0) {
         leap = (year % 4 == 0) && (year % 100 || (year % 400 == 0));
         yday = 365 + leap + yday;
         year--;
@@ -313,13 +294,10 @@ void ngx_gmtime(time_t t, ngx_tm_t *tp)
     mon = (yday + 31) * 10 / 306;
     mday = yday - (367 * mon / 12 - 30) + 1;
 
-    if (yday >= 306)
-    {
+    if (yday >= 306) {
         year++;
         mon -= 10;
-    }
-    else
-    {
+    } else {
         mon += 2;
     }
 
@@ -333,8 +311,7 @@ void ngx_gmtime(time_t t, ngx_tm_t *tp)
 }
 
 
-time_t ngx_next_time(time_t when)
-{
+time_t ngx_next_time(time_t when) {
     time_t now, next;
     struct tm tm;
 
@@ -348,21 +325,18 @@ time_t ngx_next_time(time_t when)
     tm.tm_sec = (int) (when % 60);
     next = mktime(&tm);
 
-    if (next == -1)
-    {
+    if (next == -1) {
         return -1;
     }
 
-    if (next - now > 0)
-    {
+    if (next - now > 0) {
         return next;
     }
 
     tm.tm_mday++;
     next = mktime(&tm);
 
-    if (next != -1)
-    {
+    if (next != -1) {
         return next;
     }
 
