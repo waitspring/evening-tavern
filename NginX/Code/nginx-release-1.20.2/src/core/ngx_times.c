@@ -41,7 +41,6 @@ static u_char cached_syslog_time[NGX_TIME_SLOTS][sizeof("Sep 28 12:00:00")];
 static char *week[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 static char *months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-
 void ngx_time_init(void) {
     ngx_cached_err_log_time.len = sizeof("1970-09-28 12:00:00.000") - 1;
     ngx_cached_http_time.len = sizeof("Mon, 28 Sep 1970 06:00:00 GMT") - 1;
@@ -231,13 +230,9 @@ u_char *ngx_http_time(u_char *buf, time_t t) {
     ngx_gmtime(t, &tm);
 
     return ngx_sprintf(buf, "%s, %02d %s %4d %02d:%02d:%02d GMT",
-                       week[tm.ngx_tm_wday],
-                       tm.ngx_tm_mday,
-                       months[tm.ngx_tm_mon - 1],
-                       tm.ngx_tm_year,
-                       tm.ngx_tm_hour,
-                       tm.ngx_tm_min,
-                       tm.ngx_tm_sec);
+                       week[tm.ngx_tm_wday], tm.ngx_tm_mday,
+                       months[tm.ngx_tm_mon - 1], tm.ngx_tm_year,
+                       tm.ngx_tm_hour, tm.ngx_tm_min, tm.ngx_tm_sec);
 }
 
 
@@ -249,14 +244,10 @@ u_char *ngx_http_cookie_time(u_char *buf, time_t t) {
                        (tm.ngx_tm_year > 2037) ?
                                          "%s, %02d-%s-%d %02d:%02d:%02d GMT":
                                          "%s, %02d-%s-%02d %02d:%02d:%02d GMT",
-                       week[tm.ngx_tm_wday],
-                       tm.ngx_tm_mday,
+                       week[tm.ngx_tm_wday], tm.ngx_tm_mday,
                        months[tm.ngx_tm_mon - 1],
-                       (tm.ngx_tm_year > 2037) ? tm.ngx_tm_year:
-                                                 tm.ngx_tm_year % 100,
-                       tm.ngx_tm_hour,
-                       tm.ngx_tm_min,
-                       tm.ngx_tm_sec);
+                       (tm.ngx_tm_year > 2037) ? tm.ngx_tm_year: tm.ngx_tm_year % 100,
+                       tm.ngx_tm_hour, tm.ngx_tm_min, tm.ngx_tm_sec);
 }
 
 
