@@ -5,7 +5,6 @@
  *                                                                                                                    *
  **********************************************************************************************************************
  *
- * 配置 hello 解析回调函数 ngx_http_hello
  */
 
 # include <nginx.h>
@@ -18,7 +17,10 @@ static char *ngx_http_hello(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 static ngx_int_t ngx_http_hello_handler(ngx_http_request_t *r);
 static ngx_command_t ngx_http_hello_commands[] = {
     {
-        ngx_string("hello"),                     // 定义关键字 hello
+        /* define command "hello" which could be used in nginx.conf
+         * just return string "hello world"
+         */
+        ngx_string("hello"),
         NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF | NGX_HTTP_LMT_CONF | NGX_CONF_NOARGS,
         ngx_http_hello,
         NGX_HTTP_LOC_CONF_OFFSET,
@@ -64,7 +66,7 @@ static char *ngx_http_hello(ngx_conf_t *cf, ngx_command_t *cmd, void *conf) {
 
 static ngx_int_t ngx_http_hello_handler(ngx_http_request_t *r)
 {
-    u_char *ngx_hello_world = (u_char *) "Hello World!";
+    u_char *ngx_hello_world = (u_char *) "hello world";
     size_t sz = strlen((const char *)ngx_hello_world);
 
     r->headers_out.content_type.len = strlen("text/html") - 1;
