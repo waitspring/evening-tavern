@@ -17,7 +17,7 @@ $ make install
 
 This module could be used in `LOCATION PART` to debug NginX configure file, like:
 
-```bash
+```nginx
 location ^~ / {
     hello;
 }
