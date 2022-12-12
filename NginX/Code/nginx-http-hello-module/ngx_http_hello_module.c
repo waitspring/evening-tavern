@@ -5,6 +5,7 @@
  *                                                                                                                    *
  **********************************************************************************************************************
  *
+ * define a command that return string "hello world"
  */
 
 # include <nginx.h>
@@ -17,9 +18,7 @@ static char *ngx_http_hello(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 static ngx_int_t ngx_http_hello_handler(ngx_http_request_t *r);
 static ngx_command_t ngx_http_hello_commands[] = {
     {
-        /* define command "hello" which could be used in nginx.conf
-         * just return string "hello world"
-         */
+        // define command "hello" which could be used in nginx.conf, return string "hello world".
         ngx_string("hello"),
         NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF | NGX_HTTP_LMT_CONF | NGX_CONF_NOARGS,
         ngx_http_hello,
