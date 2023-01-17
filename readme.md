@@ -6,7 +6,7 @@
 [![License](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)](https://github.com/waitspring/evening-tavern/blob/master/license.md)
 <br/>
 [![Software](https://img.shields.io/badge/ELK-6.8.23-00BFB3)](https://github.com/waitspring/evening-tavern/tree/master/ELK)
-[![Software](https://img.shields.io/badge/Kafka-3.3.1-242021)](https://github.com/waitspring/evening-tavern/tree/master/Kafka)
+[![Software](https://img.shields.io/badge/Kafka-3.3.3-242021)](https://github.com/waitspring/evening-tavern/tree/master/Kafka)
 [![Software](https://img.shields.io/badge/NginX-1.20.2-8E989B)](https://github.com/waitspring/evening-tavern/tree/master/NginX)
 
 </div>
