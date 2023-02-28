@@ -12,7 +12,7 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Kafka 软件的发展历程
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Kafka 软件是互联网生态中最常见的消息发布订阅软件, 其中文翻译名 "卡夫卡" 是一个常见的德文译文名字
+Kafka 软件是互联网生态中最常见的消息发布订阅软件, 其中文译名 "卡夫卡" 是一个常见的德文译文名字, 致敬小说家 Franz Kafka (1883~1924)
 Kafka 软件由领英公司 (LinkedIn) 的数据流开发团队最先发布, 目前由阿帕奇软件基金会 (Apache Software Foundation) 负责迭代与维护
 
 Kafka 软件的发展历程清晰简单
@@ -20,8 +20,9 @@ Kafka 软件的发展历程清晰简单
 **  2010 年, 领英公司的数据流开发团队使用 ActiveMQ 软件处理业务组件之间的消息传递, 但遭遇到日益显著的性能瓶颈
 **  2011 年, 领英公司的数据流开发团队使用 Java/ Scala 语言编写出 Kafka 软件
 **  2012 年, 领英公司把项目整体捐献给阿帕奇软件基金会
-**  2014 年, 领英公司的数据流开发团队在山景城创建溪流公司 (Confluent), 专门从事 Kafka 软件的开源与协作, 并对外提供商用付费服务
-**  2017 年, 溪流公司与亚马逊云 (AWS) 合作, 推出 SaaS 服务
+**  2014 年, 领英公司的数据流开发团队在旧金山创建溪流公司 (Confluent), 专门从事 Kafka 软件的开源和协作, 并对外提供商用付费服务
+**  2017 年, 溪流公司与亚马逊云 (AWS)/ 微软云 (Azure)/ 谷歌云 (Google Cloud) 合作, 推出 SaaS 服务
+**  2020 年, 溪流公司荣获大数据新闻网站的读者选择奖 (Datanami Reader's Choice Award)
 
 ┌────────────┬──────────┬─────────────────────────────────────────────────────────────────────────────────────────────┐
 │            │          │ • Java 9                                                                                    │
@@ -84,6 +85,15 @@ Kafka 软件的发展历程清晰简单
 │ 2022-08-29 │ 3.3.0    │ • add metric for log recovery progress                                                      │
 │            │          │ • admin API                                                                                 │
 └────────────┴──────────┴─────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Kafka 软件的官方网站与 GitHub 第三方开源社区, 清华大学开源软件镜像站等都提供相应软件的下载服务
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+当前文档的演示案例统一使用 Kafka 3.3.2 版本, 其下载地址为:
+
+    •  Kafka                                     [                                 https://kafka.apache.org/downloads ]
+    •  Kafka                                     [                               https://github.com/apache/kafka/tags ]
+    •  ZooKeeper                                 [                         https://zookeeper.apache.org/releases.html ]
+    •  ZooKeeper                                 [                           https://github.com/apache/zookeeper/tags ]
 
 
 
@@ -166,6 +176,87 @@ net.core.rmem_max = 2097152
 net.core.wmem_max = 2097152
 EOF
 [root ~]# sysctl -p
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件的安装过程
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件支持使用二进制软件包安装, 二进制软件包的 TGZ 压缩包可以基于 GitHub/ Apache 社区站点下载
+Kafka 软件内置 ZooKeeper 软件的运行程序, 但在正规的业务环境下, 人们更倾向于单独部署一套高可用的 ZooKeeper 软件
+
+Kafka 软件如果使用二进制软件包安装, 可以得到下述文件
+┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
+│ Path                                           │ F/D │ Comment
+├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
+│ /usr/local/kafka                               │  D  │ 软件的安装目录
+│ /usr/local/kafka/bin                           │  D  │ 软件的执行目录
+│ /usr/local/kafka/config                        │  D  │ 软件的配置目录
+│ /usr/local/kafka/libs                          │  D  │ 软件的库文件目录
+│ /usr/local/kafka/logs                          │  D  │ 软件默认使用的日志目录
+│ /tmp/kafka-logs                                │  D  │ 软件默认使用的数据目录
+│ /usr/local/kafka/bin/kafka-server-start.sh     │  F  │ 软件的服务启动脚本, 能够调整软件的 JVM 启动参数
+│ /usr/local/kafka/bin/kafka-server-stop.sh      │  F  │ 软件的服务关闭脚本
+│ /usr/local/kafka/config/server.properties      │  F  │ 软件的主配置文件
+│ /usr/local/kafka/config/log4j.properties       │  F  │ 软件的 Log4j 日志参数配置文件
+│ /usr/local/kafka/logs/server.log               │  F  │ 软件默认使用的服务器端日志
+│ /usr/local/kafka/logs/state-change.log         │  F  │ 软件默认使用的节点状态变化日志
+│ /usr/local/kafka/logs/kafka-request.log        │  F  │ 软件默认使用的节点请求处理日志
+│ /usr/local/kafka/logs/log-cleaner.log          │  F  │ 软件默认使用的数据清理日志
+│ /usr/local/kafka/logs/controller.log           │  F  │ 软件默认使用的管理日志
+│ /usr/local/kafka/logs/kafka-authorizer.log     │  F  │ 软件默认使用的用户认证日志
+│ /tmp/kafka-logs/cleaner-offset-checkpoint      │  F  │ 软件默认使用的元数据文件, 记录业务数据的结束偏移量
+│ /tmp/kafka-logs/log-start-offset-checkpoint    │  F  │ 软件默认使用的元数据文件, 记录业务数据的起始偏移量
+│ /tmp/kafka-logs/meta.properties                │  F  │ 软件默认使用的元数据文件, 记录节点本身的元数据
+│ /tmp/kafka-logs/recovery-point-offset-checkp...│  F  │ 软件默认使用的元数据文件, 记录磁盘文件的检查点元数据 (LEO)
+│ /tmp/kafka-logs/replication-offset-checkpoint  │  F  │ 软件默认使用的元数据文件, 记录副本文件的偏移量元数据 (HW)
+└────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
+
+Kafka 软件如果按照演示文档的步骤部署, 可以得到下述文件
+┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
+│ Path                                           │ F/D │ Comment
+├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
+│ /usr/local/kafka                               │  D  │ 软件的安装目录
+│ /usr/local/kafka/bin                           │  D  │ 软件的执行目录
+│ /usr/local/kafka/config                        │  D  │ 软件的配置目录
+│ /usr/local/kafka/libs                          │  D  │ 软件的库文件目录
+│ /var/log/kafka                                 │  D  │ 软件的日志目录
+│ /var/kafka/data                                │  D  │ 软件的数据目录
+│ /etc/init.d/kafka                              │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
+│ /usr/lib/systemd/system/kafka.service          │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件
+│ /usr/local/kafka/bin/kafka-server-start.sh     │  F  │ 软件的服务启动脚本, 能够调整软件的 JVM 启动参数
+│ /usr/local/kafka/bin/kafka-server-stop.sh      │  F  │ 软件的服务关闭脚本
+│ /usr/local/kafka/config/server.properties      │  F  │ 软件的主配置文件
+│ /usr/local/kafka/config/log4j.properties       │  F  │ 软件的 Log4j 日志参数配置文件
+│ /var/log/kafka/server.log                      │  F  │ 软件的服务器端日志
+│ /var/log/kafka/state-change.log                │  F  │ 软件的节点状态变化日志
+│ /var/log/kafka/kafka-request.log               │  F  │ 软件的节点请求处理日志
+│ /var/log/kafka/log-cleaner.log                 │  F  │ 软件的数据清理日志
+│ /var/log/kafka/controller.log                  │  F  │ 软件的管理日志
+│ /var/log/kafka/kafka-authorizer.log            │  F  │ 软件的用户认证日志
+│ /var/kafka/data/cleaner-offset-checkpoint      │  F  │ 软件的元数据文件, 记录业务数据的结束偏移量
+│ /var/kafka/data/log-start-offset-checkpoint    │  F  │ 软件的元数据文件, 记录业务数据的起始偏移量
+│ /var/kafka/data/meta.properties                │  F  │ 软件的元数据文件, 记录节点本身的元数据
+│ /var/kafka/data/recovery-point-offset-checkp...│  F  │ 软件的元数据文件, 记录磁盘文件的检查点元数据 (LEO)
+│ /var/kafka/data/replication-offset-checkpoint  │  F  │ 软件的元数据文件, 记录副本文件的偏移量元数据 (HW)
+└────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
+
+""""""""" 准备 Kafka 软件使用的用户组和用户
+[root ~]# useradd -r -s /sbin/nologin -M kafka
+[root ~]# mkdir -p /usr/local/kafka /var/log/kafka /var/kafka/data
+[root ~]# chown -R kafka:kafka /usr/local/kafka /var/log/kafka /var/kafka
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 解压 Kafka 软件至对应目录并执行部署
+[root ~]# sudo -u kafka tar -xzf /srv/kafka_2.12-3.3.2.tgz -C /usr/local/kafka --strip-components 1
+[root ~]# vim /usr/local/kafka/config/server.properties
+[root ~]# vim /usr/local/kafka/config/log4j.properties
+[root ~]# vim /usr/lib/systemd/system/kafka.service
+[root ~]# vim /etc/init.d/kafka
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enable kafka.service
+[root ~]# systemctl start kafka.service
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
