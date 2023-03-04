@@ -2,33 +2,31 @@
 # -*- coding: utf-8 -*-
 #
 #######################################################################################################################
-#                                     , __                                                                            #
-#                                    /|/  \              |                                                            #
-#                                     |___/ ,_    __   __|          __   _   ,_                                       #
-#                                     |    /  |  /  \_/  |  |   |  /    |/  /  |                                      #
-#                                     |       |_/\__/ \_/|_/ \_/|_/\___/|__/   |_/                                    #
+#                                   ___                                                                               #
+#                                  / (_)                                                                              #
+#                                 |      __   _  _    ,          _  _  _    _   ,_                                    #
+#                                 |     /  \_/ |/ |  / \_|   |  / |/ |/ |  |/  /  |                                   #
+#                                  \___/\__/   |  |_/ \/  \_/|_/  |  |  |_/|__/   |_/                                 #
 #                                                                                                                     #
 #                                                                                                                     #
 #######################################################################################################################
 """
-producer.py
+consumer.py
 -------------------------------------------------------------------
 This script was created by Xuanming in 2023, thanks for your reading
-Location: Host: /path/to/producer.py
-Statement: This Python script send some message to Kafka software, for helping us observe Kafka software feature
+Location: Host: /path/to/consumer.py
+Statement: This Python script read some message to Kafka software, for helping us observe Kafka software feature
 Usage:
-     $ python /path/to/producer.py
+     $ python /path/to/consumer.py
 """
 
 
-import datetime
-import json
 import kafka
 import logging
 import os
 import random
-import string
 import sys
+import time
 
 
 # =====================================================================================================================
@@ -79,24 +77,16 @@ if __name__ == '__main__':
     reload(sys)
     sys.setdefaultencoding('UTF-8')
     try:
-        foo = kafka.KafkaProducer(
-            bootstrap_servers='kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092')
+        foo = kafka.KafkaConsumer(
+            bootstrap_servers='kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092',
+            group_id='foo')
     except kafka.errors.NoBrokersAvailable as err:
         Logger.error('Connect Kafka service failure')
         Logger.error(err)
         exit(1)
-    for i in range(1000):
-        data = {
-            'index': i,
-            'timestamp': datetime.datetime.today().strftime('%F %T.%f')[:-3],
-            'foo': ''.join(random.choice(string.ascii_lowercase) for x in range(10))
-        }
-        try:
-            foo.send(topic='foo', value=json.dumps(data).encode())
-        except AssertionError as err:
-            Logger.error('Send message \'%s\' into Kafka service failure' % data['foo'])
-            Logger.error(err)
-            continue
+    foo.subscribe(topics=('foo'))
+    for message in foo:
+        print(message)
 
 
 
