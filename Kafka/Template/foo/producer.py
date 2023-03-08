@@ -87,12 +87,11 @@ if __name__ == '__main__':
         exit(1)
     for i in range(1000):
         data = {
-            'index': i,
             'timestamp': datetime.datetime.today().strftime('%F %T.%f')[:-3],
             'foo': ''.join(random.choice(string.ascii_lowercase) for x in range(10))
         }
         try:
-            foo.send(topic='foo', value=json.dumps(data).encode())
+            foo.send(topic='foo', key='foo', value=json.dumps(data).encode())
         except AssertionError as err:
             Logger.error('Send message \'%s\' into Kafka service failure' % data['foo'])
             Logger.error(err)

@@ -88,7 +88,7 @@ Kafka 软件的发展历程清晰简单
 
 Kafka 软件的官方网站与 GitHub 第三方开源社区, 清华大学开源软件镜像站等都提供相应软件的下载服务
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-当前文档的演示案例统一使用 Kafka 3.3.2 版本, 其下载地址为:
+当前文档的演示案例统一使用 Kafka 3.3.2/ ZooKeeper 3.8.0 版本, 其下载地址为:
 
     •  Kafka                                     [                                 https://kafka.apache.org/downloads ]
     •  Kafka                                     [                               https://github.com/apache/kafka/tags ]

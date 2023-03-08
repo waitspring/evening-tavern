@@ -26,7 +26,6 @@ import logging
 import os
 import random
 import sys
-import time
 
 
 # =====================================================================================================================
@@ -86,7 +85,12 @@ if __name__ == '__main__':
         exit(1)
     foo.subscribe(topics=('foo'))
     for message in foo:
-        print(message)
+        print('--------------------------------------------------')
+        print(message.topic)
+        print(message.partition)
+        print(message.offset)
+        print(message.key)
+        print(message.value)
 
 
 
