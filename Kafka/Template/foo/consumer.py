@@ -91,6 +91,3 @@ if __name__ == '__main__':
         print(message.offset)
         print(message.key)
         print(message.value)
-
-
-

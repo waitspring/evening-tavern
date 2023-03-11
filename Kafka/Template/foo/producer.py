@@ -96,6 +96,3 @@ if __name__ == '__main__':
             Logger.error('Send message \'%s\' into Kafka service failure' % data['foo'])
             Logger.error(err)
             continue
-
-
-
