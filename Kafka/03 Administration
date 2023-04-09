@@ -51,7 +51,7 @@ bin/kafka-topics.sh --alter 命令常用选项有
 [root ~]# bin/kafka-topics.sh --create \
 --bootstrap-server kafka-0.season.com:9092 \
 --topic A \
---partitions 3 \
+--partitions 1 \
 --replication-factor 1
 [root ~]# bin/kafka-topics.sh --create \
 --bootstrap-server kafka-0.season.com:9092 \
@@ -122,7 +122,7 @@ bin/kafka-console-producer.sh 工具常用选项有
 ::  --topic=topic                                必要选项, 要求工具把消息推送到名为 topic 的主题
 ::  --batch-size=num                   [ 16384 ] 可选选项, 设置单个消息批次含有 num 个消息
 ::  --message-send-max-retries=num         [ 3 ] 可选选项, 设置单个消息批次在推送失败之后, 执行 num 次重试
-::  --property=prop                              可选选项, 使用键值对模式定义单个消息批次的单个属性
+::  --property=prop ...                          可选选项, 使用键值对模式定义单个消息批次的单个属性
 ::  --help                                       帮助选项
 
 bin/kafka-console-producer.sh 工具使用 --property=prop 选项定义单个消息批次的属性时, 常用属性键值对有
@@ -158,7 +158,7 @@ bin/kafka-console-consumer.sh 工具常用选项有
 ::  --group=gid                                  可选选项, 要求工具使用指定的 gid 作为消费组的组名称
 ::  --from-beginning                             可选选项, 要求工具直接从头开始消费相应主题内的消息 (不使用消费组的偏移量数据)
 ::  --skip-message-on-error                      可选选项, 要求工具消费到错误消息时, 跳过错误继续消费
-::  --property=prop                              可选选项, 使用键值对模式定义消费工具的执行特性
+::  --property=prop ...                          可选选项, 使用键值对模式定义消费工具的执行特性
 ::  --help                                       帮助选项
 
 bin/kafka-console-consumer.sh 工具使用 --property=prop 选项定义消费工具的执行特性时, 常用特性键值对有
@@ -207,10 +207,13 @@ bin/kafka-consumer-groups.sh --bootstrap-server=socket,...
                              --group=gid ...
                            [ --describe ]
                            [ --delete ]
-                           [ --to-current
+                           [ --execute
+                             --reset-offsets
+                             --topic=string ...
+                           { --to-current
                            | --to-earliest
                            | --to-latest
-                           | --to-offset=num ]
+                           | --to-offset=num }]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 bin/kafka-consumer-groups.sh 工具能够查阅/ 删除/ 控制群组的元数据
 bin/kafka-consumer-groups.sh 工具常用选项有
@@ -218,27 +221,36 @@ bin/kafka-consumer-groups.sh 工具常用选项有
 ::  --group=gid                                  必要选项, 标记若干被操作的群组对象
 ::  --describe                                   查阅选项, 要求命令查阅群组对象的元数据
 ::  --delete                                     查阅选项, 要求命令删除群组对象的元数据
+::  --execute                                    操作选项, 要求命令更新群组对象的元数据
+::  --reset-offsets                              操作选项, 要求命令更新群组对象的偏移量
+::  --topic=string ...                           分区选项, 限制命令需要重置偏移量的分区对象 (字符串格式: topic:ptnum,...)
 ::  --to-current                                 操作选项, 要求命令把群组的偏移量重置到当前偏移量
 ::  --to-earliest                                操作选项, 要求命令把群组的偏移量重置到起始偏移量
 ::  --to-latest                                  操作选项, 要求命令把群组的偏移量重置到最大偏移量
 ::  --to-offset=num                              操作选项, 要求命令把群组的偏移量重置到 num 位置处
 
 """"""""" 演示查阅群组元数据的基本使用方法
-[root ~]# bin/kafka-consumer-groups.sh --describe \
---bootstrap-server kafka-0.season.com:9092 \
+[root ~]# bin/kafka-consumer-groups.sh --bootstrap-server kafka-0.season.com:9092 \
 --group demo \
---verbose
+--describe
 
 Consumer group 'demo' has no active members.
 
 GROUP    TOPIC    PARTITION    CURRENT-OFFSET    LOG-END-OFFSET    LAG    CONSUMER-ID    HOST    CLIENT-ID
-demo     A        0            2                 2                 0      -              -       -
-demo     A        1            0                 0                 0      -              -       -
-demo     A        2            0                 0                 0      -              -       -
+demo     A        0            0                 0                 0      -              -       -
+demo     A        1            1                 1                 0      -              -       -
+demo     A        2            1                 1                 0      -              -       -
 
-[root ~]# bin/kafka-consumer-groups.sh --delete \
---bootstrap-server kafka-0.season.com:9092 \
---group demo
+[root ~]# bin/kafka-consumer-groups.sh --bootstrap-server kafka-0.season.com:9092 \
+--group demo \
+--execute \
+--reset-offsets \
+--topic A:1 \
+--to-offset 0
+
+GROUP    TOPIC    PARTITION    NEW-OFFSET
+demo     A        1            0
+
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
