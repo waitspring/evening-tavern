@@ -6,6 +6,7 @@
 [![License](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)](https://github.com/waitspring/evening-tavern/blob/master/license.md)
 <br/>
 [![Software](https://img.shields.io/badge/ELK-6.8.23-00BFB3)](https://github.com/waitspring/evening-tavern/tree/master/ELK)
+[![Software](https://img.shields.io/badge/Kafka-3.3.2-242021)](https://github.com/waitspring/evening-tavern/tree/master/Kafka)
 [![Software](https://img.shields.io/badge/NginX-1.20.2-8E989B)](https://github.com/waitspring/evening-tavern/tree/master/NginX)
 
 </div>
@@ -20,3 +21,4 @@
 + 基于本文档仓库发布新的资料时, 请继续使用当前的开源许可证
   
 点击 [license.md](https://github.com/waitspring/evening-tavern/blob/master/license.md) 可以查看更完整的许可证信息  
+

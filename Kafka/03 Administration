@@ -1,0 +1,257 @@
+  ___,                                                                       
+ /   |     |             o          o                        o               
+|    |   __|   _  _  _       _  _       , _|_  ,_    __, _|_     __   _  _   
+|    |  /  |  / |/ |/ |  |  / |/ |  |  / \_|  /  |  /  |  |  |  /  \_/ |/ |  
+ \__/\_/\_/|_/  |  |  |_/|_/  |  |_/|_/ \/ |_/   |_/\_/|_/|_/|_/\__/   |  |_/
+                                                                             
+                                                                             
+--  This document was created by Xuanming in 2023, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件的主题管理工具
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件的主题管理工具为 bin/kafka-topics.sh 脚本, 可用于创建/ 删除/ 更新/ 查阅 (CRUD) 主题
+Kafka 软件的主题管理命令有:
+
+    •  创建主题 bin/kafka-topics.sh --create
+    •  删除主题 bin/kafka-topics.sh --delete
+    •  更新主题 bin/kafka-topics.sh --alter
+    •  查阅主题 bin/kafka-topics.sh --describe
+
+bin/kafka-topics.sh --create
+                    --bootstrap-server=socket,...
+                    --topic=topic
+                  [ --partitions=num ]
+                  [ --replication-factor=num ]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bin/kafka-topics.sh --create 命令用于创建主题
+bin/kafka-topics.sh --create 命令用于创建主题时, 用户务必要一次性指定准确的名称和分区的副本数量, 否则只能通过删除/重建主题来调整
+bin/kafka-topics.sh --create 命令常用选项有
+::  --bootstrap-server=socket,...                必要选项, 标记软件的服务节点为 socket,... (集群可以省略为其中的某个节点)
+::  --topic=topic                                必要选项, 要求软件创建名为 topic 的主题
+::  --partitions=num                       [ 1 ] 可选选项, 配置软件的新建主题有 num 个分区 (若省略则使用默认值 1)
+::  --replication-factor=num               [ 1 ] 可选选项, 配置软件的新建分区有 num 份副本 (若省略则使用默认值 1)
+::  --help                                       帮助选项
+
+bin/kafka-topics.sh --alter
+                    --bootstrap-server=socket,...
+                    --topic=topic
+                    --partitions=num
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bin/kafka-topics.sh --alter 命令用于扩展主题的分区数量
+bin/kafka-topics.sh --alter 命令常用选项有
+::  --bootstrap-server=socket,...                必要选项, 标记软件的服务节点为 socket,... (集群可以省略为其中的某个节点)
+::  --topic=topic                                必要选项, 要求软件扩展名为 topic 的主题的分区数量
+::  --partitions=num                             必要选项, 扩展软件的主题对象到 num 个分区
+::  --help                                       帮助选项
+
+""""""""" 演示创建主题的基本使用方法
+[root ~]# bin/kafka-topics.sh --create \
+--bootstrap-server kafka-0.season.com:9092 \
+--topic A \
+--partitions 1 \
+--replication-factor 1
+[root ~]# bin/kafka-topics.sh --create \
+--bootstrap-server kafka-0.season.com:9092 \
+--topic B \
+--partitions 3 \
+--replication-factor 3
+[root ~]# bin/kafka-topics.sh --alter \
+--bootstrap-server kafka-0.season.com:9092 \
+--topic A \
+--partitions 3
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+bin/kafka-topics.sh --delete
+                    --bootstrap-server=socket,...
+                    --topic=topic
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bin/kafka-topics.sh --delete 命令用于删除主题
+bin/kafka-topics.sh --delete 命令常用选项有
+::  --bootstrap-server=socket,...                必要选项, 标记软件的服务节点为 socket,... (集群可以省略为其中的某个节点)
+::  --topic=topic                                必要选项, 要求软件删除名为 topic 的主题
+::  --help                                       帮助选项
+
+""""""""" 演示删除主题的基本使用方法
+[root ~]# bin/kafka-topics.sh --delete \
+--bootstrap-server kafka-0.season.com:9092 \
+--topic A
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+bin/kafka-topics.sh --describe
+                    --bootstrap-server=socket,...
+                  [ --topic=topic ]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bin/kafka-topics.sh --describe 命令用于查阅主题
+bin/kafka-topics.sh --describe 命令用于查阅主题时, 如果省略主题名称选项, 则命令将一次性的查阅全部主题的元数据
+bin/kafka-topics.sh --describe 命令常用选项有
+::  --bootstrap-server=socket,...                必要选项, 标记软件的服务节点为 socket,... (集群可以省略为其中的某个节点)
+::  --topic=topic                                可选选项, 描述名为 topic 的主题的元数据
+::  --help                                       帮助选项
+
+""""""""" 演示查阅主题的基本使用方法
+[root ~]# bin/kafka-topics.sh --describe \
+--bootstrap-server kafka-0.season.com:9092
+
+    Topic: foo     Partition: 0    Leader: 0     Replicas: 0,2,1 Isr: 0,2,1
+    Topic: foo     Partition: 1    Leader: 2     Replicas: 2,1,0 Isr: 2,1,0
+    Topic: foo     Partition: 2    Leader: 1     Replicas: 1,0,2 Isr: 1,0,2
+
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件的消息生产/ 消费工具
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件的消息生产工具为 bin/kafka-console-producer.sh
+Kafka 软件的消息消费工具为 bin/kafka-console-consumer.sh
+
+bin/kafka-console-producer.sh --bootstrap-server=socket,...
+                              --topic=topic
+                            [ --batch-size=num ]
+                            [ --message-send-max-retries=num ]
+                            [ --property=prop ] ...
+                            [ --help ]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bin/kafka-console-producer.sh 工具能够作为命令行式的生产者, 生产若干消息并推送到指定主题
+bin/kafka-console-producer.sh 工具常用选项有
+::  --bootstrap-server=socket,...                必要选项, 标记软件的服务节点为 socket,... (集群可以省略为其中的某个节点)
+::  --topic=topic                                必要选项, 要求工具把消息推送到名为 topic 的主题
+::  --batch-size=num                   [ 16384 ] 可选选项, 设置单个消息批次含有 num 个消息
+::  --message-send-max-retries=num         [ 3 ] 可选选项, 设置单个消息批次在推送失败之后, 执行 num 次重试
+::  --property=prop ...                          可选选项, 使用键值对模式定义单个消息批次的单个属性
+::  --help                                       帮助选项
+
+bin/kafka-console-producer.sh 工具使用 --property=prop 选项定义单个消息批次的属性时, 常用属性键值对有
+::  parse.key=bool                     [ false ] 可选属性, 标记生产者在编写消息时, 是否一并写入消息的 key 的值
+::  parse.headers=bool                 [ false ] 可选属性, 标记生产者在编写消息时, 是否一并写入消息的 header
+::  key.separator=zzts                    [ \t ] 可选属性, 使用 zzts 转义符作为分隔符, 分隔消息的 key 和 value
+::  headers.delimiter=zzts                [ \t ] 可选属性, 使用 zzts 转义符作为分隔符, 分隔消息的 header 和 key
+::  headers.separator=zzts                 [ , ] 可选属性, 使用 zzts 转义符作为分隔符, 分隔消息的 header 内的若干键值对
+::  headers.key.separator=zzts             [ : ] 可选属性, 使用 zzts 转义符作为分隔符, 分隔消息的 header 内的 key 和 value
+
+    ┌────────────┬───┬──────────────┬───┬────────────┬───┬──────────────┬───┬─────────┬────┬─────┬────┬───────┐
+    │ header.key │ : │ header.value │ , │ header.key │ : │ header.value │ , │ ... ... │ \t │ key │ \t │ value │
+    └────────────┴───┴──────────────┴───┴────────────┴───┴──────────────┴───┴─────────┴────┴─────┴────┴───────┘
+
+阅读上述内容时, 还请注意:
+
+    •  作为转义的制表符 (\t) 在实际的命令行中仅允许使用按键 TAB 替换
+    •  使用消息生产工具推送消息时, 可以重复使用 --property=prop 选项为消息批次定义属性, 每次调用选项仅定义一个属性
+    •  使用消息生产工具推送消息时, 使用组合键 ^C (CTRL + C) 即可退出工具模式
+
+bin/kafka-console-consumer.sh --bootstrap-server=socket,...
+                              --topic=topic
+                            [ --group=gid ]
+                            [ --from-beginning ]
+                            [ --skip-message-on-error ]
+                            [ --property=prop ] ...
+                            [ --help ]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bin/kafka-console-consumer.sh 工具能够作为命令行式的消费者, 从指定主题消费若干消息
+bin/kafka-console-consumer.sh 工具常用选项有
+::  --bootstrap-server=socket,...                必要选项, 标记软件的服务节点为 socket,... (集群可以省略为其中的某个节点)
+::  --topic=topic                                必要选项, 要求工具从名为 topic 的主题内消费消息
+::  --group=gid                                  可选选项, 要求工具使用指定的 gid 作为消费组的组名称
+::  --from-beginning                             可选选项, 要求工具直接从头开始消费相应主题内的消息 (不使用消费组的偏移量数据)
+::  --skip-message-on-error                      可选选项, 要求工具消费到错误消息时, 跳过错误继续消费
+::  --property=prop ...                          可选选项, 使用键值对模式定义消费工具的执行特性
+::  --help                                       帮助选项
+
+bin/kafka-console-consumer.sh 工具使用 --property=prop 选项定义消费工具的执行特性时, 常用特性键值对有
+::  print.timestamp=bool               [ false ] 可选属性, 标记消费者在消费消息时, 是否回显时间戳至标准输出
+::  print.key=bool                     [ false ] 可选属性, 标记消费者在消费消息时, 是否回显消息的 key 的值至标准输出
+::  print.headers=bool                 [ false ] 可选属性, 标记消费者在消费消息时, 是否回显消息的 header 至标准输出
+::  print.value=bool                    [ true ] 可选属性, 标记消费者在消费消息时, 是否回显消息的正文至标准输出
+::  print.partition=bool               [ false ] 可选属性, 标记消费者在消费消息时, 是否回显消息的分区编号至标准输出
+::  print.offset=bool                  [ false ] 可选属性, 标记消费者在消费消息时, 是否回显消息的偏移量至标准输出
+
+""""""""" 演示消息生产工具的基本使用方法
+[root ~]# bin/kafka-console-producer.sh --bootstrap-server kafka-0.season.com:9092 \
+--topic A \
+--batch-size 100 \
+--message-send-max-retries 10 \
+--property parse.key=true \
+--property parse.headers=true
+
+> HK00:HV00,HK01:HV01,HK02:HV02    KEY0    VALUE0
+> HK10:HV10,HK11:HV11,HK12:HV12    KEY1    VALUE1
+^C
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 演示消息消费工具的基本使用方法
+[root ~]# bin/kafka-console-consumer.sh --bootstrap-server kafka-0.season.com:9092 \
+--topic A \
+--group demo \
+--from-beginning \
+--property print.timestamp=true \
+--property print.key=true \
+--property print.headers=true
+
+CreateTime: 1679998574385    HK00:HV00,HK01:HV01,HK02:HV02    KEY0    VALUE0
+CreateTime: 1680000908559    HK10:HV10,HK11:HV11,HK12:HV12    KEY1    VALUE1
+^C
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件的群组管理工具
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件的群组管理工具为 bin/kafka-consumer-groups.sh 脚本, 可用于查阅/ 删除/ 控制群组的元数据
+
+bin/kafka-consumer-groups.sh --bootstrap-server=socket,...
+                             --group=gid ...
+                           [ --describe ]
+                           [ --delete ]
+                           [ --execute
+                             --reset-offsets
+                             --topic=string ...
+                           { --to-current
+                           | --to-earliest
+                           | --to-latest
+                           | --to-offset=num }]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bin/kafka-consumer-groups.sh 工具能够查阅/ 删除/ 控制群组的元数据
+bin/kafka-consumer-groups.sh 工具常用选项有
+::  --bootstrap-server=socket,...                必要选项, 标记软件的服务节点为 socket,... (集群可以省略为其中的某个节点)
+::  --group=gid                                  必要选项, 标记若干被操作的群组对象
+::  --describe                                   查阅选项, 要求命令查阅群组对象的元数据
+::  --delete                                     查阅选项, 要求命令删除群组对象的元数据
+::  --execute                                    操作选项, 要求命令更新群组对象的元数据
+::  --reset-offsets                              操作选项, 要求命令更新群组对象的偏移量
+::  --topic=string ...                           分区选项, 限制命令需要重置偏移量的分区对象 (字符串格式: topic:ptnum,...)
+::  --to-current                                 操作选项, 要求命令把群组的偏移量重置到当前偏移量
+::  --to-earliest                                操作选项, 要求命令把群组的偏移量重置到起始偏移量
+::  --to-latest                                  操作选项, 要求命令把群组的偏移量重置到最大偏移量
+::  --to-offset=num                              操作选项, 要求命令把群组的偏移量重置到 num 位置处
+
+""""""""" 演示查阅群组元数据的基本使用方法
+[root ~]# bin/kafka-consumer-groups.sh --bootstrap-server kafka-0.season.com:9092 \
+--group demo \
+--describe
+
+Consumer group 'demo' has no active members.
+
+GROUP    TOPIC    PARTITION    CURRENT-OFFSET    LOG-END-OFFSET    LAG    CONSUMER-ID    HOST    CLIENT-ID
+demo     A        0            0                 0                 0      -              -       -
+demo     A        1            1                 1                 0      -              -       -
+demo     A        2            1                 1                 0      -              -       -
+
+[root ~]# bin/kafka-consumer-groups.sh --bootstrap-server kafka-0.season.com:9092 \
+--group demo \
+--execute \
+--reset-offsets \
+--topic A:1 \
+--to-offset 0
+
+GROUP    TOPIC    PARTITION    NEW-OFFSET
+demo     A        1            0
+
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
