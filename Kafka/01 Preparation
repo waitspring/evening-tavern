@@ -255,7 +255,12 @@ Kafka 软件如果按照演示文档的步骤部署, 可以得到下述文件
 [root ~]# vim /etc/kafka/server.properties
 [root ~]# vim /etc/kafka/log4j.properties
 [root ~]# sed -i.bakp -r '/-Dlog4j\.configuration/s/^(.*)(file:)(.*)(\")$/\1\2\/etc\/kafka\/log4j.properties\4/g' \
-/usr/local/kafka/bin/kafka-server-start.sh
+/usr/local/kafka/bin/connect-distributed.sh \
+/usr/local/kafka/bin/connect-mirror-maker.sh \
+/usr/local/kafka/bin/connect-standalone.sh \
+/usr/local/kafka/bin/kafka-run-class.sh \
+/usr/local/kafka/bin/kafka-server-start.sh \
+/usr/local/kafka/bin/zookeeper-server-start.sh
 [root ~]# vim /usr/lib/systemd/system/kafka.service
 [root ~]# vim /etc/init.d/kafka
 [root ~]# systemctl daemon-reload

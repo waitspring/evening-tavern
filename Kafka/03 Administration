@@ -169,6 +169,12 @@ bin/kafka-console-consumer.sh 工具使用 --property=prop 选项定义消费工
 ::  print.partition=bool               [ false ] 可选属性, 标记消费者在消费消息时, 是否回显消息的分区编号至标准输出
 ::  print.offset=bool                  [ false ] 可选属性, 标记消费者在消费消息时, 是否回显消息的偏移量至标准输出
 
+阅读上述内容时, 还请注意:
+
+    •  如果消费者有发生过消费行为, 则软件会自行创建主题 __consumer_offsets 用以存储消费者的消费元数据
+    •  消费者的元数据主题 __consumer_offsets 默认有 50 个分区, 每个分区默认创建与节点数量一致的副本
+    •
+
 """"""""" 演示消息生产工具的基本使用方法
 [root ~]# bin/kafka-console-producer.sh --bootstrap-server kafka-0.season.com:9092 \
 --topic A \
@@ -194,6 +200,7 @@ bin/kafka-console-consumer.sh 工具使用 --property=prop 选项定义消费工
 CreateTime: 1679998574385    HK00:HV00,HK01:HV01,HK02:HV02    KEY0    VALUE0
 CreateTime: 1680000908559    HK10:HV10,HK11:HV11,HK12:HV12    KEY1    VALUE1
 ^C
+Processed a total of 2 messages.
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
