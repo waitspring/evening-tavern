@@ -67,7 +67,7 @@ Kafka 软件的发展历程清晰简单
 ├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
 │            │          │ • Json request & response debug log                                                         │
 │ 2021-04-19 │ 2.8.0    │ • limit broker connection creation rate                                                     │
-│            │          │ • topic identifiers                                                                         │
+│            │          │ • KRaft metadata mode                                                                       │
 ├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
 │            │          │ • snapshot for metadata topic                                                               │
 │ 2021-09-21 │ 3.0.0    │ • deprecation of message formats v0 & v1                                                    │
@@ -88,7 +88,7 @@ Kafka 软件的发展历程清晰简单
 
 Kafka 软件的官方网站与 GitHub 第三方开源社区, 清华大学开源软件镜像站等都提供相应软件的下载服务
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-当前文档的演示案例统一使用 Kafka 3.3.2/ ZooKeeper 3.8.0 版本, 其下载地址为:
+当前文档的演示案例统一使用 Kafka 3.3.2/ ZooKeeper 3.8.0/ OpenJDK 1.8.0 版本, 其下载地址为:
 
     •  Kafka                                     [                                 https://kafka.apache.org/downloads ]
     •  Kafka                                     [                               https://github.com/apache/kafka/tags ]
@@ -193,8 +193,8 @@ Kafka 软件如果使用二进制软件包安装, 可以得到下述文件
 ├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
 │ /usr/local/kafka                               │  D  │ 软件的安装目录
 │ /usr/local/kafka/bin                           │  D  │ 软件的执行目录
-│ /usr/local/kafka/config                        │  D  │ 软件的配置目录
 │ /usr/local/kafka/libs                          │  D  │ 软件的库文件目录
+│ /usr/local/kafka/config                        │  D  │ 软件的配置目录
 │ /usr/local/kafka/logs                          │  D  │ 软件默认使用的日志目录
 │ /tmp/kafka-logs                                │  D  │ 软件默认使用的数据目录
 │ /usr/local/kafka/bin/kafka-server-start.sh     │  F  │ 软件的服务启动脚本, 能够调整软件的 JVM 启动参数
@@ -220,16 +220,16 @@ Kafka 软件如果按照演示文档的步骤部署, 可以得到下述文件
 ├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
 │ /usr/local/kafka                               │  D  │ 软件的安装目录
 │ /usr/local/kafka/bin                           │  D  │ 软件的执行目录
-│ /usr/local/kafka/config                        │  D  │ 软件的配置目录
 │ /usr/local/kafka/libs                          │  D  │ 软件的库文件目录
+│ /etc/kafka                                     │  D  │ 软件的配置目录
 │ /var/log/kafka                                 │  D  │ 软件的日志目录
 │ /var/kafka/data                                │  D  │ 软件的数据目录
 │ /etc/init.d/kafka                              │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
 │ /usr/lib/systemd/system/kafka.service          │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件
 │ /usr/local/kafka/bin/kafka-server-start.sh     │  F  │ 软件的服务启动脚本, 能够调整软件的 JVM 启动参数
 │ /usr/local/kafka/bin/kafka-server-stop.sh      │  F  │ 软件的服务关闭脚本
-│ /usr/local/kafka/config/server.properties      │  F  │ 软件的主配置文件
-│ /usr/local/kafka/config/log4j.properties       │  F  │ 软件的 Log4j 日志参数配置文件
+│ /etc/kafka/server.properties                   │  F  │ 软件的主配置文件
+│ /etc/kafka/log4j.properties                    │  F  │ 软件的 Log4j 日志参数配置文件
 │ /var/log/kafka/server.log                      │  F  │ 软件的服务器端日志
 │ /var/log/kafka/state-change.log                │  F  │ 软件的节点状态变化日志
 │ /var/log/kafka/kafka-request.log               │  F  │ 软件的节点请求处理日志
@@ -245,14 +245,22 @@ Kafka 软件如果按照演示文档的步骤部署, 可以得到下述文件
 
 """"""""" 准备 Kafka 软件使用的用户组和用户
 [root ~]# useradd -r -s /sbin/nologin -M kafka
-[root ~]# mkdir -p /usr/local/kafka /var/log/kafka /var/kafka/data
+[root ~]# mkdir -p /usr/local/kafka /var/log/kafka /var/kafka/data /etc/kafka
 [root ~]# chown -R kafka:kafka /usr/local/kafka /var/log/kafka /var/kafka
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 解压 Kafka 软件至对应目录并执行部署
-[root ~]# sudo -u kafka tar -xzf /srv/kafka_2.12-3.3.2.tgz -C /usr/local/kafka --strip-components 1
-[root ~]# vim /usr/local/kafka/config/server.properties
-[root ~]# vim /usr/local/kafka/config/log4j.properties
+[root ~]# sudo -u kafka tar -xzf /srv/kafka_2.13-3.3.2.tgz -C /usr/local/kafka --strip-components 1
+[root ~]# cp /usr/local/kafka/config/{server.properties,log4j.properties} /etc/kafka
+[root ~]# vim /etc/kafka/server.properties
+[root ~]# vim /etc/kafka/log4j.properties
+[root ~]# sed -i.bakp -r '/-Dlog4j\.configuration/s/^(.*)(file:)(.*)(\")$/\1\2\/etc\/kafka\/log4j.properties\4/g' \
+/usr/local/kafka/bin/connect-distributed.sh \
+/usr/local/kafka/bin/connect-mirror-maker.sh \
+/usr/local/kafka/bin/connect-standalone.sh \
+/usr/local/kafka/bin/kafka-run-class.sh \
+/usr/local/kafka/bin/kafka-server-start.sh \
+/usr/local/kafka/bin/zookeeper-server-start.sh
 [root ~]# vim /usr/lib/systemd/system/kafka.service
 [root ~]# vim /etc/init.d/kafka
 [root ~]# systemctl daemon-reload

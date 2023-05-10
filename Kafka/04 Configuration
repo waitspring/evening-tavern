@@ -1,0 +1,128 @@
+  ___               _                                                
+ / (_)             | | o                             o               
+|      __   _  _   | |     __,         ,_    __, _|_     __   _  _   
+|     /  \_/ |/ |  |/  |  /  | |   |  /  |  /  |  |  |  /  \_/ |/ |  
+ \___/\__/   |  |_/|__/|_/\_/|/ \_/|_/   |_/\_/|_/|_/|_/\__/   |  |_/
+                   |\       /|                                       
+                   |/       \|                                       
+--  This document was created by Xuanming in 2023, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件的主配置文件
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件的主配置文件为 /path/to/server.properties
+Kafka 软件的主配置文件内有节点配置/ 主题配置/ 生产者配置/ 消费者配置/ 连接配置/ 信息流配置/ 管理口配置在内的 7 种配置项类型
+Kafka 软件的主配置文件可参考 [ https://kafka.apache.org/33/documentation.html#configuration ]
+
+Kafka 软件的主配置文件常用配置项如下
+┌────────────────────────────────────────────────┬─────────┬───────────────────────────────────────────────────────────
+│ Configuration                                  │ Default │ Comment
+├────────────────────────────────────────────────┼─────────┼───────────────────────────────────────────────────────────
+│ advertised.listeners=null                      │    √    │ 节点注册到 ZooKeeper 时监听地址复用 listeners 参数的值
+│ advertised.listeners=PLAINTEXT://ADDR:PORT,... │         │ 节点注册到 ZooKeeper 时监听地址使用 PLAINTEXT://ADDR:PORT,...
+│ auto.create.topics.enable=true                 │    √    │ 节点能够自动创建主题, 生产者推送消息到一个不存在的主题时, 创建主题
+│ auto.create.topics.enable=false                │         │ 节点禁止自动创建主题, 生产者推送消息到一个不存在的主题时, 抛出错误
+│ auto.leader.rebalance.enable=true              │    √    │ 节点启用读写副本的自动平衡机制
+│ auto.leader.rebalance.enable=false             │         │ 节点停用读写副本的自动平衡机制
+│ background.threads=10                          │    √    │ 节点在服务进程内启动 10  个线程处理后台任务
+│ background.threads=NUM                         │         │ 节点在服务进程内启动 NUM 个线程处理后台任务 (NUM ≥ 1)
+│ broker.id=-1                                   │    √    │ 节点使用数值 -1  作为 ID 编号, 且注册到 ZooKeeper 的服务目录
+│ broker.id=NUM                                  │         │ 节点使用数值 NUM 作为 ID 编号, 且注册到 ZooKeeper 的服务目录
+│ broker.id.generation.enable=true               │    √    │ 节点能够在配置缺失的条件下, 自动生成一个 ID 编号
+│ broker.id.generation.enable=false              │         │ 节点禁止在配置缺失的条件下, 自动生成一个 ID 编号
+│ compression.type=producer                      │    √    │ 节点继承生产者使用的数据压缩算法
+│ compression.type=CODEC                         │         │ 节点使用 CODEC (lz4/zstd/snappy/gzip) 类型的数据压缩算法
+│ connections.max.idle.ms=600000                 │    √    │ 节点上的连接闲置 600000 毫秒 (10 分钟) 将被断开释放
+│ connections.max.idle.ms=NUM                    │         │ 节点上的连接闲置 NUM 毫秒将被断开释放
+│ default.replication.factor=1                   │    √    │ 节点自动创建的主题, 其分区有 1 份副本
+│ default.replication.factor=NUM                 │         │ 节点自动创建的主题, 其分区有 NUM 份副本
+│ delete.topic.enable=true                       │    √    │ 节点允许使用 bin/kafka-topics.sh 工具删除主题
+│ delete.topic.enable=false                      │         │ 节点禁止使用 bin/kafka-topics.sh 工具删除主题
+│ fetch.max.bytes=57671680                       │    √    │ 按批次读取消息时, 每个批次的最大消息体积为 57671680 字节 (55MiB)
+│ fetch.max.bytes=NUM                            │         │ 按批次读取消息时, 每个批次的最大消息体积为 NUM 字节 (NUM ≥ 1024)
+│ group.initial.rebalance.delay.ms=3000          │    √    │ 消费组发生消费者变化时, 执行再平衡动作前置等待时间为 3000 毫秒
+│ group.initial.rebalance.delay.ms=NUM           │         │ 消费组发生消费者变化时, 执行再平衡动作前置等待时间为 NUM  毫秒
+│ group.max.session.timeout.ms=1800000           │    √    │ 消费组内连接闲置 1800000 毫秒 (5 小时) 的消费者将被断开连接
+│ group.max.session.timeout.ms=NUM               │         │ 消费组内连接闲置 NUM 毫秒的消费者将被断开连接
+│ group.min.session.timeout.ms=6000              │    √    │ 消费组内消费者发送心跳检测最小间隔时间为 6000 毫秒
+│ group.min.session.timeout.ms=NUM               │         │ 消费组内消费者发送心跳检测最小间隔时间为 NUM  毫秒
+│ group.max.size=2147483647                      │    √    │ 消费组内消费者的数量上限为 2147483647
+│ group.max.size=NUM                             │         │ 消费组内消费者的数量上限为 NUM
+│ leader.imbalance.check.interval.seconds=300    │    √    │ 节点每隔 300 毫秒触发一次自动平衡检查
+│ leader.imbalance.check.interval.seconds=NUM    │         │ 节点每隔 NUM 毫秒触发一次自动平衡检查
+│ leader.imbalance.per.broker.percentage=10      │    √    │ 如果 10%  及以上的读写副本寄存在当前节点, 则触发读写副本的自动平衡
+│ leader.imbalance.per.broker.percentage=NUM     │         │ 如果 NUM% 及以上的读写副本寄存在当前节点, 则触发读写副本的自动平衡
+│ listeners=PLAINTEXT://:9092                    │    √    │ 节点在当前虚拟机使用的服务监听地址为 :::9092
+│ listeners=PLAINTEXT://ADDR:PORT,...            │         │ 节点在当前虚拟机使用的服务监听地址为 ADDR:9092
+│ log.dir=/tmp/kafka-logs                        │    √    │ 节点使用 /tmp/kafka-logs 目录寄存业务数据
+│ log.dir=/PATH/TO/DIR                           │         │ 节点使用 /PATH/TO/DIR 目录寄存业务数据
+│ log.dirs=null                                  │    √    │ 节点不用多路复用的目录寄存业务数据
+│ log.dirs=/PATH/TO/DIR,...                      │         │ 节点使用多路复用的目录 /PATH/TO/DIR,... 寄存业务数据
+│ log.flush.interval.messages=9223372036854775807│    √    │ 内存可缓存 9223372036854775807 条消息, 触发阈值则写入消息到磁盘
+│ log.flush.interval.messages=NUM                │         │ 内存可缓存 NUM 条消息, 触发阈值则写入消息到磁盘
+│ log.flush.interval.ms=null                     │    √    │ 配置项复用 log.flush.scheduler.interval.ms 参数的值
+│ log.flush.interval.ms=NUM                      │         │ 消息在内存中的缓存周期为 NUM 毫秒, 触发阈值的消息被写入到磁盘
+│ log.flush.offset.checkpoint.interval.ms=60000  │    √    │ 节点每隔 60000 毫秒更新一次偏移量检查点
+│ log.flush.offset.checkpoint.interval.ms=NUM    │         │ 节点每隔 NUM 毫秒更新一次偏移量检查点
+│ log.retention.bytes=-1                         │    √    │ 节点从文件层面不设容量上限
+│ log.retention.bytes=NUM                        │         │ 节点从文件层面设置容量上限, 最多允许保留 NUM 字节的消息
+│ log.retention.hours=168                        │    √    │ 节点从时间层面设置容量上限, 最多允许保留 168 小时的消息
+│ log.retention.hours=NUM                        │         │ 节点从时间层面设置容量上限, 最多允许保留 NUM 小时的消息
+│ max.connections=2147483647                     │    √    │ 节点允许最多建立 2147483647 个连接
+│ max.connections=NUM                            │         │ 节点允许最多建立 NUM 个连接
+│ message.max.bytes=1048588                      │    √    │ 消息批次的最大容量为 1048588 字节
+│ message.max.bytes=NUM                          │         │ 消息批次的最大容量为 NUM 字节
+│ min.insync.replicas=1                          │    √    │ 消息至少同步至 1 个只读副本才能返回事务确认
+│ min.insync.replicas=NUM                        │         │ 消息至少同步至 NUM 个只读副本才能返回事务确认
+│ num.io.threads=8                               │    √    │ 启动 8 个线程处理 I/O 请求
+│ num.io.threads=NUM                             │         │ 启动 NUM 个线程处理 I/O 请求 (NUM ≥ 1)
+│ num.network.threads=3                          │    √    │ 启动 3 个线程处理网络连接请求
+│ num.network.threads=NUM                        │         │ 启动 NUM 个线程处理网络连接请求 (NUM ≥ 1)
+│ num.partitions=1                               │    √    │ 节点自动创建主题时, 为主题配置 1 个分区
+│ num.partitions=NUM                             │         │ 节点自动创建主题时, 为主题配置 NUM 个分区
+│ num.recovery.threads.per.data.dir=1            │    √    │ 节点为每个数据目录配置 1 个线程读写文件, 刷新内存
+│ num.recovery.threads.per.data.dir=NUM          │         │ 节点为每个数据目录配置 NUM 个线程读写文件, 刷新内存
+│ num.replica.fetchers=1                         │    √    │ 节点为每个其他节点配置 1 个线程同步消息
+│ num.replica.fetchers=NUM                       │         │ 节点为每个其他节点配置 NUM 个线程同步消息
+│ offset.metadata.max.bytes=4096                 │    √    │ 用于记录偏移量的元数据最大体积为 4096 字节 (4KiB)
+│ offset.metadata.max.bytes=NUM                  │         │ 用于记录偏移量的元数据最大体积为 NUM 字节
+│ offsets.commit.required.acks=-1                │    √    │ 无须同步消息到 0 份只读副本即可允许生产者提交事务
+│ offsets.commit.required.acks=NUM               │         │ 必须同步消息到 NUM 份只读副本才允许生产者提交事务
+│ offsets.topic.num.partitions=50                │    √    │ 节点为偏移量主题创建 50  个分区
+│ offsets.topic.num.partitions=NUM               │         │ 节点为偏移量主题创建 NUM 个分区
+│ offsets.topic.replication.factor=3             │    √    │ 节点为偏移量主题的每个分区创建 3 份副本
+│ offsets.topic.replication.factor=NUM           │         │ 节点为偏移量主题的每个分区创建 NUM 份副本
+│ offsets.topic.segment.bytes=104857600          │    √    │ 节点为偏移量主题的每个数据段设置 104857600 字节 (100MiB) 容量
+│ offsets.topic.segment.bytes=NUM                │         │ 节点为偏移量主题的每个数据段设置 NUM 字节
+│ queued.max.requests=500                        │    √    │ 节点允许最多 500 个请求进入等待队列
+│ queued.max.requests=NUM                        │         │ 节点允许最多 NUM 个请求进入等待队列
+│ replica.lag.time.max.ms=30000                  │    √    │ 同步副本连续 30000 毫秒没有从读写副本同步数据时, 会被剔除 ISR
+│ replica.lag.time.max.ms=NUM                    │         │ 同步副本连续 NUM 毫秒没有从读写副本同步数据时, 会被剔除 ISR
+│ reserved.broker.max.id=1000                    │    √    │ 节点的最大 ID 编号为 1000
+│ reserved.broker.max.id=NUM                     │         │ 节点的最大 ID 编号为 NUM
+│ transaction.max.timeout.ms=900000              │    √    │ 事务的超时时间为 900000 毫秒
+│ transaction.max.timeout.ms=NUM                 │         │ 事务的超时时间为 NUM 毫秒
+│ unclean.leader.election.enable=false           │    √    │ 节点禁止 ISR 以外的同步副本参与读写副本选举
+│ unclean.leader.election.enable=true            │         │ 节点允许 ISR 以外的同步副本参与读写副本选举 (容易产生脏数据)
+│ zookeeper.connect=null                         │    √    │ 节点不注册 ZooKeeper 节点, 节点不能正常启动服务
+│ zookeeper.connect=...,ADDR:PORT/PATH/TO/NAME   │         │ 节点注册到 ADDR:PORT 节点, 并使用 /PATH/TO/NAME 路径
+└────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
+
+阅读上述表格时, 还请注意:
+
+    •  读写副本的自动平衡机制用于解决读写副本过度集中到某个节点并导致节点 I/O 压力过大的问题, 该机制可以把读写副本尽可能分散到不同的节点
+    •  节点参数配置项 advertised.listeners 禁止使用 0.0.0.0 作为监听地址
+    •  节点参数配置项 listeners 如果使用 0.0.0.0 作为监听地址, 则必须显示指定 advertised.listeners 配置项的值
+    •  节点使用多路复用的目录 /PATH/TO/DIR,... 寄存业务数据时, 配置的第一个目录路径作为读写对象, 其余目录路径作为同步对象
+    •  节点使用偏移量主题 (__consumer_offsets) 集中存储各个消费组的偏移量元数据
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件的 Raft 配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
