@@ -67,7 +67,7 @@ Kafka 软件的发展历程清晰简单
 ├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
 │            │          │ • Json request & response debug log                                                         │
 │ 2021-04-19 │ 2.8.0    │ • limit broker connection creation rate                                                     │
-│            │          │ • topic identifiers                                                                         │
+│            │          │ • KRaft metadata mode                                                                       │
 ├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
 │            │          │ • snapshot for metadata topic                                                               │
 │ 2021-09-21 │ 3.0.0    │ • deprecation of message formats v0 & v1                                                    │
@@ -88,7 +88,7 @@ Kafka 软件的发展历程清晰简单
 
 Kafka 软件的官方网站与 GitHub 第三方开源社区, 清华大学开源软件镜像站等都提供相应软件的下载服务
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-当前文档的演示案例统一使用 Kafka 3.3.2/ ZooKeeper 3.8.0 版本, 其下载地址为:
+当前文档的演示案例统一使用 Kafka 3.3.2/ ZooKeeper 3.8.0/ OpenJDK 1.8.0 版本, 其下载地址为:
 
     •  Kafka                                     [                                 https://kafka.apache.org/downloads ]
     •  Kafka                                     [                               https://github.com/apache/kafka/tags ]
