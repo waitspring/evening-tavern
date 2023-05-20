@@ -121,8 +121,72 @@ Kafka 软件的主配置文件常用配置项如下
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Kafka 软件的 Raft 配置
+Kafka 软件的 KRaft 配置
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件的 KRaft 配置文件为 /path/to/kraft/server.properties
+Kafka 软件的主配置文件可参考 [ https://kafka.apache.org/33/documentation.html#configuration ]
+
+Kafka 软件的 KRaft 配置文件常用配置项如下 (前文所述的其余配置项亦可酌情复用)
+┌────────────────────────────────────────────────┬─────────┬───────────────────────────────────────────────────────────
+│ Configuration                                  │ Default │ Comment
+├────────────────────────────────────────────────┼─────────┼───────────────────────────────────────────────────────────
+│ broker.heartbeat.interval.ms=2000              │    √    │ 节点的心跳检测间隔为 2000 毫秒
+│ broker.heartbeat.interval.ms=NUM               │         │ 节点的心跳检测间隔为 NUM  毫秒
+│ broker.session.timeout.ms=9000                 │    √    │ 节点的心跳检测消失之后会话可以再保持 9000 毫秒
+│ broker.session.timeout.ms=NUM                  │         │ 节点的心跳检测消失之后会话可以再保持 NUM  毫秒
+│ controller.listener.names=null                 │    √    │ 控制器使用的监听名称为空
+│ controller.listener.names=STRING,...           │         │ 控制器使用的监听名称为 STRING (使用名称列表中的第一个名称)
+│ metadata.log.dir=null                          │    √    │ 控制器直接复用 log.dirs 参数配置的第一个目录存储集群元数据
+│ metadata.log.dir=/PATH/TO/DIR                  │         │ 控制器使用目录 /PATH/TO/DIR 存储集群元数据
+│ node.id=-1                                     │    √    │ 集群内软件的 ID 编号为 -1
+│ node.id=NUM                                    │         │ 集群内软件的 ID 编号为 NUM
+│ process.roles=broker                           │    √    │ 集群内软件扮演的角色为节点
+│ process.roles=controller                       │         │ 集群内软件扮演的角色为控制器
+│ process.roles=broker,controller                │         │ 集群内软件扮演的角色为节点 + 控制器
+└────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
+
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Doing Simple │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+提前准备资源: /srv/kafka_2.13-3.3.2.tgz
+
+""""""""" 准备软件的运行环境
+[root ~]# useradd -r -s /sbin/nologin -M kafka
+[root ~]# mkdir -p /usr/local/kafka /var/log/kafka /var/kafka/{data,metadata} /etc/kafka/kraft
+[root ~]# chown -R kafka:kafka /usr/local/kafka /var/log/kafka /var/kafka
+[root ~]# sudo -u kafka tar -xzf /srv/kafka_2.13-3.3.2.tgz -C /usr/local/kafka --strip-components 1
+[root ~]# cp /usr/local/kafka/config/{server.properties,log4j.properties} /etc/kafka
+[root ~]# cp /usr/local/kafka/config/kraft/server.properties /etc/kafka/kraft
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 更新软件的配置文件
+[root ~]# vim /etc/kafka/kraft/server.properties
+[root ~]# vim /etc/kafka/log4j.properties
+[root ~]# sed -i.bakp -r '/-Dlog4j\.configuration/s/^(.*)(file:)(.*)(\")$/\1\2\/etc\/kafka\/log4j.properties\4/g' \
+/usr/local/kafka/bin/connect-distributed.sh \
+/usr/local/kafka/bin/connect-mirror-maker.sh \
+/usr/local/kafka/bin/connect-standalone.sh \
+/usr/local/kafka/bin/kafka-run-class.sh \
+/usr/local/kafka/bin/kafka-server-start.sh \
+/usr/local/kafka/bin/zookeeper-server-start.sh
+[root ~]# /usr/local/kafka/bin/kafka-storage.sh random-uuid
+
+VW3aScTKQTWJeBkZtcJHRQ
+
+[root ~]# /usr/local/kafka/bin/kafka-storage.sh format \
+-t VW3aScTKQTWJeBkZtcJHRQ \
+-c /etc/kafka/kraft/server.properties
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 使用 KRaft 元数据模式启动服务
+[root ~]# vim /usr/lib/systemd/system/kafka.service
+[root ~]# vim /etc/init.d/kafka
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enable kafka.service
+[root ~]# systemctl start kafka.service
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
