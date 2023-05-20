@@ -136,6 +136,8 @@ Kafka 软件的 KRaft 配置文件常用配置项如下 (前文所述的其余�
 │ broker.session.timeout.ms=NUM                  │         │ 节点的心跳检测消失之后会话可以再保持 NUM  毫秒
 │ controller.listener.names=null                 │    √    │ 控制器使用的监听名称为空
 │ controller.listener.names=STRING,...           │         │ 控制器使用的监听名称为 STRING (使用名称列表中的第一个名称)
+│ controller.quorum.voters=null                  │         │ 控制器 Quorum 配置列表为空
+│ controller.quorum.voters=ID@SOCKET,...         │    √    │ 控制器 Quorum 配置列表为 ID@SOCKET,...
 │ metadata.log.dir=null                          │    √    │ 控制器直接复用 log.dirs 参数配置的第一个目录存储集群元数据
 │ metadata.log.dir=/PATH/TO/DIR                  │         │ 控制器使用目录 /PATH/TO/DIR 存储集群元数据
 │ node.id=-1                                     │    √    │ 集群内软件的 ID 编号为 -1
@@ -178,6 +180,9 @@ VW3aScTKQTWJeBkZtcJHRQ
 [root ~]# /usr/local/kafka/bin/kafka-storage.sh format \
 -t VW3aScTKQTWJeBkZtcJHRQ \
 -c /etc/kafka/kraft/server.properties
+
+Formatting /var/kafka/data with metadata.version 3.3-IV3
+Formatting /var/kafka/metadata with metadata.version 3.3-IV3
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 使用 KRaft 元数据模式启动服务
@@ -186,6 +191,16 @@ VW3aScTKQTWJeBkZtcJHRQ
 [root ~]# systemctl daemon-reload
 [root ~]# systemctl enable kafka.service
 [root ~]# systemctl start kafka.service
+[root ~]# tree /var/kafka/metadata/__cluster_metatdata-0
+
+/var/kafka/metadata/__cluster_metatdata-0
+│
+├─── 00000000000000000000.index
+├─── 00000000000000000000.log
+├─── 00000000000000000000.timeindex
+├─── leader-epoch-checkpoint
+├─── partition.metadata
+└─── quorum-state
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
