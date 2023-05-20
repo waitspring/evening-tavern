@@ -195,6 +195,7 @@ Kafka 软件如果使用二进制软件包安装, 可以得到下述文件
 │ /usr/local/kafka/bin                           │  D  │ 软件的执行目录
 │ /usr/local/kafka/libs                          │  D  │ 软件的库文件目录
 │ /usr/local/kafka/config                        │  D  │ 软件的配置目录
+│ /usr/local/kafka/config/kraft                  │  D  │ 软件的配置目录 (使用 KRaft 元数据模式)
 │ /usr/local/kafka/logs                          │  D  │ 软件默认使用的日志目录
 │ /tmp/kafka-logs                                │  D  │ 软件默认使用的数据目录
 │ /usr/local/kafka/bin/kafka-server-start.sh     │  F  │ 软件的服务启动脚本, 能够调整软件的 JVM 启动参数
@@ -222,13 +223,16 @@ Kafka 软件如果按照演示文档的步骤部署, 可以得到下述文件
 │ /usr/local/kafka/bin                           │  D  │ 软件的执行目录
 │ /usr/local/kafka/libs                          │  D  │ 软件的库文件目录
 │ /etc/kafka                                     │  D  │ 软件的配置目录
+│ /etc/kafka/kraft                               │  D  │ 软件的配置目录 (使用 KRaft 元数据模式)
 │ /var/log/kafka                                 │  D  │ 软件的日志目录
 │ /var/kafka/data                                │  D  │ 软件的数据目录
+│ /var/kafka/metadata                            │  D  │ 软件的元数据目录 (使用 KRaft 元数据模式)
 │ /etc/init.d/kafka                              │  F  │ 软件的 Initd (RHEL6) 风格的服务单元管理文件
 │ /usr/lib/systemd/system/kafka.service          │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件
 │ /usr/local/kafka/bin/kafka-server-start.sh     │  F  │ 软件的服务启动脚本, 能够调整软件的 JVM 启动参数
 │ /usr/local/kafka/bin/kafka-server-stop.sh      │  F  │ 软件的服务关闭脚本
 │ /etc/kafka/server.properties                   │  F  │ 软件的主配置文件
+│ /etc/kafka/kraft/server.properties             │  F  │ 软件的主配置文件 (使用 KRaft 元数据模式)
 │ /etc/kafka/log4j.properties                    │  F  │ 软件的 Log4j 日志参数配置文件
 │ /var/log/kafka/server.log                      │  F  │ 软件的服务器端日志
 │ /var/log/kafka/state-change.log                │  F  │ 软件的节点状态变化日志
@@ -243,15 +247,16 @@ Kafka 软件如果按照演示文档的步骤部署, 可以得到下述文件
 │ /var/kafka/data/replication-offset-checkpoint  │  F  │ 软件的元数据文件, 记录副本文件的偏移量元数据 (HW)
 └────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
 
-""""""""" 准备 Kafka 软件使用的用户组和用户
+""""""""" 准备软件的运行环境
 [root ~]# useradd -r -s /sbin/nologin -M kafka
-[root ~]# mkdir -p /usr/local/kafka /var/log/kafka /var/kafka/data /etc/kafka
+[root ~]# mkdir -p /usr/local/kafka /var/log/kafka /var/kafka/{data,metadata} /etc/kafka/kraft
 [root ~]# chown -R kafka:kafka /usr/local/kafka /var/log/kafka /var/kafka
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 解压 Kafka 软件至对应目录并执行部署
 [root ~]# sudo -u kafka tar -xzf /srv/kafka_2.13-3.3.2.tgz -C /usr/local/kafka --strip-components 1
 [root ~]# cp /usr/local/kafka/config/{server.properties,log4j.properties} /etc/kafka
+[root ~]# cp /usr/local/kafka/config/kraft/server.properties /etc/kafka/kraft
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 更新软件的配置文件并启动服务
 [root ~]# vim /etc/kafka/server.properties
 [root ~]# vim /etc/kafka/log4j.properties
 [root ~]# sed -i.bakp -r '/-Dlog4j\.configuration/s/^(.*)(file:)(.*)(\")$/\1\2\/etc\/kafka\/log4j.properties\4/g' \
