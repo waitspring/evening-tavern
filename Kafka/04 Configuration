@@ -68,11 +68,13 @@ Kafka 软件的主配置文件常用配置项如下
 │ log.flush.offset.checkpoint.interval.ms=NUM    │         │ 节点每隔 NUM 毫秒更新一次偏移量检查点
 │ log.retention.bytes=-1                         │    √    │ 节点从文件层面不设容量上限
 │ log.retention.bytes=NUM                        │         │ 节点从文件层面设置容量上限, 最多允许保留 NUM 字节的消息
-│ log.retention.hours=168                        │    √    │ 节点从时间层面设置容量上限, 最多允许保留 168 小时的消息
+│ log.retention.hours=168                        │    √    │ 节点从时间层面设置容量上限, 最多允许保留 168 小时 (1 星期) 的消息
 │ log.retention.hours=NUM                        │         │ 节点从时间层面设置容量上限, 最多允许保留 NUM 小时的消息
+│ log.segment.bytes=1073741824                   │    √    │ 数据段的容量上限, 单个数据文件最多存储 1073741824 字节的消息
+│ log.segment.bytes=NUM                          │         │ 数据段的容量上限, 单个数据文件最多存储 NUM 字节的消息
 │ max.connections=2147483647                     │    √    │ 节点允许最多建立 2147483647 个连接
 │ max.connections=NUM                            │         │ 节点允许最多建立 NUM 个连接
-│ message.max.bytes=1048588                      │    √    │ 消息批次的最大容量为 1048588 字节
+│ message.max.bytes=1048588                      │    √    │ 消息批次的最大容量为 1048588 字节 (1 MiB)
 │ message.max.bytes=NUM                          │         │ 消息批次的最大容量为 NUM 字节
 │ min.insync.replicas=1                          │    √    │ 消息至少同步至 1 个只读副本才能返回事务确认
 │ min.insync.replicas=NUM                        │         │ 消息至少同步至 NUM 个只读副本才能返回事务确认
@@ -117,6 +119,7 @@ Kafka 软件的主配置文件常用配置项如下
     •  节点参数配置项 listeners 如果使用 0.0.0.0 作为监听地址, 则必须显示指定 advertised.listeners 配置项的值
     •  节点使用多路复用的目录 /PATH/TO/DIR,... 寄存业务数据时, 配置的第一个目录路径作为读写对象, 其余目录路径作为同步对象
     •  节点使用偏移量主题 (__consumer_offsets) 集中存储各个消费组的偏移量元数据
+    •  参数 log.retention.bytes/log.retention.hours 中的任意一个被满足时, 节点即删除对应消息
 
 
 
@@ -124,7 +127,7 @@ Kafka 软件的主配置文件常用配置项如下
 Kafka 软件的 KRaft 配置
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Kafka 软件的 KRaft 配置文件为 /path/to/kraft/server.properties
-Kafka 软件的主配置文件可参考 [ https://kafka.apache.org/33/documentation.html#configuration ]
+Kafka 软件的 KRaft 配置文件可参考 [ https://kafka.apache.org/33/documentation.html#configuration ]
 
 Kafka 软件的 KRaft 配置文件常用配置项如下 (前文所述的其余配置项亦可酌情复用)
 ┌────────────────────────────────────────────────┬─────────┬───────────────────────────────────────────────────────────
