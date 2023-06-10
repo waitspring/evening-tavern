@@ -1,0 +1,87 @@
+ ,            _   _           _           _ 
+/|   /       | | | |         (_|    |    | |
+ |__/   __,  | | | |   __,     |    |    | |
+ | \   /  |  |/  |/_) /  |-----|    |  _ |/ 
+ |  \_/\_/|_/|__/| \_/\_/|_/    \__/\_/\_/\/
+             |\                             
+             |/                             
+--  This document was created by Xuanming in 2023, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka-UI 软件的概述
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka-UI 软件由商业智能公司 PROVECTUS 负责迭代与维护, 目前是互联网生态中最常见的 Kafka 可视化管理组件
+Kafka-UI 软件在底层依赖 OpenJDK 17 组件, 而非市面上常用的 OpenJDK 8 组件
+Kafka-UI 软件使用 GitHub 站点维护:
+
+    •  [ TAGS ] https://github.com/provectus/kafka-ui/tags/v0.7.0
+    •  [ DOCS ] https://docs.kafka-ui.provectus.io/overview/readme
+    •  [ JAVA ] https://download.oracle.com/java/17/archive/jdk-17.0.7_linux-x64_bin.rpm
+
+Kafka-UI 软件的版本发布历史如下
+┌────────────┬──────────┬─────────────────────────────────────────────────────────────────────────────────────────────┐
+│            │          │ • topic messages UI                                                                         │
+│ 2020-07-31 │ 0.0.1    │ • consumer group details view                                                               │
+│            │          │ • broker API                                                                                │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • add wrapping for topic names                                                              │
+│ 2021-06-09 │ 0.1.0    │ • block messages key                                                                        │
+│            │          │ • do not try to connect ZooKeeper if connection string is empty                             │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • ability to switch topic messages read direction                                           │
+│ 2021-09-02 │ 0.2.0    │ • consumer group reset/ change offset in specific partition                                 │
+│            │          │ • display replication factor field in topic list                                            │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • support LDAP authentication                                                               │
+│ 2021-12-27 │ 0.3.0    │ • support ARM                                                                               │
+│            │          │ • support Apple M1                                                                          │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • ability to clone topic functionality                                                      │
+│ 2022-05-03 │ 0.4.0    │ • ability to recreate topic functionality                                                   │
+│            │          │ • support of local environments without internet access                                     │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • easily mask any sensitive data                                                            │
+│ 2022-12-23 │ 0.5.0    │ • quickly view fields of nested topic messages in JSON                                      │
+│            │          │ • edit broker config value within UI                                                        │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • add and/or modify clusters right in UI                                                    │
+│ 2023-03-10 │ 0.6.0    │ • Kafka connect metadata can be exported for comprehensive monitoring                       │
+│            │          │ • AWS image support                                                                         │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • OAuth2                                                                                    │
+│ 2023-05-11 │ 0.7.0    │ • UI dark theme                                                                             │
+│            │          │ • ACL list                                                                                  │
+└────────────┴──────────┴─────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka-UI 软件的安装
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka-UI 软件的安装包及其依赖包上传至主机:
+
+    •  /srv/kafka-ui-api-v0.7.0.jar
+    •  /srv/jdk-17.0.7_linux-x86_bin.rpm
+
+""""""""" 使用 RPM 包直接安装 JDK 17 软件
+[root ~]# rpm -ivh /srv/jdk-17.0.7_linux-x86_bin.rpm
+[root ~]# java -version
+Java Version "17.0.7" 2023-04-18 LTS
+Java SE Runtime Environment
+Java HotSpot(TM) 64-Bit Server VM
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 人工部署 Kafka-UI 软件
+[root ~]# useradd -r -s /sbin/nologin -M kafka
+[root ~]# mkdir -p /usr/local/kafka-ui
+[root ~]# chown -R kafka:kafka /usr/local/kafka-ui
+[root ~]# 
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+
+
+
