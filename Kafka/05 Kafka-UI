@@ -58,15 +58,26 @@ Kafka-UI 软件的版本发布历史如下
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka-UI 软件的配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka-UI 软件的版本发布以容器镜像文件为主, 编译结果 JAR 包文件为辅
+Kafka-UI 软件的配置文件/ 启动文件需要用户自行编写
+
+Kafka-UI 软件的配置文件 /path/to/application.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Kafka-UI 软件的安装
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Kafka-UI 软件的安装包及其依赖包上传至主机:
 
     •  /srv/kafka-ui-api-v0.7.0.jar
-    •  /srv/jdk-17.0.7_linux-x86_bin.rpm
+    •  /srv/jdk-17.0.7_linux-x64_bin.rpm
 
 """"""""" 使用 RPM 包直接安装 JDK 17 软件
-[root ~]# rpm -ivh /srv/jdk-17.0.7_linux-x86_bin.rpm
+[root ~]# rpm -ivh /srv/jdk-17.0.7_linux-x64_bin.rpm
 [root ~]# java -version
 Java Version "17.0.7" 2023-04-18 LTS
 Java SE Runtime Environment
@@ -75,13 +86,19 @@ Java HotSpot(TM) 64-Bit Server VM
 
 """"""""" 人工部署 Kafka-UI 软件
 [root ~]# useradd -r -s /sbin/nologin -M kafka
-[root ~]# mkdir -p /usr/local/kafka-ui
-[root ~]# chown -R kafka:kafka /usr/local/kafka-ui
-[root ~]# 
+[root ~]# mkdir -p /opt/middleware/kafka-ui
+[root ~]# chown -R kafka:kafka /opt/middleware/kafka-ui
+[root ~]# sudo -u kafka cp /srv/kafka-ui-api-v0.7.0.jar /opt/middleware/kafka-ui
+[root ~]# sudo -u kafka vim /opt/middleware/kafka-ui/application.yml
+[root ~]# sudo -u kafka vim /opt/middleware/kafka-ui/startup.sh
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-
-
+""""""""" 人工配置 Kafka-UI 软件的服务单元文件, 并启动服务
+[root ~]# vim /usr/lib/systemd/system/kafka-ui.service
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enabled kafka-ui.service
+[root ~]# systemctl start kafka-ui.service
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
