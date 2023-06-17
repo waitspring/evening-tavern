@@ -96,6 +96,7 @@ Kafka 软件的官方网站与 GitHub 第三方开源社区, 清华大学开源�
     •  ZooKeeper                                 [                         https://zookeeper.apache.org/releases.html ]
     •  ZooKeeper                                 [                           https://github.com/apache/zookeeper/tags ]
     •  OpenJDK                                   [                                https://github.com/openjdk/jdk/tags ]
+    •  ORACLE JDK                                [                    https://download.oracle.com/java/17/archive/... ]
 
 
 
@@ -194,23 +195,23 @@ Kafka 软件如果使用二进制软件包安装, 可以得到下述文件
 ┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
 │ Path                                           │ F/D │ Comment
 ├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
-│ /usr/local/kafka                               │  D  │ 软件的安装目录
-│ /usr/local/kafka/bin                           │  D  │ 软件的执行目录
-│ /usr/local/kafka/libs                          │  D  │ 软件的库文件目录
-│ /usr/local/kafka/config                        │  D  │ 软件的配置目录
-│ /usr/local/kafka/config/kraft                  │  D  │ 软件的配置目录 (使用 KRaft 元数据模式)
-│ /usr/local/kafka/logs                          │  D  │ 软件默认使用的日志目录
+│ /path/to/kafka                                 │  D  │ 软件的安装目录
+│ /path/to/kafka/bin                             │  D  │ 软件的执行目录
+│ /path/to/kafka/libs                            │  D  │ 软件的库文件目录
+│ /path/to/kafka/config                          │  D  │ 软件的配置目录
+│ /path/to/kafka/config/kraft                    │  D  │ 软件的配置目录 (使用 KRaft 元数据模式)
+│ /path/to/kafka/logs                            │  D  │ 软件默认使用的日志目录
 │ /tmp/kafka-logs                                │  D  │ 软件默认使用的数据目录
-│ /usr/local/kafka/bin/kafka-server-start.sh     │  F  │ 软件的服务启动脚本, 能够调整软件的 JVM 启动参数
-│ /usr/local/kafka/bin/kafka-server-stop.sh      │  F  │ 软件的服务关闭脚本
-│ /usr/local/kafka/config/server.properties      │  F  │ 软件的主配置文件
-│ /usr/local/kafka/config/log4j.properties       │  F  │ 软件的 Log4j 日志参数配置文件
-│ /usr/local/kafka/logs/server.log               │  F  │ 软件默认使用的服务器端日志
-│ /usr/local/kafka/logs/state-change.log         │  F  │ 软件默认使用的节点状态变化日志
-│ /usr/local/kafka/logs/kafka-request.log        │  F  │ 软件默认使用的节点请求处理日志
-│ /usr/local/kafka/logs/log-cleaner.log          │  F  │ 软件默认使用的数据清理日志
-│ /usr/local/kafka/logs/controller.log           │  F  │ 软件默认使用的管理日志
-│ /usr/local/kafka/logs/kafka-authorizer.log     │  F  │ 软件默认使用的用户认证日志
+│ /path/to/kafka/bin/kafka-server-start.sh       │  F  │ 软件的服务启动脚本, 能够调整软件的 JVM 启动参数
+│ /path/to/kafka/bin/kafka-server-stop.sh        │  F  │ 软件的服务关闭脚本
+│ /path/to/kafka/config/server.properties        │  F  │ 软件的主配置文件
+│ /path/to/kafka/config/log4j.properties         │  F  │ 软件的 Log4j 日志参数配置文件
+│ /path/to/kafka/logs/server.log                 │  F  │ 软件默认使用的服务器端日志
+│ /path/to/kafka/logs/state-change.log           │  F  │ 软件默认使用的节点状态变化日志
+│ /path/to/kafka/logs/kafka-request.log          │  F  │ 软件默认使用的节点请求处理日志
+│ /path/to/kafka/logs/log-cleaner.log            │  F  │ 软件默认使用的数据清理日志
+│ /path/to/kafka/logs/controller.log             │  F  │ 软件默认使用的管理日志
+│ /path/to/kafka/logs/kafka-authorizer.log       │  F  │ 软件默认使用的用户认证日志
 │ /tmp/kafka-logs/cleaner-offset-checkpoint      │  F  │ 软件默认使用的元数据文件, 记录业务数据的结束偏移量
 │ /tmp/kafka-logs/log-start-offset-checkpoint    │  F  │ 软件默认使用的元数据文件, 记录业务数据的起始偏移量
 │ /tmp/kafka-logs/meta.properties                │  F  │ 软件默认使用的元数据文件, 记录节点本身的元数据
@@ -255,8 +256,8 @@ Kafka 软件如果按照演示文档的步骤部署, 可以得到下述文件
 [root ~]# mkdir -p /usr/local/kafka /var/log/kafka /var/kafka/{data,metadata} /etc/kafka/kraft
 [root ~]# chown -R kafka:kafka /usr/local/kafka /var/log/kafka /var/kafka
 [root ~]# sudo -u kafka tar -xzf /srv/kafka_2.13-3.3.2.tgz -C /usr/local/kafka --strip-components 1
-[root ~]# cp /usr/local/kafka/config/{server.properties,log4j.properties} /etc/kafka
-[root ~]# cp /usr/local/kafka/config/kraft/server.properties /etc/kafka/kraft
+[root ~]# sudo -u kafka cp /usr/local/kafka/config/{server.properties,log4j.properties} /etc/kafka
+[root ~]# sudo -u kafka cp /usr/local/kafka/config/kraft/server.properties /etc/kafka/kraft
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 更新软件的配置文件并启动服务

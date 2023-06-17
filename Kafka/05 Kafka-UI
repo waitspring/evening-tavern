@@ -60,12 +60,31 @@ Kafka-UI 软件的版本发布历史如下
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Kafka-UI 软件的安装
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka-UI 软件的配置文件 /etc/kafka-ui/application.yml 需要用户参考源码案例自行人工编写
+Kafka-UI 软件的配置文件 /etc/kafka-ui/application.yml 样例写作如下:
+
+/etc/kafka-ui/application.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# server:                                        # Kafka-UI 软件的服务配置部分
+#   port: 8080                                   # Kafka-UI 软件的端口配置部分 (默认使用 8080 端口)
+# kafka:
+#   clusters:                                    # Kafka 集群接入配置部分
+#     - name: local                              # Kafka 集群的名称信息
+#       bootstrapServers: localhost:9092         # Kafka 集群的连接信息
+
+阅读上述配置文件时, 还请注意:
+
+    •  Kafka-UI 软件使用静态配置信息登记 Kafka 集群, 增减 Kafka 集群需要重启 Kafka-UI 软件
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Doing Simple │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 Kafka-UI 软件的安装包及其依赖包上传至主机:
 
     •  /srv/kafka-ui-api-v0.7.0.jar
     •  /srv/jdk-17.0.7_linux-x86_bin.rpm
 
-""""""""" 使用 RPM 包直接安装 JDK 17 软件
+""""""""" 使用 RPM 包直接安装 JDK 17 软件, 准备软件的运行环境
 [root ~]# rpm -ivh /srv/jdk-17.0.7_linux-x86_bin.rpm
 [root ~]# java -version
 Java Version "17.0.7" 2023-04-18 LTS
@@ -73,15 +92,44 @@ Java SE Runtime Environment
 Java HotSpot(TM) 64-Bit Server VM
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-""""""""" 人工部署 Kafka-UI 软件
+""""""""" 部署 Kafka-UI 软件
 [root ~]# useradd -r -s /sbin/nologin -M kafka
-[root ~]# mkdir -p /usr/local/kafka-ui
-[root ~]# chown -R kafka:kafka /usr/local/kafka-ui
-[root ~]# 
+[root ~]# mkdir -p /usr/local/kafka-ui /etc/kafka-ui /var/log/kafka-ui
+[root ~]# cp /srv/kafka-ui-api-v0.7.0.jar /usr/local/kafka-ui
+[root ~]# chown -R kafka:kafka /usr/local/kafka-ui /etc/kafka-ui /var/log/kafka-ui
+[root ~]# sudo -u kafka vim /etc/kafka-ui/application.yml
+[root ~]# sudo -u kafka vim /usr/local/kafka-ui/startup.sh
+#!/bin/bash
+# -*- utf-8 -*-
+WORKSPACE=/usr/local/kafka-ui
+CONFSPACE=/etc/kafka-ui
+LOGSPACE=/var/log/kafka-ui
+java -Dspring.config.additional-location=$CONFSPACE/application.yml \
+     -jar $WORKSPACE/kafka-ui-api-v0.7.0.jar &>> $LOGSPACE/kafka-ui.log &
+[root ~]# chmod 4755 /usr/local/kafka-ui/startup.sh
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-
-
+""""""""" 编写 Kafka-UI 软件的服务配置文件, 启动服务
+[root ~]# cat > /usr/lib/systemd/system/kafka-ui.service << EOF
+[Unit]
+Description = Kafka-UI Service
+After = network-online.target
+[Service]
+Type = forking
+TimeoutSec = 0
+ExecStart = /usr/local/kafka-ui/startup.sh
+ExecStop = /usr/bin/kill -9 \$MAINPID
+User = kafka
+Group = kafka
+LimitNOFILE = 65535
+LimitNPROC = 65535
+[Install]
+WantedBy = multi-user.target
+EOF
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enable kafka-ui.service
+[root ~]# systemctl start kafka-ui.service
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
