@@ -68,7 +68,7 @@ Kafka-UI 软件的配置文件 /etc/kafka-ui/application.yml 样例写作如下:
 # server:                                        # Kafka-UI 软件的服务配置部分
 #   port: 8080                                   # Kafka-UI 软件的端口配置部分 (默认使用 8080 端口)
 # kafka:
-#   clusters:                                    # Kafka 集群接入配置部分
+#   clusters:                                    # Kafka 集群接入信息配置部分
 #     - name: local                              # Kafka 集群的名称信息
 #       bootstrapServers: localhost:9092         # Kafka 集群的连接信息
 
@@ -82,10 +82,10 @@ Kafka-UI 软件的配置文件 /etc/kafka-ui/application.yml 样例写作如下:
 Kafka-UI 软件的安装包及其依赖包上传至主机:
 
     •  /srv/kafka-ui-api-v0.7.0.jar
-    •  /srv/jdk-17.0.7_linux-x86_bin.rpm
+    •  /srv/jdk-17.0.7_linux-x64_bin.rpm
 
-""""""""" 使用 RPM 包直接安装 JDK 17 软件, 准备软件的运行环境
-[root ~]# rpm -ivh /srv/jdk-17.0.7_linux-x86_bin.rpm
+""""""""" 使用 RPM 包直接安装 JDK 17 软件
+[root ~]# rpm -ivh /srv/jdk-17.0.7_linux-x64_bin.rpm
 [root ~]# java -version
 Java Version "17.0.7" 2023-04-18 LTS
 Java SE Runtime Environment
