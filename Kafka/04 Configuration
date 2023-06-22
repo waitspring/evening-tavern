@@ -121,6 +121,16 @@ Kafka 软件的主配置文件常用配置项如下
     •  节点使用偏移量主题 (__consumer_offsets) 集中存储各个消费组的偏移量元数据
     •  参数 log.retention.bytes/log.retention.hours 中的任意一个被满足时, 节点即删除对应消息
 
+Kafka 软件的 JMX 配置能够在主机上启动一个用于指标监控的监听端口
+Kafka 软件的 JMX 端口接受 Java 请求, 使得第三方软件 (例如 Kafka-UI/ Jconsole) 能够访问到 Kafka 软件的各种指标数据
+Kafka 软件的 JMX 端口默认是关闭的, 启用时需要在环境变量内添加 JMX_PORT 参数
+
+""""""""" 开启 Kafka 软件的 JMX 端口
+[root ~]# sed -i -r '/^exec/i\export JMX_PORT=9093' /usr/local/kafka/bin/kafka-server-start.sh
+[root ~]# systemctl restart kafka.service
+[root ~]# netstat -elnptu | grep 9093
+--------------------------------------------------------------------------------------------------------------------- ✻
+
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
