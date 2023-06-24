@@ -1,0 +1,203 @@
+ ,            _   _           _           _ 
+/|   /       | | | |         (_|    |    | |
+ |__/   __,  | | | |   __,     |    |    | |
+ | \   /  |  |/  |/_) /  |-----|    |  _ |/ 
+ |  \_/\_/|_/|__/| \_/\_/|_/    \__/\_/\_/\/
+             |\                             
+             |/                             
+--  This document was created by Xuanming in 2023, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka-UI 软件的概述
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka-UI 软件由商业智能公司 PROVECTUS 负责迭代与维护, 目前是互联网生态中最常见的 Kafka 可视化管理组件
+Kafka-UI 软件在底层依赖 OpenJDK 17 组件, 而非市面上常用的 OpenJDK 8 组件
+Kafka-UI 软件使用 GitHub 站点维护:
+
+    •  [ TAGS ] https://github.com/provectus/kafka-ui/tags/v0.7.0
+    •  [ DOCS ] https://docs.kafka-ui.provectus.io/overview/readme
+    •  [ JAVA ] https://download.oracle.com/java/17/archive/jdk-17.0.7_linux-x64_bin.rpm
+
+Kafka-UI 软件的版本发布历史如下
+┌────────────┬──────────┬─────────────────────────────────────────────────────────────────────────────────────────────┐
+│            │          │ • topic messages UI                                                                         │
+│ 2020-07-31 │ 0.0.1    │ • consumer group details view                                                               │
+│            │          │ • broker API                                                                                │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • add wrapping for topic names                                                              │
+│ 2021-06-09 │ 0.1.0    │ • block messages key                                                                        │
+│            │          │ • do not try to connect ZooKeeper if connection string is empty                             │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • ability to switch topic messages read direction                                           │
+│ 2021-09-02 │ 0.2.0    │ • consumer group reset/ change offset in specific partition                                 │
+│            │          │ • display replication factor field in topic list                                            │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • support LDAP authentication                                                               │
+│ 2021-12-27 │ 0.3.0    │ • support ARM                                                                               │
+│            │          │ • support Apple M1                                                                          │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • ability to clone topic functionality                                                      │
+│ 2022-05-03 │ 0.4.0    │ • ability to recreate topic functionality                                                   │
+│            │          │ • support of local environments without internet access                                     │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • easily mask any sensitive data                                                            │
+│ 2022-12-23 │ 0.5.0    │ • quickly view fields of nested topic messages in JSON                                      │
+│            │          │ • edit broker config value within UI                                                        │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • add and/or modify clusters right in UI                                                    │
+│ 2023-03-10 │ 0.6.0    │ • Kafka connect metadata can be exported for comprehensive monitoring                       │
+│            │          │ • AWS image support                                                                         │
+├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
+│            │          │ • OAuth2                                                                                    │
+│ 2023-05-11 │ 0.7.0    │ • UI dark theme                                                                             │
+│            │          │ • ACL list                                                                                  │
+└────────────┴──────────┴─────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 管理控制台的比对
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 管理控制台的常见软件有:
+
+    •  Confluent Platform  --  Confluent Inc. 维护的 Kafka 管理控制台软件, 商业付费但功能强大
+    •  Conduktor Platform  --  Conduktor Inc. 维护的 Kafka 管理控制台软件, 开源免费且功能较强
+    •  Kafka-UI            --  Provectus Inc. 维护的 Kafka 管理控制台软件, 开源免费且功能强大
+
+┌────────────────────────────────────────────────┬──────────────────────┬──────────────────────┬──────────────────────┐
+│                                                │  Confluent Platform  │  Conduktor Platform  │       Kafka-UI       │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Multi-Cluster                                  │          √           │          X           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Message Browsing                               │          √           │          √           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Protobuf Support                               │          √           │          √           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Avro Support                                   │          √           │          √           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Live Tailing                                   │          √           │          √           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Dynamic Topic Configuration                    │          √           │          √           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Authentication                                 │          √           │          X           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Authorization                                  │          √           │          X           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Partition Increase                             │          √           │          √           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Replica Change                                 │          √           │          √           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Amazon MSK IAM Support                         │          √           │          √           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Kafka Connect Management                       │          √           │          √           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Schema Registry                                │          √           │          √           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ KSQL Integration                               │          √           │          √           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Kafka Streams Topologies                       │          √           │          X           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ Readonly Mode                                  │          √           │          √           │          √           │
+├────────────────────────────────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ JMX Metrics Visualization and Charts           │          √           │          √           │          X           │
+└────────────────────────────────────────────────┴──────────────────────┴──────────────────────┴──────────────────────┘
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka-UI 软件的安装
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka-UI 软件的配置文件 /etc/kafka-ui/application.yml 需要用户参考源码案例自行人工编写
+Kafka-UI 软件的配置文件 /etc/kafka-ui/application.yml 样例写作如下:
+
+/etc/kafka-ui/application.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# server:                                        # Kafka-UI 软件的服务配置部分
+#   port: 8080                                   # Kafka-UI 软件的端口配置信息 (默认使用 8080 端口)
+# kafka:
+#   clusters:                                    # Kafka 集群接入信息配置部分
+#     -                                          # Kafka 集群的第一组配置信息
+#       name: local                              # Kafka 集群的名称信息
+#       bootstrapServers: localhost:9092         # Kafka 集群的连接信息
+#       metrics:                                 # Kafka 集群的指标监控配置部分
+#         port: 9997                             # Kafka 集群的 JMX 端口配置信息 (默认使用 9997 端口)
+#         type: JMX
+# auth:
+#   type: LDAP
+# spring:
+#   ldap:
+#     urls: ldap://localhost:389
+#     base: "dc=season,dc=com"
+#     admin-user: "cn=admin,dc=season,dc=com"
+#     admin-password: "season_4U"
+#     user-filter-search-base: "dc=season,dc=com"
+#     user-filter-search-filter: "(cn={0})"      # 使用员工条目的 cn 属性匹配登录表单中的第一个字符串, 返回命中结果
+# oauth2:
+#   ldap:
+#     activeDirectory: false
+
+阅读上述配置文件时, 还请注意:
+
+    •  Kafka-UI 软件使用静态配置信息登记 Kafka 集群, 增减 Kafka 集群需要重启 Kafka-UI 软件
+    •  Kafka-UI 软件在 v0.7.0 版本不对 LDAP 的返回数据做错误捕获处理, 请确保 user-filter-search-filter 的筛选条件仅返回一个条目
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Doing Simple │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+Kafka-UI 软件的安装包及其依赖包上传至主机:
+
+    •  /srv/kafka-ui-api-v0.7.0.jar
+    •  /srv/jdk-17.0.7_linux-x64_bin.rpm
+
+""""""""" 使用 RPM 包直接安装 JDK 17 软件
+[root ~]# rpm -ivh /srv/jdk-17.0.7_linux-x64_bin.rpm
+[root ~]# java -version
+Java Version "17.0.7" 2023-04-18 LTS
+Java SE Runtime Environment
+Java HotSpot(TM) 64-Bit Server VM
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 部署 Kafka-UI 软件
+[root ~]# useradd -r -s /sbin/nologin -M kafka
+[root ~]# mkdir -p /usr/local/kafka-ui /etc/kafka-ui /var/log/kafka-ui
+[root ~]# cp /srv/kafka-ui-api-v0.7.0.jar /usr/local/kafka-ui
+[root ~]# chown -R kafka:kafka /usr/local/kafka-ui /etc/kafka-ui /var/log/kafka-ui
+[root ~]# sudo -u kafka vim /etc/kafka-ui/application.yml
+[root ~]# sudo -u kafka vim /usr/local/kafka-ui/startup.sh
+#!/bin/bash
+# -*- utf-8 -*-
+WORKSPACE=/usr/local/kafka-ui
+CONFSPACE=/etc/kafka-ui
+LOGSPACE=/var/log/kafka-ui
+java --add-opens java.rmi/javax.rmi.ssl=ALL-UNNAMED \
+     -Dspring.config.additional-location=$CONFSPACE/application.yml \
+     -jar $WORKSPACE/kafka-ui-api-v0.7.0.jar &>> $LOGSPACE/kafka-ui.log &
+[root ~]# chmod 4755 /usr/local/kafka-ui/startup.sh
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 编写 Kafka-UI 软件的服务配置文件, 启动服务
+[root ~]# cat > /usr/lib/systemd/system/kafka-ui.service << EOF
+[Unit]
+Description = Kafka-UI Service
+After = network-online.target
+[Service]
+Type = forking
+TimeoutSec = 0
+ExecStart = /usr/local/kafka-ui/startup.sh
+ExecStop = /usr/bin/kill -9 \$MAINPID
+User = kafka
+Group = kafka
+LimitNOFILE = 65535
+LimitNPROC = 65535
+[Install]
+WantedBy = multi-user.target
+EOF
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enable kafka-ui.service
+[root ~]# systemctl start kafka-ui.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
