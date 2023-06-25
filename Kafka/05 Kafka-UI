@@ -125,10 +125,10 @@ Kafka-UI 软件的配置文件 /etc/kafka-ui/application.yml 样例写作如下:
 #         port: 9997                             # Kafka 集群的 JMX 端口配置信息 (默认使用 9997 端口)
 #         type: JMX
 # auth:
-#   type: LDAP
+#   type: "ldap"
 # spring:
 #   ldap:
-#     urls: ldap://localhost:389
+#     urls: "ldap://ldap.season.com:389"
 #     base: "dc=season,dc=com"
 #     admin-user: "cn=admin,dc=season,dc=com"
 #     admin-password: "season_4U"
