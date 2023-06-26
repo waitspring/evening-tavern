@@ -36,7 +36,7 @@ ELK 项目整体已经开源, 内置在 Elasticsearch 软件内的 Xpack 模块�
     •  org.elasticsearch.xpack.core.XPackBuild.java
 
 """"""""" 修正 Xpack 模块的 Java 源代码, 编译源码文件
-[root ~]# unzip /srv/elasticsearch-6.8.23.zip -d ~/elasticsearch-6.8.23
+[root ~]# unzip /srv/elasticsearch-6.8.23.zip -d ~
 [root ~]# sed -i -r '/return/s/(^.* return )(.*)(;)/\1true\3/g' \
 elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseVerifier.java
 [root ~]# javac -cp "/usr/share/elasticsearch/lib/*:/usr/share/elasticsearch/modules/x-pack-core/*" \
@@ -47,17 +47,66 @@ elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/co
 elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/XPackBuild.java
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-""""""""" 使用编译结果重做 x-pack-core-6.8.23.jar 文件
+""""""""" 使用编译结果重做 x-pack-core-6.8.23.jar 文件, 并重启 Elasticsearch 软件
 [root ~]# unzip /usr/share/elasticsearch/modules/x-pack-core/x-pack-core-6.8.23.jar -d x-pack-core-6.8.23
 [root ~]# cp -f elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseVerifier.class \
 x-pack-core-6.8.23/org/elasticsearch/license
 [root ~]# cp -f elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/XPackBuild.class \
 x-pack-core-6.8.23/org/elasticsearch/xpack/core
 [root ~]# jar -cf /usr/share/elasticsearch/modules/x-pack-core/x-pack-core-6.8.23.jar -C x-pack-core-6.8.23 .
+[root ~]# systemctl restart elasticsearch.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 配置 ELK 项目内置用户的认证密码, 并查阅当前的 ELK 项目使用许可证
+[root ~]# /usr/share/elasticsearch/bin/elasticsearch-setup-passwords interactive
+
+Please confirm that you would like to continue [y/n]: y
+
+Enter password for [elastic]: season_4U
+Reenter password for [elastic]: season_4U
+... ...
+... ...
+
+[root ~]# curl -u elastic:season_4U http://elastic.season.com:9200/_xpack/license
+{
+    "license": {
+        "status": "active",
+        "uid": "604a3bf9-bef6-480d-8d1b-18e75477ee70",
+        "type": "basic",
+        "issue_date": "2023-06-26T02:57:50.593Z",
+        "issue_date_in_millis": 1687748270593,
+        "max_nodes": 1000,
+        "issued_to": "elasticsearch",
+        "issuer": "elasticsearch",
+        "start_date_in_millis": -1
+    }
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 更新 ELK 项目使用许可证
+[root ~]# cat > ~/license.json << EOF
+{
+    "license": {
+        "status": "active",
+        "uid": "604a3bf9-bef6-480d-8d1b-18e75477ee70",
+        "type": "platinum",
+        "issue_date": "2023-06-26T02:57:50.593Z",
+        "issue_date_in_millis": 1687748270593,
+        "expiry_date": "2033-06-26T02:57:50.593Z",
+        "expiry_date_in_millis": 2003338670593,
+        "max_nodes": 1000,
+        "issued_to": "elasticsearch",
+        "issuer": "elasticsearch",
+        "start_date_in_millis": -1
+    }
+}
+EOF
+[root ~]# curl -X PUT -H "Content-Type: application/json" -u elastic:season_4U -d @license.json \
+http://elastic.season.com:9200/_xpack/license
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 更新 Elasticsearch 软件的主配置文件
-[root ~]# cat >> /etc/elasticseach/elasticsearch.yml << EOF
+[root ~]# cat >> /etc/elasticsearch/elasticsearch.yml << EOF
 xpack.security.enabled: true
 xpack.security.transport.ssl.enabled: true
 xpack:
