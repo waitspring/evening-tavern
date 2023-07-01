@@ -1,0 +1,200 @@
+ _         , __             _   
+(_\  /    /|/  \           | |  
+   \/      |___/ __,   __  | |  
+   /\ -----|    /  |  /    |/_) 
+ _/  \_/   |    \_/|_/\___/| \_/
+                                
+                                
+
+--  This document was created by Xuanming in 2023, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+X-Pack 模块说明
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件内置的 X-Pack 模块用于提供用户管理/ 权限认证在内的核心功能
+Elasticsearch 软件内置的 X-Pack 模块需要向弹性搜索公司 (Elastic Stack) 付费购买商用许可证才能使用 (用户有 30 天的免费试用期)
+Elasticsearch 软件内置的 X-Pack 模块通过自编译 JAR 文件, 理论上可以得到免费破解版本 ⦿ ⦿ ⦿
+Elasticsearch 软件内置的 X-Pack 模块能够细分为:
+
+    •  x-pack-ccr
+    •  x-pack-core
+    •  x-pack-deprecation
+    •  x-pack-graph
+    •  x-pack-ilm
+    •  x-pack-logstash
+    •  x-pack-ml
+    •  x-pack-monitoring
+    •  x-pack-rollup
+    •  x-pack-security
+    •  x-pack-sql
+    •  x-pack-upgrade
+    •  x-pack-watcher
+
+""""""""" 检查 ELK 项目的许可证, 开启商用许可证的免费试用
+[root ~]# curl http://elastic.season.com:9200/_xpack/license
+{
+    "license": {
+        "status": "active",
+        "uid": "604a3bf9-bef6-480d-8d1b-18e75477ee70",
+        "type": "basic",                         | ELK 项目当前使用基本许可证
+        "issue_date": "2023-06-26T02:57:50.593Z",| ELK 项目从 2023-06-26 02:57:50.593 时刻开始启动
+        "issue_date_in_millis": 1687748270593,
+        "max_nodes": 1000,
+        "issued_to": "season",
+        "issuer": "elasticsearch",
+        "start_date_in_millis": -1
+    }
+}
+[root ~]# curl -X POST http://elastic.season.com:9200/_xpack/license/start_trial?acknowledge=true
+{
+    "acknowledged": true,
+    "trial_was_started": true,
+    "type": "trial"
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+启用 X-Pack 模块
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+启用 X-Pack 模块的基本步骤有:
+
+    1. 确保 ELK 项目已经使用有商用许可证 (platinum)/ 商用许可证的免费试用版本 (trial)
+    2. 准备 ELK 集群内每个节点的 CA 数字证书, CA 数字证书用于 ELK 集群节点间的 TLS/SSL 加密通信
+    3. 开启 ELK 集群内每个节点的 X-Pack 配置参数, 配置节点间的 TLS/SSL 加密通信
+    4. 设置 ELK 项目内建用户的认证密码
+    5. 设置 ELK 项目连接 LDAP 域控服务, 引入 LDAP 域控用户
+
+""""""""" 准备 X-Pack 模块在集群模式下使用的数字证书
+[root ~]# /usr/share/elasticsearch/bin/elasticsearch-certutil ca
+
+This tool assists you in the generation of X.509 certificates and certificate signing requests for ...
+Please enter the desired output file [elastic-stack-ca.p12]: /etc/elasticsearch/elastic-stack-ca.p12
+Please enter the password for elastic-stack-ca.p12:
+
+[root ~]# /usr/share/elasticsearch/bin/elasticsearch-certutil cert --ca /etc/elasticsearch/elastic-stack-ca.p12
+
+Enter password for CA (/etc/elasticsearch/elastic-stack-ca.p12):
+Please enter the desired output file [elastic-certificates.p12]: /etc/elasticsearch/elastic-certificates.p12
+Please enter the password for elastic-certificates.p12:
+
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 开启 X-Pack 模块并重启 Elasticsearch 软件
+[root ~]# cat >> /etc/elasticsearch/elasticsearch.yml << EOF
+xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
+xpack.security.transport.ssl.certificate: true
+xpack.security.transport.ssl.keystore.path: /etc/elasticsearch/elastic-certificates.p12
+xpack.security.transport.ssl.truststore.path: /etc/elasticsearch/elastic-certificates.p12
+EOF
+[root ~]# systemctl restart elasticsearch.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 更新 Elasticsearch 软件的主配置文件
+[root ~]# cat >> /etc/elasticsearch/elasticsearch.yml << EOF
+xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
+xpack:
+  security:
+    authc:
+      realms:
+        ldap:
+          order: 0
+          type: "ldap"
+          url: "ldap://ldap.season.com:389"
+          bind_dn: "cn=admin,dc=season,dc=com"
+          bind_password: "season_4U"
+          user_search:
+            base_dn: "dc=season,dc=com"
+            filter: "(cn={0})"
+          group_search:
+            base_dn: "dc=season,dc=com"
+EOF
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+启用 X-Pack 模块
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ELK 项目整体已经开源, 内置在 Elasticsearch 软件内的 Xpack 模块可以基于 JAR 包反编译的方式破解:
+
+    •  org.elasticsearch.license.LicenseVerifier.java
+    •  org.elasticsearch.xpack.core.XPackBuild.java
+
+""""""""" 修正 Xpack 模块的 Java 源代码, 编译源码文件
+[root ~]# unzip /srv/elasticsearch-6.8.23.zip -d ~
+[root ~]# sed -i -r '/return/s/(^.* return )(.*)(;)/\1true\3/g' \
+elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseVerifier.java
+[root ~]# javac -cp "/usr/share/elasticsearch/lib/*:/usr/share/elasticsearch/modules/x-pack-core/*" \
+elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseVerifier.java
+[root ~]# sed -i -r '/getMainAttributes/s/(^.* = )(.*)(;)/\1\"Unknown\"\3/g' \
+elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/XPackBuild.java
+[root ~]# javac -cp "/usr/share/elasticsearch/lib/*:/usr/share/elasticsearch/modules/x-pack-core/*" \
+elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/XPackBuild.java
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 使用编译结果重做 x-pack-core-6.8.23.jar 文件, 并重启 Elasticsearch 软件
+[root ~]# unzip /usr/share/elasticsearch/modules/x-pack-core/x-pack-core-6.8.23.jar -d x-pack-core-6.8.23
+[root ~]# cp -f elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseVerifier.class \
+x-pack-core-6.8.23/org/elasticsearch/license
+[root ~]# cp -f elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/XPackBuild.class \
+x-pack-core-6.8.23/org/elasticsearch/xpack/core
+[root ~]# jar -cf /usr/share/elasticsearch/modules/x-pack-core/x-pack-core-6.8.23.jar -C x-pack-core-6.8.23 .
+[root ~]# systemctl restart elasticsearch.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 配置 ELK 项目内置用户的认证密码, 并查阅当前的 ELK 项目使用许可证
+[root ~]# /usr/share/elasticsearch/bin/elasticsearch-setup-passwords interactive
+
+Please confirm that you would like to continue [y/n]: y
+
+Enter password for [elastic]: season_4U
+Reenter password for [elastic]: season_4U
+... ...
+... ...
+
+[root ~]# curl -u elastic:season_4U http://elastic.season.com:9200/_xpack/license
+{
+    "license": {
+        "status": "active",
+        "uid": "604a3bf9-bef6-480d-8d1b-18e75477ee70",
+        "type": "basic",
+        "issue_date": "2023-06-26T02:57:50.593Z",
+        "issue_date_in_millis": 1687748270593,
+        "max_nodes": 1000,
+        "issued_to": "elasticsearch",
+        "issuer": "elasticsearch",
+        "start_date_in_millis": -1
+    }
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 更新 ELK 项目使用许可证
+[root ~]# cat > ~/license.json << EOF
+{
+    "license": {
+        "status": "active",
+        "uid": "604a3bf9-bef6-480d-8d1b-18e75477ee70",
+        "type": "platinum",
+        "issue_date": "2023-06-26T02:57:50.593Z",
+        "issue_date_in_millis": 1687748270593,
+        "expiry_date": "2033-06-26T02:57:50.593Z",
+        "expiry_date_in_millis": 2003338670593,
+        "max_nodes": 1000,
+        "issued_to": "elasticsearch",
+        "issuer": "elasticsearch",
+        "start_date_in_millis": -1
+    }
+}
+EOF
+[root ~]# curl -X PUT -H "Content-Type: application/json" -u elastic:season_4U -d @license.json \
+http://elastic.season.com:9200/_xpack/license
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
