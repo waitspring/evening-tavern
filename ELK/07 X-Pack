@@ -68,7 +68,14 @@ Elasticsearch 软件内置的 X-Pack 模块能够细分为:
     4. 设置 ELK 项目内建用户的认证密码
     5. 设置 ELK 项目连接 LDAP 域控服务, 引入 LDAP 域控用户
 
-""""""""" 准备 X-Pack 模块在集群模式下使用的数字证书
+***** 内建用户的说明
+
+阅读下述案例演示时, 还请注意:
+
+    •  建议把 CA 数字证书相关的密码设置为空密码
+    •  仅使用 Elasticsearch 软件的控制节点制作 CA 数字证书, 其余数据节点复用这一份数字证书
+
+""""""""" [控制节点] 准备 X-Pack 模块在集群模式下使用的数字证书
 [root ~]# /usr/share/elasticsearch/bin/elasticsearch-certutil ca
 
 This tool assists you in the generation of X.509 certificates and certificate signing requests for ...
@@ -81,28 +88,53 @@ Enter password for CA (/etc/elasticsearch/elastic-stack-ca.p12):
 Please enter the desired output file [elastic-certificates.p12]: /etc/elasticsearch/elastic-certificates.p12
 Please enter the password for elastic-certificates.p12:
 
+[root ~]# chmod g+r /etc/elasticsearch/elastic-*
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-""""""""" 开启 X-Pack 模块并重启 Elasticsearch 软件
+""""""""" [全部节点] 开启 X-Pack 模块并重启 Elasticsearch 软件
 [root ~]# cat >> /etc/elasticsearch/elasticsearch.yml << EOF
 xpack.security.enabled: true
 xpack.security.transport.ssl.enabled: true
-xpack.security.transport.ssl.certificate: true
+xpack.security.transport.ssl.verification_mode: certificate
 xpack.security.transport.ssl.keystore.path: /etc/elasticsearch/elastic-certificates.p12
 xpack.security.transport.ssl.truststore.path: /etc/elasticsearch/elastic-certificates.p12
 EOF
 [root ~]# systemctl restart elasticsearch.service
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-""""""""" 更新 Elasticsearch 软件的主配置文件
+""""""""" [控制节点] 设置 ELK 项目内建用户的认证密码
+[root ~]# /usr/share/elasticsearch/bin/elasticsearch-setup-passwords interactive
+
+Please confirm that you would like to continue [y/n]: y
+Enter password for [elastic]: elastic
+Enter password for [apm_system]: apm_system
+Enter password for [kibana]: kibana
+Enter password for [logstash_system]: logstash_system
+Enter password for [beats_system]: beats_system
+Enter password for [remote_monitoring_user]: remote_monitoring_user
+
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" [服务节点] 更新 Logstash/ Kibana 软件的配置文件
+[root ~]# cat >> /etc/logstash/logstash.yml << EOF
+xpack.monitoring.elasticsearch.username: logstash_system
+xpack.monitoring.elasticsearch.password: logstash_system
+EOF
+[root ~]# systemctl restart logstash.service
+[root ~]# cat >> /etc/kibana/kibana.yml << EOF
+elasticsearch.username: kibana
+elasticsearch.password: kibana
+EOF
+[root ~]# systemctl restart kibana.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" [全部节点] 引入 LDAP 域控服务并重启 Elasticsearch 软件
 [root ~]# cat >> /etc/elasticsearch/elasticsearch.yml << EOF
-xpack.security.enabled: true
-xpack.security.transport.ssl.enabled: true
 xpack:
   security:
     authc:
       realms:
-        ldap:
+        ldap0:
           order: 0
           type: "ldap"
           url: "ldap://ldap.season.com:389"
@@ -148,34 +180,8 @@ x-pack-core-6.8.23/org/elasticsearch/xpack/core
 [root ~]# systemctl restart elasticsearch.service
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-""""""""" 配置 ELK 项目内置用户的认证密码, 并查阅当前的 ELK 项目使用许可证
-[root ~]# /usr/share/elasticsearch/bin/elasticsearch-setup-passwords interactive
-
-Please confirm that you would like to continue [y/n]: y
-
-Enter password for [elastic]: season_4U
-Reenter password for [elastic]: season_4U
-... ...
-... ...
-
-[root ~]# curl -u elastic:season_4U http://elastic.season.com:9200/_xpack/license
-{
-    "license": {
-        "status": "active",
-        "uid": "604a3bf9-bef6-480d-8d1b-18e75477ee70",
-        "type": "basic",
-        "issue_date": "2023-06-26T02:57:50.593Z",
-        "issue_date_in_millis": 1687748270593,
-        "max_nodes": 1000,
-        "issued_to": "elasticsearch",
-        "issuer": "elasticsearch",
-        "start_date_in_millis": -1
-    }
-}
---------------------------------------------------------------------------------------------------------------------- ✻
-
 """"""""" 更新 ELK 项目使用许可证
-[root ~]# cat > ~/license.json << EOF
+[root ~]# cat > ~/foo.json << EOF
 {
     "license": {
         "status": "active",
@@ -192,8 +198,7 @@ Reenter password for [elastic]: season_4U
     }
 }
 EOF
-[root ~]# curl -X PUT -H "Content-Type: application/json" -u elastic:season_4U -d @license.json \
-http://elastic.season.com:9200/_xpack/license
+[root ~]# curl -X PUT -H "Content-Type: application/json" -d @foo.json http://elastic.season.com:9200/_xpack/license
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
