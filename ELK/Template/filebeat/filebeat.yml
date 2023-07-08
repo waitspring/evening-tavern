@@ -19,10 +19,10 @@ filebeat.inputs:
 - type: log
   enabled: true
   paths:
-    - /var/log/message
+    - /path/to/foo.log
   fields_under_root: true
   fields:
-    - theme: os
+    - theme: foo
   multiline.pattern: ^\d{4}-\d{2}-\d{2}
   multiline.negate: true
   multiline.match: after

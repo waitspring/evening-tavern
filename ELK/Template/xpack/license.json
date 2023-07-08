@@ -1,0 +1,15 @@
+{
+    "license": {
+        "status": "active",
+        "uid": "604a3bf9-bef6-480d-8d1b-18e75477ee70",
+        "type": "platinum",
+        "issue_date": "2023-06-26T02:57:50.593Z",
+        "issue_date_in_millis": 1687748270593,
+        "expiry_date": "2033-06-26T02:57:50.593Z",
+        "expiry_date_in_millis": 2003338670593,
+        "max_nodes": 1000,
+        "issued_to": "elasticsearch",
+        "issuer": "elasticsearch",
+        "start_date_in_millis": -1
+    }
+}
