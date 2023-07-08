@@ -68,7 +68,20 @@ Elasticsearch 软件内置的 X-Pack 模块能够细分为:
     4. 设置 ELK 项目内建用户的认证密码
     5. 设置 ELK 项目连接 LDAP 域控服务, 引入 LDAP 域控用户
 
-***** 内建用户的说明
+ELK 项目内建用户有
+┌────────────────────────────────────────────────┬────────────────────────────────────────────────────────────────────┐
+│ elastic                                        │ built-in superuser                                                 │
+├────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+│ apm_system                                     │ APM use for storing monitoring information in Elasticsearch        │
+├────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+│ kibana                                         │ Kibana use to connect and communicate with Elasticsearch           │
+├────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+│ logstash_system                                │ Logstash use for storing monitoring information in Elasticsearch   │
+├────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+│ beats_system                                   │ Beats use for storing monitoring information in Elasticsearch      │
+├────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+│ remote_monitoring_user                         │ Metricbeat use for storing monitoring information in Elasticsearch │
+└────────────────────────────────────────────────┴────────────────────────────────────────────────────────────────────┘
 
 阅读下述案例演示时, 还请注意:
 
@@ -151,12 +164,21 @@ EOF
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-启用 X-Pack 模块
+破解 X-Pack 模块
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ELK 项目整体已经开源, 内置在 Elasticsearch 软件内的 Xpack 模块可以基于 JAR 包反编译的方式破解:
+破解 X-Pack 模块需要使用到下述源码文件:
 
     •  org.elasticsearch.license.LicenseVerifier.java
     •  org.elasticsearch.xpack.core.XPackBuild.java
+
+破解 X-Pack 模块的基本步骤有:
+
+    1. 修改 *.java 源码文件, 去除授权文件的时间
+    2. 编译 *.java 源码文件, 得到 *.class 字节码文件
+    3. 解压 elasticsearch/modules/x-pack-core/x-pack-core-6.8.23.jar 软件包, 替换对应的 *.class 字节码文件
+    4. 重做 elasticsearch/modules/x-pack-core/x-pack-core-6.8.23.jar 软件包
+    5. 重启 Elasticsearch 软件
+    6. 使用人工制作的商用许可证替换掉原有的免费许可证
 
 """"""""" 修正 Xpack 模块的 Java 源代码, 编译源码文件
 [root ~]# unzip /srv/elasticsearch-6.8.23.zip -d ~
@@ -180,7 +202,7 @@ x-pack-core-6.8.23/org/elasticsearch/xpack/core
 [root ~]# systemctl restart elasticsearch.service
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-""""""""" 更新 ELK 项目使用许可证
+""""""""" 使用人工制作的商用许可证替换掉原有的免费许可证
 [root ~]# cat > ~/foo.json << EOF
 {
     "license": {
