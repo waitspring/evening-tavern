@@ -1,4 +1,2 @@
-superuser:
-  - "cn=admin,dc=season,dc=com"
 kibana_user:
   - "cn=operation,ou=operation,dc=season,dc=com"
