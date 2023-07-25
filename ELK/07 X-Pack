@@ -87,6 +87,7 @@ ELK 项目内建用户有
 
     •  建议把 CA 数字证书相关的密码设置为空密码
     •  仅使用 Elasticsearch 软件的控制节点制作 CA 数字证书, 其余数据节点复用这一份数字证书
+    •  配置文件 /etc/elasticsearch/role_mapping.yml 支持热加载 (Elasticsearch 软件每隔 5 秒钟读取一次文件内容)
 
 """"""""" [控制节点] 准备 X-Pack 模块在集群模式下使用的数字证书
 [root ~]# /usr/share/elasticsearch/bin/elasticsearch-certutil ca
@@ -139,26 +140,29 @@ elasticsearch.username: kibana
 elasticsearch.password: kibana
 EOF
 [root ~]# systemctl restart kibana.service
+[root ~]# curl -I -u kibana:kibana http://kibana.season.com:5601/app/kibana
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" [全部节点] 引入 LDAP 域控服务并重启 Elasticsearch 软件
 [root ~]# cat >> /etc/elasticsearch/elasticsearch.yml << EOF
-xpack:
-  security:
-    authc:
-      realms:
-        ldap0:
-          order: 0
-          type: "ldap"
-          url: "ldap://ldap.season.com:389"
-          bind_dn: "cn=admin,dc=season,dc=com"
-          bind_password: "season_4U"
-          user_search:
-            base_dn: "dc=season,dc=com"
-            filter: "(cn={0})"
-          group_search:
-            base_dn: "dc=season,dc=com"
+xpack.security.authc.realms.ldap0.order: 0
+xpack.security.authc.realms.ldap0.type: "ldap"
+xpack.security.authc.realms.ldap0.url: "ldap://ldap.season.com:389"
+xpack.security.authc.realms.ldap0.bind_dn: "cn=admin,dc=season,dc=com"
+xpack.security.authc.realms.ldap0.bind_password: "season_4U"
+xpack.security.authc.realms.ldap0.user_search.base_dn: "dc=season,dc=com"
+xpack.security.authc.realms.ldap0.user_search.filter: "(cn={0})"
+xpack.security.authc.realms.ldap0.group_search.base_dn: "dc=season,dc=com"
+xpack.security.authc.realms.ldap0.files.role_mapping: "/etc/elasticsearch/role_mapping.yml"
+xpack.security.authc.realms.ldap0.unmapped_groups_as_roles: false
 EOF
+[root ~]# cat > /etc/elasticsearch/role_mapping.yml << EOF
+superuser:
+  - "cn=admin,dc=season,dc=com"
+kibana_user:
+  - "cn=operation,ou=operation,dc=season,dc=com"
+EOF
+[root ~]# curl -I -u sudp1000:sudp1000 http://kibana.season.com:5601/app/kibana
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
