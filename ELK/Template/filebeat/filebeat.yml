@@ -18,11 +18,13 @@
 filebeat.inputs:
 - type: log
   enabled: true
+  encoding: UTF-8
   paths:
     - /path/to/foo.log
   fields_under_root: true
   fields:
-    - theme: foo
+    theme: foo
+    maker: foo
   multiline.pattern: ^\d{4}-\d{2}-\d{2}
   multiline.negate: true
   multiline.match: after

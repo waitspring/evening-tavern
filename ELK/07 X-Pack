@@ -159,7 +159,7 @@ EOF
 [root ~]# cat > /etc/elasticsearch/role_mapping.yml << EOF
 superuser:
   - "cn=admin,dc=season,dc=com"
-kibana_user:
+kibana_system:
   - "cn=operation,ou=operation,dc=season,dc=com"
 EOF
 [root ~]# curl -I -u sudp1000:sudp1000 http://kibana.season.com:5601/app/kibana
