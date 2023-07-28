@@ -46,7 +46,7 @@ input {                                                                         
 }                                                                                                                     \
 output {                                                                                                              \
     stdout {}                                                                                                         \
-}"                                                                                                                    \
+}"
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 输入配置块的消息队列插件支持下述配置项
@@ -66,7 +66,11 @@ input {
         bootstrap_servers => "kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092"
         group_id          => "logstash"
         consumer_threads  => 3
-        topics            => ["season-application-log"]
+        topics            => [
+            "os",
+            "mid",
+            "app"
+        ]
         codec             => "json"
     }
 }
@@ -205,16 +209,18 @@ input {
 ... ...
 ... ...
 output {
-    elasticsearch {
-        hosts => [
-            "elastic-0.season.com:9200",
-            "elastic-1.season.com:9200",
-            "elastic-2.season.com:9200"
-        ]
-        index => "season-application-log-%{+YYYY-MM}"
-        pool_max => 1800
-        pool_max_per_route => 600
-        timeout => 300
+    if [topic] == "os" {
+        elasticsearch {
+            hosts => [
+                "elastic-0.season.com:9200",
+                "elastic-1.season.com:9200",
+                "elastic-2.season.com:9200"
+            ]
+            index => "os-%{+YYYY-MM}"
+            pool_max => 1800
+            pool_max_per_route => 600
+            timeout => 300
+        }
     }
 }
 --------------------------------------------------------------------------------------------------------------------- ✻

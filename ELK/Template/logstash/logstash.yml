@@ -45,3 +45,16 @@ http.port: 9600
 # 日志配置部分
 # =====================================================================================================================
 log.level: info
+
+
+# =====================================================================================================================
+# X-Pack 配置部分
+# =====================================================================================================================
+# xpack.monitoring.enabled: true
+# xpack.monitoring.elasticsearch.hosts: [
+#     "http://elastic-0.season.com:9200",
+#     "http://elastic-1.season.com:9200",
+#     "http://elastic-2.season.com:9200"
+# ]
+# xpack.monitoring.elasticsearch.username: logstash_system
+# xpack.monitoring.elasticsearch.password: logstash_system

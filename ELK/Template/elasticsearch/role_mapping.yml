@@ -1,0 +1,2 @@
+kibana_user:
+  - "cn=operation,ou=operation,dc=season,dc=com"
