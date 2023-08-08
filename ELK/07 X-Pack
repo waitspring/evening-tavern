@@ -190,6 +190,12 @@ EOF
 elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseVerifier.java
 [root ~]# javac -cp "/usr/share/elasticsearch/lib/*:/usr/share/elasticsearch/modules/x-pack-core/*" \
 elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseVerifier.java
+[root ~]# sed -i -r '541,549d' \
+elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseService.java
+[root ~]# sed -i -r '/metaData\.getLicense/s/(^[[:space:]]+)(License license =)(.*$)/\1return\3/g' \
+elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseService.java
+[root ~]# javac -cp "/usr/share/elasticsearch/lib/*:/usr/share/elasticsearch/modules/x-pack-core/*" \
+elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseService.java
 [root ~]# sed -i -r '/getMainAttributes/s/(^.* = )(.*)(;)/\1\"Unknown\"\3/g' \
 elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/XPackBuild.java
 [root ~]# javac -cp "/usr/share/elasticsearch/lib/*:/usr/share/elasticsearch/modules/x-pack-core/*" \
@@ -199,6 +205,8 @@ elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/co
 """"""""" 使用编译结果重做 x-pack-core-6.8.23.jar 文件, 并重启 Elasticsearch 软件
 [root ~]# unzip /usr/share/elasticsearch/modules/x-pack-core/x-pack-core-6.8.23.jar -d x-pack-core-6.8.23
 [root ~]# cp -f elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseVerifier.class \
+x-pack-core-6.8.23/org/elasticsearch/license
+[root ~]# cp -f elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseService.class \
 x-pack-core-6.8.23/org/elasticsearch/license
 [root ~]# cp -f elasticsearch-6.8.23/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/XPackBuild.class \
 x-pack-core-6.8.23/org/elasticsearch/xpack/core
@@ -224,7 +232,10 @@ x-pack-core-6.8.23/org/elasticsearch/xpack/core
     }
 }
 EOF
-[root ~]# curl -X PUT -H "Content-Type: application/json" -d @foo.json http://elastic.season.com:9200/_xpack/license
+[root ~]# curl -X PUT \
+               -H "Content-Type: application/json" \
+               -d @foo.json \
+               -u elastic:elastic http://elastic.season.com:9200/_xpack/license
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
