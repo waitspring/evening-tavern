@@ -543,8 +543,7 @@ public class LicenseService extends AbstractLifecycleComponent implements Cluste
 
     static License getLicense(final LicensesMetaData metaData) {
         if (metaData != null) {
-            License license = metaData.getLicense();
-            return license;
+            return metaData.getLicense();
         }
         return null;
     }
