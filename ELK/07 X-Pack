@@ -173,11 +173,12 @@ EOF
 破解 X-Pack 模块需要使用到下述源码文件:
 
     •  org.elasticsearch.license.LicenseVerifier.java
+    •  org.elasticsearch.license.LicenseService.java
     •  org.elasticsearch.xpack.core.XPackBuild.java
 
 破解 X-Pack 模块的基本步骤有:
 
-    1. 修改 *.java 源码文件, 去除授权文件的时间
+    1. 修改 *.java 源码文件
     2. 编译 *.java 源码文件, 得到 *.class 字节码文件
     3. 解压 elasticsearch/modules/x-pack-core/x-pack-core-6.8.23.jar 软件包, 替换对应的 *.class 字节码文件
     4. 重做 elasticsearch/modules/x-pack-core/x-pack-core-6.8.23.jar 软件包
@@ -236,6 +237,7 @@ EOF
                -H "Content-Type: application/json" \
                -d @foo.json \
                -u elastic:elastic http://elastic.season.com:9200/_xpack/license
+[root ~]# curl -u elastic:elastic http://elastic.season.com:9200/_xpack/license
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
