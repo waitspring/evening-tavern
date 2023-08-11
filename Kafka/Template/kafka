@@ -1,0 +1,74 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+#
+# chkconfig: 35 99 99
+#
+#######################################################################################################################
+#                                              _          _   _                                                       #
+#                                             | |        | | | |                                                      #
+#                                             | |   __,  | | | |   __,                                                #
+#                                             |/_) /  |  |/  |/_) /  |                                                #
+#                                             | \_/\_/|_/|__/| \_/\_/|_/                                              #
+#                                                        |\                                                           #
+#                                                        |/                                                           #
+#######################################################################################################################
+#
+# Location: /etc/init.d/kafka
+# Usage:
+#    $ chkconfig kafka on
+#    $ service kafka { start | stop | restart }
+
+
+source /etc/init.d/functions
+
+
+# =====================================================================================================================
+# Check prerequisite
+# =====================================================================================================================
+if [[ ${#} != 1 ]]; then
+    action "check parameter" /bin/false
+    exit 1
+else
+    source ~/.bash_profile
+    cd $(dirname ${0})
+fi
+
+CONF=/etc/kafka/server.properties
+EXEC=/usr/local/kafka/bin/kafka-server-start.sh
+PROG=${EXEC##*/}
+STOP=/usr/local/kafka/bin/kafka-server-stop.sh
+
+if [[ ! -f ${CONF} ]]; then
+    action "check ${CONF}" /bin/false
+    exit 1
+fi
+if [[ ! -f ${EXEC} ]] || [[ ! -x ${EXEC} ]]; then
+    action "check ${EXEC}" /bin/false
+    exit 1
+fi
+
+
+# =====================================================================================================================
+# Script main part
+# =====================================================================================================================
+case ${1} in
+    start )
+        daemon --user kafka ${EXEC} -daemon ${CONF}
+        ;;
+    stop )
+        ${STOP}
+        ;;
+    status )
+        status ${PROG}
+        ;;
+    restart )
+        ${STOP}
+        daemon --user kafka ${EXEC} -daemon ${CONF}
+        ;;
+    * )
+        echo $"Usage: ${0} { start | stop | status | restart }"
+        exit 2
+        ;;
+esac
+
+exit 0
