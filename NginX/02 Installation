@@ -186,7 +186,7 @@ perl-Digest-SHA1.x86_64
 """"""""" 编写 NginX 软件的服务单元文件, 并启动软件服务
 [root ~]# cat > /usr/lib/systemd/system/nginx.service << EOF
 [Unit]
-Description = Nginx Service
+Description = NginX Service
 After = network-online.target
 [Service]
 Type = forking

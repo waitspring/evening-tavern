@@ -1,0 +1,123 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+#
+# chkconfig: 35 99 99
+#
+#######################################################################################################################
+#                                                                                                                     #
+#                                                         o                                                           #
+#                                             _  _    __,     _  _                                                    #
+#                                            / |/ |  /  | |  / |/ |  /\/                                              #
+#                                              |  |_/\_/|/|_/  |  |_/ /\_/                                            #
+#                                                      /|                                                             #
+#                                                      \|                                                             #
+#######################################################################################################################
+#
+# Location: /etc/init.d/nginx
+# Usage:
+#    $ chkconfig nginx on
+#    $ service nginx { start | stop | restart }
+
+
+source /etc/init.d/functions
+
+
+# =====================================================================================================================
+# Check prerequisite
+# =====================================================================================================================
+if [[ ${#} != 1 ]]; then
+    action "check parameter" /bin/false
+    exit 1
+else
+    source ~/.bash_profile
+    cd $(dirname ${0})
+fi
+
+EXEC=/usr/sbin/nginx
+PROG=${EXEC##*/}
+
+if [[ ! -f ${EXEC} ]] || [[ ! -x ${EXEC} ]]; then
+    action "check ${EXEC}" /bin/false
+    exit 1
+fi
+
+
+# =====================================================================================================================
+# Script funcation part
+# =====================================================================================================================
+start() {
+    if [[ $(pidofproc ${EXEC} | wc -l) == 0 ]]; then
+        ${EXEC}
+        RETVAL=${?}
+        if [[ ${RETVAL} == 0 ]]; then
+            action "starting up nginx ..." /bin/true
+        else
+            action "starting up nginx ..." /bin/false
+        fi
+        return ${RETVAL}
+    else
+        action "starting up nginx ..." /bin/true
+        return 0
+    fi
+}
+
+stop() {
+    if [[ $(pidofproc ${EXEC} | wc -l) == 0 ]]; then
+        action "shutting down nginx ..."
+        return 0
+    else
+        killproc ${EXEC} &> /dev/null
+        RETVAL=${?}
+        if [[ ${RETVAL} == 0 ]]; then
+            action "shutting down nginx ..." /bin/true
+        else
+            action "shutting down nginx ..." /bin/false
+        fi
+        return ${RETVAL}
+    fi
+}
+
+reload() {
+    if [[ $(pidofproc ${EXEC} | wc -l) == 0 ]]; then
+        echo "nginx is not running ..."
+        return 0
+    else
+        ${EXEC} -s reload &> /dev/null
+        RETVAL=${?}
+        if [[ ${RETVAL} == 0 ]]; then
+            action "reloading nginx ..." /bin/true
+        else
+            action "reloading nginx ..." /bin/false
+        fi
+        return ${RETVAL}
+    fi
+}
+
+
+# =====================================================================================================================
+# Script main part
+# =====================================================================================================================
+case ${1} in
+    start )
+        start
+        ;;
+    stop )
+        stop
+        ;;
+    status )
+        status ${PROG}
+        ;;
+    restart )
+        stop
+        start
+        ;;
+    reload )
+        reload
+        ;;
+    * )
+        echo $"Usage: $0 { start | stop | status | restart | reload }"
+        exit 2
+        ;;
+esac
+
+exit 0
