@@ -43,24 +43,76 @@ fi
 
 
 # =====================================================================================================================
+# Script funcation part
+# =====================================================================================================================
+start() {
+    if [[ $(pidofproc ${EXEC} | wc -l) == 0 ]]; then
+        ${EXEC}
+        RETVAL=${?}
+        if [[ ${RETVAL} == 0 ]]; then
+            action "starting up nginx ..." /bin/true
+        else
+            action "starting up nginx ..." /bin/false
+        fi
+        return ${RETVAL}
+    else
+        action "starting up nginx ..." /bin/true
+        return 0
+    fi
+}
+
+stop() {
+    if [[ $(pidofproc ${EXEC} | wc -l) == 0 ]]; then
+        action "shutting down nginx ..."
+        return 0
+    else
+        killproc ${EXEC} &> /dev/null
+        RETVAL=${?}
+        if [[ ${RETVAL} == 0 ]]; then
+            action "shutting down nginx ..." /bin/true
+        else
+            action "shutting down nginx ..." /bin/false
+        fi
+        return ${RETVAL}
+    fi
+}
+
+reload() {
+    if [[ $(pidofproc ${EXEC} | wc -l) == 0 ]]; then
+        echo "nginx is not running ..."
+        return 0
+    else
+        ${EXEC} -s reload &> /dev/null
+        RETVAL=${?}
+        if [[ ${RETVAL} == 0 ]]; then
+            action "reloading nginx ..." /bin/true
+        else
+            action "reloading nginx ..." /bin/false
+        fi
+        return ${RETVAL}
+    fi
+}
+
+
+# =====================================================================================================================
 # Script main part
 # =====================================================================================================================
 case ${1} in
     start )
-        ${EXEC}
+        start
         ;;
     stop )
-        ${EXEC} -s stop
+        stop
         ;;
     status )
         status ${PROG}
         ;;
     restart )
-        ${EXEC} -s stop
-        ${EXEC}
+        stop
+        start
         ;;
     reload )
-        ${EXEC} -s reload
+        reload
         ;;
     * )
         echo $"Usage: $0 { start | stop | status | restart | reload }"
