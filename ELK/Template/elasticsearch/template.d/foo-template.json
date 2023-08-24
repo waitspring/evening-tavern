@@ -1,0 +1,33 @@
+{
+    "order": 0,
+    "version": 60001,
+    "index_patterns": [
+        "foo-*"
+    ],
+    "settings": {
+        "index": {
+            "refresh_interval": "5s"
+        }
+    },
+    "mappings": {
+        "_default_": {
+            "dynamic_templates": [
+                {
+                    "message_field": {
+                        "path_match": "message",
+                        "mapping": {
+                            "norms": false,
+                            "type": "text"
+                        },
+                        "match_mapping_type": "string"
+                    }
+                },
+                {
+                    "string_fields": {
+                        ""
+                    }
+                }
+            ]
+        }
+    }
+}
