@@ -146,6 +146,41 @@ master:~$ cat /etc/elasticseach/jvm.options
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的索引模版
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Elasticsearch 软件的索引模版分为参数配置/ 字段映射两部分, 可以配合索引生命周期策略管理索引生命周期
+Elasticsearch 软件的原生模版有:
+
+    •  logstash
+    •  logstash-index-template
+    •  security-index-template
+    •  security_audit_log
+
+""""""""" 演示索引模版的查阅办法
+[root ~]# curl http://elastic.season.com:9200/_template
+[root ~]# curl http://elastic.season.com:9200/_template/security-*
+[root ~]# curl http://elastic.season.com:9200/_template/security-index-template
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 演示索引模版的创建办法
+[root ~]# mkdir -p /etc/elasticsearch/template.d
+[root ~]# vim /etc/elasticsearch/template.d/foo-template.json
+[root ~]# curl -X PUT \
+               -H "Content-Type: application/json" \
+               -d @/etc/elasticsearch/template.d/foo-template.json \
+               http://elastic.season.com:9200/_template
+[root ~]# curl http://elastic.season.com:9200/_template/foo-template
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 演示索引模版的删除办法
+[root ~]# curl -X DELETE http://elastic.season.com:9200/_template/foo-template
+[root ~]# curl http://elastic.season.com:9200/_template/foo-template
+{}
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Elasticsearch 软件的底层说明
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Elasticsearch 软件在管理业务日志数据时, 需要使用到下述多种文件:
