@@ -68,8 +68,8 @@ input {
         consumer_threads  => 3
         topics            => [
             "os",
-            "mid",
-            "app"
+            "db",
+            "md"
         ]
         codec             => "json"
     }
@@ -209,14 +209,14 @@ input {
 ... ...
 ... ...
 output {
-    if [topic] == "os" {
+    if [theme] == "os" {
         elasticsearch {
             hosts => [
                 "elastic-0.season.com:9200",
                 "elastic-1.season.com:9200",
                 "elastic-2.season.com:9200"
             ]
-            index => "os-%{+YYYY-MM}"
+            index => "os-%{+YYYY-MM-dd}"
             pool_max => 1800
             pool_max_per_route => 600
             timeout => 300
