@@ -156,6 +156,7 @@ xpack.security.authc.realms.ldap0.group_search.base_dn: "dc=season,dc=com"
 xpack.security.authc.realms.ldap0.files.role_mapping: "/etc/elasticsearch/role_mapping.yml"
 xpack.security.authc.realms.ldap0.unmapped_groups_as_roles: false
 EOF
+[root ~]# systemctl restart elasticsearch.service
 [root ~]# cat > /etc/elasticsearch/role_mapping.yml << EOF
 superuser:
   - "cn=admin,dc=season,dc=com"

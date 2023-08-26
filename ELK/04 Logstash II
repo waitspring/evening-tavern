@@ -68,8 +68,8 @@ input {
         consumer_threads  => 3
         topics            => [
             "os",
-            "mid",
-            "app"
+            "db",
+            "md"
         ]
         codec             => "json"
     }
@@ -195,10 +195,11 @@ input {
 │ enable_metric => true                          │ Boolean │ 启用度量记录的功能特性
 └────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
 
-过滤配置块的索引数据库插件支持下述配置项
+输出配置块的索引数据库插件支持下述配置项
 ┌────────────────────────────────────────────────┬─────────┬───────────────────────────────────────────────────────────
 │ hosts => ["127.0.0.1:9200"]                    │ Arrary  │ 插件默认用 127.0.0.1:9200 作为下游索引数据库的服务套接字
 │ index => "logstash-%{+YYYY.MM.dd}"             │ String  │ 插件默认用 logstash-%{+YYYY.MM.dd} 作为消息事件的索引
+│ template_name => "logstash"                    │ String  │ 插件默认用 logstash 索引模版创建索引
 │ pool_max => 1000                               │ Number  │ 插件默认允许打开最多 1000 个连接
 │ pool_max_per_route => 100                      │ Number  │ 插件和下游索引数据库之间, 默认允许打开最多 100 个连接
 │ timeout => 60                                  │ Number  │ 插件和下游索引数据库之间, 默认的请求超时时间为 60 秒
@@ -209,14 +210,14 @@ input {
 ... ...
 ... ...
 output {
-    if [topic] == "os" {
+    if [theme] == "os" {
         elasticsearch {
             hosts => [
                 "elastic-0.season.com:9200",
                 "elastic-1.season.com:9200",
                 "elastic-2.season.com:9200"
             ]
-            index => "os-%{+YYYY-MM}"
+            index => "os-%{+YYYY-MM-dd}"
             pool_max => 1800
             pool_max_per_route => 600
             timeout => 300

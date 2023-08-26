@@ -47,4 +47,4 @@ output.kafka:
     "kafka-1.season.com:9092",
     "kafka-2.season.com:9092"
   ]
-  topic: "season-os-log"
+  topic: "os"

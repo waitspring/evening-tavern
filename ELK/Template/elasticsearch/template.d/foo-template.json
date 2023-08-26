@@ -1,0 +1,71 @@
+{
+    "order": 0,
+    "version": 60001,
+    "index_patterns": [
+        "foo-*"
+    ],
+    "settings": {
+        "index": {
+            "refresh_interval": "5s"
+        }
+    },
+    "mappings": {
+        "_default_": {
+            "dynamic_templates": [
+                {
+                    "message_field": {
+                        "path_match": "message",
+                        "mapping": {
+                            "norms": false,
+                            "type": "text"
+                        },
+                        "match_mapping_type": "string"
+                    }
+                },
+                {
+                    "string_fields": {
+                        "mapping": {
+                            "norms": false,
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "ignore_above": 256,
+                                    "type": "keyword"
+                                }
+                            }
+                        },
+                        "match_mapping_type": "string",
+                        "match": "*"
+                    }
+                }
+            ],
+            "properties": {
+                "@timestamp": {
+                    "type": "date"
+                },
+                "geoip": {
+                    "dynamic": true,
+                    "properties": {
+                        "ip": {
+                            "type": "ip"
+                        },
+                        "latitude": {
+                            "type": "half_float"
+                        },
+                        "location": {
+                            "type": "geo_point"
+                        },
+                        "longitude": {
+                            "type": "half_float"
+                        }
+                    }
+                },
+                "@version": {
+                    "type": "keyword"
+                }
+            }
+        }
+    },
+    "aliases": {
+    }
+}
