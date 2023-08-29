@@ -214,6 +214,7 @@ ZooKeeper 软件如果按照演示文档的步骤部署, 可以得到下述文�
 """"""""" 更新软件的配置文件并启动服务
 [root ~]# vim /etc/zookeeper/zoo.cfg
 [root ~]# vim /etc/zookeeper/logback.xml
+[root ~]# sed -i -r '/ZOO_LOG_DIR=/s/(.*)=(.*)/\1=\"\/var\/log\/zookeeper\"/g' /usr/local/zookeeper/bin/zkEnv.sh
 [root ~]# vim /usr/lib/systemd/system/zookeeper.service
 [root ~]# vim /etc/init.d/zookeeper
 [root ~]# systemctl daemon-reload

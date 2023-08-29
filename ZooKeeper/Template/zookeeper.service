@@ -1,0 +1,14 @@
+[Unit]
+Description = ZooKeeper Service
+After = network-online.target
+[Service]
+Type = forking
+TimeoutSec = 0
+ExecStart = /usr/local/zookeeper/bin/zkServer.sh --config /etc/zookeeper start
+ExecStop = /usr/local/zookeeper/bin/zkServer.sh --config /etc/zookeeper stop
+User = zookeeper
+Group = zookeeper
+LimitNOFILE = 65535
+LimitNPROC = 65535
+[Install]
+WantedBy = multi-user.target
