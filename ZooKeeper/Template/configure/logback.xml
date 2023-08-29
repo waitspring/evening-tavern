@@ -1,0 +1,21 @@
+<configuration>
+    <property name="zookeeper.console.threshold" value="INFO" />
+
+    <property name="zookeeper.log.dir" value="/var/log/zookeeper" />
+    <property name="zookeeper.log.file" value="zookeeper.log" />
+    <property name="zookeeper.log.threshold" value="INFO" />
+    <property name="zookeeper.log.maxfilesize" value="256MB" />
+    <property name="zookeeper.log.maxbackupindex" value="20" />
+
+    <appender>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [myid:%X{myid}] - %-5p [%t:%C{1}@%L] - %m%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.core.ConsoleAppender">
+            <level>${zookeeper.console.threshold}</level>
+        </filter>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+</configuration>
