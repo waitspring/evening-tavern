@@ -12,7 +12,7 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ZooKeeper 软件的发展历程
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ZooKeeper 软件是互联网生态中最常见的服务注册软件, 用于协调/ 调度分布式服务进程
+ZooKeeper 软件是互联网生态中最常见的分布式协调软件, 能够提供服务注册/ 统一命名/ 配置管理/ 分布式锁服务
 ZooKeeper 软件由雅虎公司 (Yahoo) 的软件研究院最先发布, 目前由阿帕奇软件基金会 (Apache Software Foundation) 负责迭代与维护
 ZooKeeper 软件的早期版本 (v1/ v2) 难觅踪迹, 当下的主流 v3 版本使用渐进式的发版策略:
 
@@ -63,164 +63,33 @@ ZooKeeper 软件的早期版本 (v1/ v2) 难觅踪迹, 当下的主流 v3 版本
 │            │          │ • improve syncRequestProcessor performance                                                  │
 └────────────┴──────────┴─────────────────────────────────────────────────────────────────────────────────────────────┘
 
-ZooKeeper 软件的官方网站与 GitHub 第三方开源社区, 清华大学开源软件镜像站等都提供相应软件的下载服务
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-当前文档的演示案例统一使用 ZooKeeper 3.8.2/ OpenJDK 1.8.0 版本, 其下载地址为:
-
-    •  ZooKeeper                                 [                         https://zookeeper.apache.org/releases.html ]
-    •  ZooKeeper                                 [                           https://github.com/apache/zookeeper/tags ]
-    •  OpenJDK                                   [                                https://github.com/openjdk/jdk/tags ]
-
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ZooKeeper 软件的主机配置
+分布式一致性协议
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ZooKeeper 软件受主机的内核参数的影响, 这些内核参数登记在下述配置文件:
+分布式一致性协议:
 
-    •  资源限制文件 /etc/security/limits.conf
-    •  资源限制文件 /etc/security/limits.d/20-nproc.conf (优先级高于 /etc/security/limits.conf 资源限制文件)
-    •  内核参数文件 /etc/sysctl.conf
+    •  2PC   :: 官方翻译为二阶段提交协议 (2 Phase Commit)
+    •  3PC   :: 官方翻译为三阶段提交协议 (3 Phase Commit)
+    •  Paxos :: 旧金山的计算机科学家兰伯特 (Leslie Lamport) 设计的 Paxos 协议, 协议名称取自古希腊传说中的岛屿
+    •  ZAB   :: 官方翻译为 ZooKeeper 原子消息广播协议 (ZooKeeper Atomic Broadcast), 专用于 ZooKeeper 软件的分布式一致性协议
 
-资源限制文件 /etc/security/limits.conf
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*  soft  nofile  65535                           # 任意用户允许打开的文件句柄数量 (若触发阈值则告警)
-*  hard  nofile  65535                           # 任意用户允许打开的文件句柄数量 (若触发阈值则不允许创建新的文件句柄)
-*  soft  nproc   65535                           # 任意用户允许打开的进程数量 (若触发阈值则告警)
-*  hard  nproc   65535                           # 任意用户允许打开的进程数量 (若触发阈值则不允许创建新的进程)
-*  soft  stack   65535                           # 内存栈的容量上限, 容量单位 KB (若触发阈值则告警)
-*  hard  stack   65535                           # 内存栈的容量上限, 容量单位 KB (若触发阈值则不允许继续扩大内存栈的容量)
-*  soft  memlock unlimited                       # 允许用户锁定内存资源, 被锁定的内存资源不设置容量上限
-*  hard  memlock unlimited                       # 允许用户锁定内存资源, 被锁定的内存资源不设置容量上限
-*  soft  core    -1                              # 不设 coredump 文件的容量上限, 容量单位 KB
-*  hard  core    -1                              # 不设 coredump 文件的容量上限, 容量单位 KB
-*  soft  rss     -1
-*  hard  rss     -1
+2PC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-内核参数文件 /etc/sysctl.conf
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-fs.file-max = 65535                              # 单个进程允许打开的文件句柄数量
-net.ipv4.tcp_tw_reuse = 1                        # 新的连接允许复用 TIME_WAIT 状态下的套接字 (缩短套接字的释放时间)
-net.ipv4.tcp_keepalive_time = 600                # 会话保持的探测频率为 600 秒
-net.ipv4.tcp_fin_timeout = 30                    # 套接字保持 FIN_WAIT2 状态的时间上限为 30 秒
-net.ipv4.tcp_max_tw_buckets = 5000               # 套接字保持 TIME_WAIT 状态的数量上限为 5000 个套接字 (多余套接字直接被清理)
-net.ipv4.tcp_syncookies = 1                      # 避免主机遭受 TCP 连接的 SYN 攻击
-net.ipv4.tcp_max_syn_backlog = 4096              # 配置连接的 SYN 请求队列的长度为 4096 (避免主机丢失客户端的连接请求)
-net.ipv4.tcp_rmem = 4096 32768 262142            # 配置连接的接收缓存的最小值/ 默认值/ 最大值 (单位: 字节)
-net.ipv4.tcp_wmem = 4096 32768 262142            # 配置连接的发送缓存的最小值/ 默认值/ 最大值 (单位: 字节)
-net.ipv4.ip_local_port_range = 1024 65535        # 配置连接的本地端口的取值范围
-net.core.netdev_max_backlog = 8096               # 配置连接的冗余接收队列的长度为 8096 个请求
-net.core.rmem_default = 262144                   # 套接字的接收缓存区的默认容量为 262144 个字节
-net.core.wmem_default = 262144                   # 套接字的发送缓存区的默认容量为 262144 个字节
-net.core.rmem_max = 2097152                      # 套接字的接收缓存区的最大容量为 2097152 个字节
-net.core.wmem_max = 2097152                      # 套接字的发送缓存区的最大容量为 2097152 个字节
+3PC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-""""""""" 演示内核调优的基本步骤
-[root ~]# cat > /etc/security/limits.conf << EOF
-*  soft  nofile  65535
-*  hard  nofile  65535
-*  soft  nproc   65535
-*  hard  nproc   65535
-*  soft  stack   65535
-*  hard  stack   65535
-*  soft  memlock unlimited
-*  hard  memlock unlimited
-*  soft  core    -1
-*  hard  core    -1
-*  soft  rss     -1
-*  hard  rss     -1
-EOF
-[root ~]# ulimit -a
---------------------------------------------------------------------------------------------------------------------- ✻
+Paxos
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-""""""""" 演示内核调优的基本步骤
-[root ~]# cat > /etc/sysctl.conf << EOF
-fs.file-max = 65535
-net.ipv4.tcp_tw_reuse = 1
-net.ipv4.tcp_keepalive_time = 600
-net.ipv4.tcp_fin_timeout = 30
-net.ipv4.tcp_max_tw_buckets = 5000
-net.ipv4.tcp_syncookies = 1
-net.ipv4.tcp_window_scaling = 1
-net.ipv4.tcp_max_syn_backlog = 4096
-net.ipv4.tcp_rmem = 4096 32768 262142
-net.ipv4.tcp_wmem = 4096 32768 262142
-net.ipv4.ip_local_port_range = 1024 65535
-net.core.netdev_max_backlog = 8096
-net.core.rmem_default = 262144
-net.core.wmem_default = 262144
-net.core.rmem_max = 2097152
-net.core.wmem_max = 2097152
-vm.dirty_ratio = 60
-EOF
-[root ~]# sysctl -p
---------------------------------------------------------------------------------------------------------------------- ✻
+ZAB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ZooKeeper 软件的安装过程
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ZooKeeper 软件支持使用二进制软件包安装, 二进制软件包的 TGZ 压缩包可以基于 GitHub/ Apache 社区站点下载
-ZooKeeper 软件如果使用二进制软件包安装, 可以得到下述文件:
 
-┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
-│ Path                                           │ F/D │ Comment
-├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
-│ /path/to/zookeeper                             │  D  │ 软件的安装目录
-│ /path/to/zookeeper/bin                         │  D  │ 软件的执行目录
-│ /path/to/zookeeper/libs                        │  D  │ 软件的库文件目录
-│ /path/to/zookeeper/conf                        │  D  │ 软件的配置目录
-│ /path/to/zookeeper/logs                        │  D  │ 软件的日志目录
-│ /path/to/zookeeper/docs                        │  D  │ 软件的文档目录
-│ /tmp/zookeeper                                 │  D  │ 软件的数据目录
-│ /path/to/zookeeper/bin/zkServer.sh             │  F  │ 软件的服务管理脚本, 能够启动/ 关闭服务
-│ /path/to/zookeeper/bin/zkEnv.sh                │  F  │ 软件的变量管理脚本, 作为服务管理脚本的底层依赖文件
-│ /path/to/zookeeper/bin/zkCli.sh                │  F  │ 软件的命令行控制台启动脚本
-│ /path/to/zookeeper/conf/zoo_sample.cfg         │  F  │ 软件的模版参数文件
-│ /path/to/zookeeper/conf/zoo.cfg                │  F  │ 软件的实际参数文件
-│ /path/to/zookeeper/conf/logback.xml            │  F  │ 软件的日志参数文件
-└────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
-
-ZooKeeper 软件如果按照演示文档的步骤部署, 可以得到下述文件:
-
-┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
-│ Path                                           │ F/D │ Comment
-├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
-│ /usr/local/zookeeper                           │  D  │ 软件的安装目录
-│ /usr/local/zookeeper/bin                       │  D  │ 软件的执行目录
-│ /usr/local/zookeeper/libs                      │  D  │ 软件的库文件目录
-│ /etc/zookeeper                                 │  D  │ 软件的配置目录
-│ /var/log/zookeeper                             │  D  │ 软件的日志目录
-│ /var/zookeeper/data                            │  D  │ 软件的数据目录
-│ /var/zookeeper/docs                            │  D  │ 软件的文档目录
-│ /usr/local/zookeeper/bin/zkServer.sh           │  F  │ 软件的服务管理脚本, 能够启动/ 关闭服务
-│ /usr/local/zookeeper/bin/zkEnv.sh              │  F  │ 软件的变量管理脚本, 作为服务管理脚本的底层依赖文件
-│ /usr/local/zookeeper/bin/zkCli.sh              │  F  │ 软件的命令行控制台启动脚本
-│ /etc/zookeeper/zoo_sample.cfg                  │  F  │ 软件的模版参数文件
-│ /etc/zookeeper/zoo.cfg                         │  F  │ 软件的实际参数文件
-│ /etc/zookeeper/logback.xml                     │  F  │ 软件的日志参数文件
-└────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
-
-""""""""" 准备软件的运行环境
-[root ~]# useradd -r -s /sbin/nologin -M zookeeper
-[root ~]# mkdir -p /usr/local/zookeeper /var/log/zookeeper /var/zookeeper/{data,docs} /etc/zookeeper
-[root ~]# chown -R zookeeper:zookeeper /usr/local/zookeeper /var/log/zookeeper /var/zookeeper
-[root ~]# sudo -u zookeeper tar -xzf /srv/apache-zookeeper-3.8.2-bin.tgz -C /usr/local/zookeeper --strip-components 1
-[root ~]# cp /usr/local/zookeeper/conf/* /etc/zookeeper
-[root ~]# cp -rp /usr/local/zookeeper/docs/* /var/zookeeper/docs
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 更新软件的配置文件并启动服务
-[root ~]# vim /etc/zookeeper/zoo.cfg
-[root ~]# vim /etc/zookeeper/logback.xml
-[root ~]# sed -i -r '/ZOO_LOG_DIR=/s/(.*)=(.*)/\1=\"\/var\/log\/zookeeper\"/g' /usr/local/zookeeper/bin/zkEnv.sh
-[root ~]# vim /usr/lib/systemd/system/zookeeper.service
-[root ~]# vim /etc/init.d/zookeeper
-[root ~]# systemctl daemon-reload
-[root ~]# systemctl enable zookeeper.service
-[root ~]# systemctl start zookeeper.service
---------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
