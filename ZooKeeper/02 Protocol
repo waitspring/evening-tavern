@@ -98,20 +98,20 @@ Paxos 把分布式集群的服务节点分为下述不同角色:
 │                                                          │                                                          │
 │   1. Choose a bigger number N for new proposal           │                                                          │
 │   2. Broadcast Prepare(N) to                             │                                                          │
-│       more than half of acceptors ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶︎ 3. Response to Prepare(N):                            │
+│       more than half of acceptors ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌> 3. Response to Prepare(N):                            │
 │                                                          │       •  if N > MinProposal then                         │
 │                                                          │       •      MinProposal = N;                            │
-│   4. Received response from majority: ◀︎╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌ •      return (AcceptProposal, AcceptValue);       │
+│   4. Received response from majority: <╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌ •      return (AcceptProposal, AcceptValue);       │
 │       •  if AcceptValue != NULL then                     │                                                          │
 │       •      if Max(AcceptProposal) then                 │                                                          │
 │       •          Value = AcceptValue;                    │                                                          │
 │       •  else                                            │                                                          │
 │       •      Value = Random();                           │                                                          │
-│   5. Broadcast Accept(N, Value) to all acceptors ╌╌╌╌╌╌╌╌╌╌╌▶︎ 6. Response to Accept(N, Value):                      │
+│   5. Broadcast Accept(N, Value) to all acceptors ╌╌╌╌╌╌╌╌╌╌╌> 6. Response to Accept(N, Value):                      │
 │                                                          │       •  if N >= MinProposal then                        │
 │                                                          │       •      AcceptProposal = MinProposal = N;           │
 │                                                          │       •      AcceptValue = Value;                        │
-│   7. Judge response: ◀︎╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌ •      return MinProposal;                         │
+│   7. Judge response: <╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌ •      return MinProposal;                         │
 │       •  if Count(response) > majority then              │                                                          │
 │       •      Value is agreement;                         │                                                          │
 │       •  else                                            │                                                          │
@@ -175,13 +175,13 @@ ZAB 把分布式集群中的节点分为下述不同角色:
     •  追随者们把过半投票投给同一个节点时, 即刻选出领导者
 
     ┌───┐       (A:A)                   (A:B)                                               ┌────────────────────┐
-    │ A ├╌╌╌╌╌╌╌╌╌◎╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┬╌╌╌╌◎╌╌╌╌╌╌┬╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶︎ │      Follower      │
-    └───┘                          ▲ ┊         ▲ ┊                                          └────────────────────┘
-                ┌───┐       (B:B)  ┊ ▼  (B:B)  ┊ ▼                                          ┌────────────────────┐
-                │ B ├╌╌╌╌╌╌╌╌╌◎╌╌╌╌┴╌╌╌╌╌╌◎╌╌╌╌┴╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶︎ │       Leader       │
+    │ A ├╌╌╌╌╌╌╌╌╌o╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┬╌╌╌╌o╌╌╌╌╌╌┬╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌> │      Follower      │
+    └───┘                          ↑ ┊         ↑ ┊                                          └────────────────────┘
+                ┌───┐       (B:B)  ┊ ↓  (B:B)  ┊ ↓                                          ┌────────────────────┐
+                │ B ├╌╌╌╌╌╌╌╌╌o╌╌╌╌┴╌╌╌╌╌╌o╌╌╌╌┴╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌> │       Leader       │
                 └───┘                                                                       └────────────────────┘
                             ┌───┐       (C:C)                                               ┌────────────────────┐
-                            │ C ├╌╌╌╌╌╌╌╌╌◎╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶︎ │      Follower      │
+                            │ C ├╌╌╌╌╌╌╌╌╌o╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌> │      Follower      │
                             └───┘                                                           └────────────────────┘
 
 上述图例的发生过程说明如下:
@@ -204,11 +204,11 @@ ZAB 把分布式集群中的节点分为下述不同角色:
     5. 追随者提交事务
 
     ┌────────────────────┐                                                                  ┌────────────────────┐
-    │                    │  ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌( 1. Ping            )╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶︎  │                    │
-    │                    │  ◀︎╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌( 2. Ping ACK        )╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌  │                    │
-    │       Leader       │  ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌( 3. Proposal        )╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶︎  │      Follower      │
-    │                    │  ◀︎╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌( 4. Proposal ACK    )╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌  │                    │
-    │                    │  ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌( 5. Proposal Commit )╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶︎  │                    │
+    │                    │  ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌( 1. Ping            )╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌>  │                    │
+    │                    │  <╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌( 2. Ping ACK        )╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌  │                    │
+    │       Leader       │  ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌( 3. Proposal        )╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌>  │      Follower      │
+    │                    │  <╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌( 4. Proposal ACK    )╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌  │                    │
+    │                    │  ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌( 5. Proposal Commit )╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌>  │                    │
     └────────────────────┘                                                                  └────────────────────┘
 
 阅读上述内容时, 还请注意:
