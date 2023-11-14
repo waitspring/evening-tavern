@@ -1,0 +1,53 @@
+  ___,                                                                       
+ /   |     |             o          o                        o               
+|    |   __|   _  _  _       _  _       , _|_  ,_    __, _|_     __   _  _   
+|    |  /  |  / |/ |/ |  |  / |/ |  |  / \_|  /  |  /  |  |  |  /  \_/ |/ |  
+ \__/\_/\_/|_/  |  |  |_/|_/  |  |_/|_/ \/ |_/   |_/\_/|_/|_/|_/\__/   |  |_/
+                                                                             
+                                                                             
+--  This document was created by Xuanming in 2023, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZooKeeper 软件的实用工具
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZooKeeper 软件的实用工具有:
+
+    •  zkEnv     工具是软件的变量管理脚本, 作为服务管理脚本的底层依赖文件
+    •  zkServer  工具是软件的服务管理脚本, 能够启动/ 关闭服务
+    •  zkCleanup 工具是软件的数据清理脚本, 能够清理日志文件与数据快照文件
+    •  zkCli     工具是软件的命令行控制台启动脚本
+
+zkServer [--config /path/to/dir] command
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+zkServer 工具是软件的服务管理脚本, 能够启动/ 关闭节点服务
+zkServer 工具默认加载 /path/to/zookeeper/conf/zoo.cfg 配置文件, 使用选项 --config /path/to/dir 能够定向加载其他配置文件
+zkServer 工具常用的管理命令有
+::  start                                        启动节点服务
+::  stop                                         关闭节点服务
+::  restart                                      重启节点服务
+::  status                                       查看节点服务状态
+::  version                                      查看节点软件版本
+
+""""""""" 演示 zkServer 工具的使用办法
+[root ~]# /usr/local/zookeeper/bin/zkServer.sh --config /etc/zookeeper version
+
+JMX enabled by default
+Using config: /etc/zookeeper/zoo.cfg
+Apache ZooKeeper version 3.8.2 2023-07-05 19:24 UTC
+
+[root ~]# /usr/local/zookeeper/bin/zkServer.sh --config /etc/zookeeper start
+[root ~]# /usr/local/zookeeper/bin/zkServer.sh --config /etc/zookeeper status
+[root ~]# /usr/local/zookeeper/bin/zkServer.sh --config /etc/zookeeper restart
+[root ~]# /usr/local/zookeeper/bin/zkServer.sh --config /etc/zookeeper stop
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZooKeeper 软件的四字命令
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
