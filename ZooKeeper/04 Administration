@@ -14,21 +14,21 @@ ZooKeeper 软件的实用工具
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ZooKeeper 软件的实用工具有:
 
-    •  zkEnv     工具是软件的变量管理脚本, 作为服务管理脚本的底层依赖文件
-    •  zkServer  工具是软件的服务管理脚本, 能够启动/ 关闭服务
-    •  zkCleanup 工具是软件的数据清理脚本, 能够清理日志文件与数据快照文件
-    •  zkCli     工具是软件的命令行控制台启动脚本
+    •  zkEnv      --  软件的变量管理脚本, 作为其他脚本的底层依赖文件 (人工不直接使用)
+    •  zkServer   --  软件的服务管理脚本, 能够启动/ 关闭服务实例
+    •  zkCleanup  --  软件的快照清理脚本, 能够清理服务实例的事务日志文件与数据快照文件
+    •  zkCli      --  软件的数据管理脚本, 能够管理服务实例内部寄存的目录树及其数据节点
 
 zkServer [--config /path/to/dir] command
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-zkServer 工具是软件的服务管理脚本, 能够启动/ 关闭节点服务
-zkServer 工具默认加载 /path/to/zookeeper/conf/zoo.cfg 配置文件, 使用选项 --config /path/to/dir 能够定向加载其他配置文件
+zkServer 工具是软件的服务管理脚本, 能够启动/ 关闭服务实例
+zkServer 工具默认加载 /path/to/zookeeper/conf/zoo.cfg 配置文件, 使用可选选项 --config /path/to/dir 能够定向加载其他配置文件
 zkServer 工具常用的管理命令有
-::  start                                        启动节点服务
-::  stop                                         关闭节点服务
-::  restart                                      重启节点服务
-::  status                                       查看节点服务状态
-::  version                                      查看节点软件版本
+::  start                                        启动服务实例
+::  stop                                         关闭服务实例
+::  restart                                      重启服务实例
+::  status                                       查看服务实例的运行状态
+::  version                                      查看软件版本
 
 """"""""" 演示 zkServer 工具的使用办法
 [root ~]# /usr/local/zookeeper/bin/zkServer.sh --config /etc/zookeeper version
@@ -41,6 +41,88 @@ Apache ZooKeeper version 3.8.2 2023-07-05 19:24 UTC
 [root ~]# /usr/local/zookeeper/bin/zkServer.sh --config /etc/zookeeper status
 [root ~]# /usr/local/zookeeper/bin/zkServer.sh --config /etc/zookeeper restart
 [root ~]# /usr/local/zookeeper/bin/zkServer.sh --config /etc/zookeeper stop
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+zkCleanup [--config /path/to/dir] -n num
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+zkCleanup 工具是软件的快照清理脚本, 能够清理服务实例的事务日志文件与数据快照文件
+zkCleanup 工具默认加载 /path/to/zookeeper/conf/zoo.cfg 配置文件, 使用可选选项 --config /path/to/dir 能够定向加载其他配置文件
+zkCleanup 工具默认基于配置文件内的 dataDir 配置项确定文件删除对象, 直至保留 num (num ≥ 3) 份最新的事务日志文件与数据快照文件
+
+""""""""" 演示 zkClean 工具的使用办法
+[root ~]# ls -l /var/zookeeper/data/version-2/snapshot.*
+-rw-r--r-- 1 zookeeper zookeeper  598  7 2 19:20 snapshot.0
+-rw-r--r-- 1 zookeeper zookeeper  598  7 2 19:25 snapshot.100000000
+-rw-r--r-- 1 zookeeper zookeeper  598  7 2 19:30 snapshot.200000000
+-rw-r--r-- 1 zookeeper zookeeper  598  7 2 19:35 snapshot.300000000
+-rw-r--r-- 1 zookeeper zookeeper  598  7 2 19:40 snapshot.400000000
+-rw-r--r-- 1 zookeeper zookeeper  598  7 2 19:45 snapshot.500000000
+[root ~]# /usr/local/zookeeper/bin/zkCleanup.sh --config /etc/zookeeper -n 3
+Removing file: Sep 2 2023 19:30:19 PM  /var/zookeeper/data/version-2/snapshot.200000000
+Removing file: Sep 2 2023 19:25:07 PM  /var/zookeeper/data/version-2/snapshot.100000000
+Removing file: Sep 2 2023 19:20:38 PM  /var/zookeeper/data/version-2/snapshot.0
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+zkCli [--config /path/to/dir] [-server host:port] command
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+zkCli 工具是软件的数据管理脚本, 能够管理服务实例内部寄存的目录树及其数据节点
+zkCli 工具默认加载 /path/to/zookeeper/conf/zoo.cfg 配置文件, 使用可选选项 --config /path/to/dir 能够定向加载其他配置文件
+zkCli 工具默认连接到当前主机的服务实例 (localhost:2181), 使用可选选项 -server host:port 能够定向连接其他服务实例
+zkCli 工具提供给用户的操作指令有
+::  connect host:port                            连接到服务实例 host:port
+::  close                                        关闭服务实例连接
+::  create [-s] [-e] path [data]                 创建一个持久节点, 使用 -s 选项创建有序节点, 使用 -e 选项创建临时节点
+::  delete path                                  删除一个数据节点 (要求被删除的数据节点没有下属子节点)
+::  deleteall path                               删除一个数据节点及其下属子节点
+::  set path data                                设置一个数据节点的数据内容
+::  get [-s] [-w] path                           读取一个数据节点的数据内容
+                                                 使用 -s 选项读取数据节点的元数据, 使用 -w 选项为数据节点添加一个监视器
+::  stat [-w] path                               读取一个数据节点的元数据, 使用 -w 选项为数据节点添加一个监视器
+::  getAllChildrenNumber path                    统计一个数据节点的下属子节点数量
+::  getEphemerals                                读取当前用户会话的全部临时节点
+::  ls [-s] [-w] [-R] path                       读取指定数据节点的子节点 (树状结构查阅命令)
+                                                 使用 -s 选项读取数据节点的元数据, 使用 -w 选项为数据节点添加一个监视器
+                                                 使用 -R 选项递归读取全部子节点
+::  removewatches path                           删除一个数据节点的监视器
+::  addWatch path                                添加一个监视器到指定的数据节点
+::  history                                      查阅当前用户会话的历史命令
+::  redo cmdno                                   执行当前用户会话内编号为 cmdno 的历史命令
+::  whoami                                       查阅当前用户会话的信息
+::  version                                      查阅 zkCli 工具的版本信息
+::  quit                                         退出 zkCli 工具的执行环境
+
+""""""""" 使用 zkCli 工具创建数据节点
+[zk:  0]# create /foo                            | 创建一个未存储数据内容的持久节点
+[zk:  1]# create -e /foo                         | 创建一个未存储数据内容的临时节点
+[zk:  2]# create -s /foo foo                     | 创建一个存储有数据内容的持久有序节点
+[zk:  3]# create -s -e /foo foo                  | 创建一个存储有数据内容的临时有序节点
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 使用 zkCli 工具设置/ 读取/ 删除数据节点
+[zk:  0]# get /foo/demo                          | 读取一个数据节点的数据内容
+[zk:  1]# get -s /foo/demo                       | 读取一个数据节点的数据内容及其元数据
+[zk:  2]# get -s -w /foo/demo                    | 读取一个数据节点的数据内容及其元数据, 并为数据节点添加一个监视器
+[zk:  3]# set /foo/demo demo                     | 设置一个数据节点的数据内容
+WatchedEvent type:NodeDataChanged path:/foo/demo | 监视器检测到数据节点发生内容变动, 向控制台抛出提示信息
+[zk:  4]# delete /foo                            | 删除一个数据节点
+Node not empty: /foo                             | 删除失败: 数据节点仍有下属子节点
+[zk:  5]# deleteall /foo                         | 删除一个数据节点及其下属子节点
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 使用 zkCli 工具读取数据节点的子节点
+[zk:  0]# ls /zookeeper
+[zk:  1]# ls -s /zookeeper
+[zk:  2]# ls -R /zookeeper
+/zookeeper
+/zookeeper/config
+/zookeeper/quota
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 使用 zkCli 工具管理数据节点
+[root ~]# /usr/local/zookeeper/bin/zkCli.sh --config /etc/zookeeper create /foo foo
+[root ~]# /usr/local/zookeeper/bin/zkCli.sh --config /etc/zookeeper ls -R /foo
+[root ~]# /usr/local/zookeeper/bin/zkCli.sh --config /etc/zookeeper set /foo demo
+[root ~]# /usr/local/zookeeper/bin/zkCli.sh --config /etc/zookeeper stat /foo
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
