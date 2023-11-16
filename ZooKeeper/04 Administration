@@ -87,6 +87,7 @@ zkCli 工具提供给用户的操作指令有
 ::  addWatch path                                添加一个监视器到指定的数据节点
 ::  history                                      查阅当前用户会话的历史命令
 ::  redo cmdno                                   执行当前用户会话内编号为 cmdno 的历史命令
+::  sync path                                    人工触发主从实例间的业务数据同步
 ::  whoami                                       查阅当前用户会话的信息
 ::  version                                      查阅 zkCli 工具的版本信息
 ::  quit                                         退出 zkCli 工具的执行环境
@@ -130,6 +131,75 @@ Node not empty: /foo                             | 删除失败: 数据节点仍
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ZooKeeper 软件的四字命令
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZooKeeper 软件的四字命令指一批 4 个字符长度的 TCP 协议指令
+ZooKeeper 软件的四字命令通常搭配命令行的 telnet/ nc 命令一起使用 (telnet/ nc 命令负责建立 TCP 连接, 四字命令执行具体步骤):
+
+    •  $ telnet host:port >>>> cmd
+    •  $ echo cmd | nc host:port (推荐方案)
+    •  配置文件 /etc/zookeeper/zoo.cfg 内的参数项 4lw.commands.whitelist=cmd,... 用于设置四字命令的执行白名单
+       软件默认不放行四字命令, 而使用 4lw.commands.whitelist=* 可以通配放行全部四字命令
+
+ZooKeeper 软件的四字命令有:
+
+    •  conf  --  查阅服务实例的全部运行参数
+    •  cons  --  查阅服务实例上全部用户会话的统计信息
+    •  crst  --  重置服务实例上全部用户会话的统计信息
+    •  dump  --  查阅分布式集群上全部用户会话的详细信息
+    •  envi  --  查阅服务实例的运行环境信息, 具体有 JDK 版本/ 操作系统内核/ 进程用户/ 内存分配调度
+    •  ruok  --  查阅服务实例的简单运行状态, 服务实例运行正常时返回值为 imok, 否则无返回值
+    •  stat  --  查阅服务实例的详细运行状态, 包含服务实例的用户会话信息
+    •  srvr  --  查阅服务实例的详细运行状态, 不含服务实例的用户会话信息
+    •  srst  --  重置分布式集群上全部用户会话的统计信息
+    •  wchs  --  查阅服务实例上监视器 (Watcher) 的概要信息
+    •  wchc  --  查阅服务实例上监视器 (Watcher) 的详细信息 (使用监视器单位分组信息)
+    •  wchp  --  查阅服务实例上监视器 (Watcher) 的详细信息 (使用数据节点单位分组信息)
+    •  mntr  --  查阅服务实例的详细运行状态 (面向监控设计的内容反馈机制)
+
+""""""""" 使用 conf/cons/crst 四字命令
+[root ~]# echo conf | nc zookeeper-0.season.com 2181
+clientPort=2181
+secureClientPort=-1
+dataDir=/var/zookeeper/data/version-2
+dataDirSize=67109510
+dataLogDir=/var/zookeeper/data/version-2
+dataLogSize=67109510
+tickTime=1000
+maxClientCnxns=9999
+minSessionTimeout=2000
+maxSessionTimeout=20000
+clientPortListenBacklog=-1
+serverId=0
+initLimit=10
+syncLimit=5
+electionAlg=3
+electionPort=3888
+quorumPort=2888
+peerType=0
+membership:
+server.0=zookeeper-0.season.com:2888:3888:participant
+server.1=zookeeper-1.season.com:2888:3888:participant
+server.2=zookeeper-2.season.com:2888:3888:participant
+[root ~]# echo cons | nc zookeeper-0.season.com 2181
+/zookeeper-0.season.com:57028[0] (queue=0, recved=1, sent=0)
+[root ~]# echo crst | nc zookeeper-0.season.com 2181
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 使用 ruok/ stat/ srvr/ mntr 四字命令
+[root ~]# echo ruok | nc zookeeper-0.season.com 2181
+[root ~]# echo stat | nc zookeeper-0.season.com 2181
+Clients:
+/zookeeper-0.season.com:57028[0] (queue=0, recved=1, sent=0)
+Latency min/avg/max: 0/0.0/0
+Received: 7
+Sent: 6
+Connections: 1
+Outstanding: 0
+Zxid: 0x20000001c
+Mode: follower
+Node count: 10
+[root ~]# echo srvr | nc zookeeper-0.season.com 2181
+[root ~]# echo mntr | nc zookeeper-0.season.com 2181
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
