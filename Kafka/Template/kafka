@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 #
-# chkconfig: 35 99 99
+# chkconfig: 35 98 98
 #
 #######################################################################################################################
 #                                              _          _   _                                                       #
@@ -33,10 +33,11 @@ else
     cd $(dirname ${0})
 fi
 
-CONF=/etc/kafka/server.properties
+CONF=/etc/kafka/kraft/server.properties
 EXEC=/usr/local/kafka/bin/kafka-server-start.sh
-PROG=${EXEC##*/}
 STOP=/usr/local/kafka/bin/kafka-server-stop.sh
+USER=kafka
+PORT=9092
 
 if [[ ! -f ${CONF} ]]; then
     action "check ${CONF}" /bin/false
@@ -51,19 +52,74 @@ fi
 # =====================================================================================================================
 # Script main part
 # =====================================================================================================================
+start() {
+    if [[ $(netstat -elnptu | grep ${PORT} | wc -l) == 0 ]]; then
+        daemon --user ${USER} ${EXEC} -daemon ${CONF}
+        RETVAL=${?}
+        if [[ ${RETVAL} == 0 ]]; then
+            action "starting up kafka ..." /bin/true
+        else
+            action "starting up kafka ..." /bin/false
+        fi
+        return ${RETVAL}
+    else
+        if [[ $(ps aux | grep ${CONF} | grep -v grep | wc -l) == 0 ]]; then
+            echo "kafka port ${PORT} has been token ..."
+            return 1
+        else
+            action "starting up kafka ..." /bin/true
+            return 0
+        fi
+    fi
+}
+
+stop() {
+    if [[ $(netstat -elnptu | grep ${PORT} | wc -l) != 0 ]]; then
+        if [[ $(ps aux | grep ${CONF} | grep -v grep | wc -l) != 0 ]]; then
+            ${STOP}
+            RETVAL=${?}
+            if [[ ${RETVAL} == 0 ]]; then
+                action "shutting down kafka ..." /bin/true
+            else
+                action "shutting down kafka ..." /bin/false
+            fi
+            return ${RETVAL}
+        fi
+    fi
+    action "shutting down kafka ..." /bin/true
+    return 0
+}
+
+status() {
+    if [[ $(netstat -elnptu | grep ${PORT} | wc -l) != 0 ]]; then
+        if [[ $(ps aux | grep ${CONF} | grep -v grep | wc -l) != 0 ]]; then
+            PID=$(ps aux | grep ${CONF} | grep -v grep | gawk '{ print $2 }')
+            echo "kafka (pid ${PID}) is running ..."
+            return 0
+        fi
+    fi
+    echo "kafka is not running ..."
+    return 0
+}
+
+
+# =====================================================================================================================
+# Script main part
+# =====================================================================================================================
 case ${1} in
     start )
-        daemon --user kafka ${EXEC} -daemon ${CONF}
+        start
         ;;
     stop )
-        ${STOP}
+        stop
         ;;
     status )
-        status ${PROG}
+        status
         ;;
     restart )
-        ${STOP}
-        daemon --user kafka ${EXEC} -daemon ${CONF}
+        stop
+        sleep 5
+        start
         ;;
     * )
         echo $"Usage: ${0} { start | stop | status | restart }"
