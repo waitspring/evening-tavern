@@ -166,7 +166,7 @@ ZooKeeper 软件如果使用二进制软件包安装, 可以得到下述文件:
 │ /path/to/zookeeper/conf                        │  D  │ 软件的配置目录
 │ /path/to/zookeeper/logs                        │  D  │ 软件的日志目录
 │ /path/to/zookeeper/docs                        │  D  │ 软件的文档目录
-│ /tmp/zookeeper                                 │  D  │ 软件的数据目录
+│ /tmp/zookeeper                                 │  D  │ 软件的数据目录 (存储实例的事务日志文件/ 数据快照文件/ myid 文件)
 │ /path/to/zookeeper/bin/zkEnv.sh                │  F  │ 软件的变量管理脚本, 作为其他脚本的底层依赖文件 (人工不直接使用)
 │ /path/to/zookeeper/bin/zkServer.sh             │  F  │ 软件的服务管理脚本, 能够启动/ 关闭服务实例
 │ /path/to/zookeeper/bin/zkCleanup.sh            │  F  │ 软件的快照清理脚本, 能够清理服务实例的事务日志文件与数据快照文件
@@ -186,7 +186,8 @@ ZooKeeper 软件如果按照演示文档的步骤部署, 可以得到下述文�
 │ /usr/local/zookeeper/libs                      │  D  │ 软件的库文件目录
 │ /etc/zookeeper                                 │  D  │ 软件的配置目录
 │ /var/log/zookeeper                             │  D  │ 软件的日志目录
-│ /var/zookeeper/data                            │  D  │ 软件的数据目录
+│ /var/zookeeper/data                            │  D  │ 软件的数据目录 (存储实例的数据快照文件/ myid 文件)
+│ /var/zookeeper/blog                            │  D  │ 软件的事务日志目录
 │ /var/zookeeper/docs                            │  D  │ 软件的文档目录
 │ /usr/local/zookeeper/bin/zkEnv.sh              │  F  │ 软件的变量管理脚本, 作为其他脚本的底层依赖文件 (人工不直接使用)
 │ /usr/local/zookeeper/bin/zkServer.sh           │  F  │ 软件的服务管理脚本, 能够启动/ 关闭服务实例
@@ -199,7 +200,7 @@ ZooKeeper 软件如果按照演示文档的步骤部署, 可以得到下述文�
 
 """"""""" 准备软件的运行环境
 [root ~]# useradd -r -s /sbin/nologin -M zookeeper
-[root ~]# mkdir -p /usr/local/zookeeper /var/log/zookeeper /var/zookeeper/{data,docs} /etc/zookeeper
+[root ~]# mkdir -p /usr/local/zookeeper /var/log/zookeeper /var/zookeeper/{blog,data,docs} /etc/zookeeper
 [root ~]# touch /var/zookeeper/data/myid
 [root ~]# chown -R zookeeper:zookeeper /usr/local/zookeeper /var/log/zookeeper /var/zookeeper
 [root ~]# sudo -u zookeeper tar -xzf /srv/apache-zookeeper-3.8.2-bin.tgz -C /usr/local/zookeeper --strip-components 1
