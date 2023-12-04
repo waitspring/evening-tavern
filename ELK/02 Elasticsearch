@@ -168,7 +168,7 @@ Elasticsearch 软件的原生模版有:
 [root ~]# curl -X PUT \
                -H "Content-Type: application/json" \
                -d @/etc/elasticsearch/template.d/foo-template.json \
-               http://elastic.season.com:9200/_template
+               http://elastic.season.com:9200/_template/foo-template
 [root ~]# curl http://elastic.season.com:9200/_template/foo-template
 --------------------------------------------------------------------------------------------------------------------- ✻
 
