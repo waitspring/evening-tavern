@@ -79,15 +79,64 @@ ZooKeeper 软件的 Java -D 启动参数如下
 │ -Djute.maxbuffer=NUM                           │         │ 每个数据节点允许存储 NUMb 大小的数据
 │ -Dfsync.warningthresholdms=1000                │    √    │ 软件切换事务日志文件的耗时超过 1000ms 时, 打印日志记录情况
 │ -Dfsync.warningthresholdms=NUM                 │         │ 软件切换事务日志文件的耗时超过 NUMms 时, 打印日志记录情况
-│
-│
-│
-│
-│
-│
-│
+│ -Dzookeeper.forceSync=yes                      │    √    │ 要求软件提交事务时, 强制把事务日志写入磁盘 (规避数据丢失风险)
+│ -Dzookeeper.forceSync=no                       │         │ 允许软件提交事务时, 不用把事务日志写入磁盘 (提高软件性能)
+│ -Dzookeeper.globalOutstandingLimit=1000        │    √    │ 软件允许最多 1000 个请求堆积
+│ -Dzookeeper.globalOutstandingLimit=NUM         │         │ 软件允许最多 NUM 个请求堆积
+│ -Dzookeeper.leaderServes=yes                   │    √    │ 要求分布式集群的领导者节点参与处理客户端的业务请求
+│ -Dzookeeper.leaderServes=no                    │         │ 允许分布式集群的领导者节点无需处理客户端的业务请求
+│ -Dzookeeper.skipACL=no                         │    √    │ 软件层面开启 ACL 权限检查
+│ -Dzookeeper.skipACL=yes                        │         │ 软件层面关闭 ACL 权限检查
+│ -Dzookeeper.cnxTimeout=5000                    │    √    │ 分布式集群的领导者选举阶段, 节点间 TCP 连接握手超时时间为 5000ms
+│ -Dzookeeper.cnxTimeout=NUM                     │         │ 分布式集群的领导者选举阶段, 节点间 TCP 连接握手超时时间为 NUMms
 └────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
 
+""""""""" 演示 Java -D 启动参数的基本用法
+[root ~]# cat /usr/share/zookeeper/bin/zkServer.sh
+... ...
+... ...
+nohup "$JAVA" $ZOO_DATADIR_AUTOCREATE "-Dzookeeper.log.dir=$ZOO_LOG_DIR" "-Dzookeeper.log.file=$ZOO_LOG_FILE" \
+                                      "-Dzookeeper.preAllocSize=8192" \
+                                      "-Dzookeeper.leaderServes=no" \
+              -XX:+HeapDumpOnOutOfMemoryError -XX:OnOutOfMemoryError='kill -9 %p' \
+              -cp "$CLASSPATH" $JVMFLAGS $ZOOMAIN "$ZOOCFG" > "$_ZOODAEMON_OUT" 2>&1 < /dev/null &
+... ...
+... ...
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZooKeeper 软件的 JMX 配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZooKeeper 软件在 v3.3.0 版本添加 JMX (Java Management Extension) 插件
+ZooKeeper 软件的 JMX 插件能够为应用/ 设备植入扩展管理功能, 使得外界获取软件的进程运行数据
+
+/usr/share/zookeeper/bin/zkServer.sh
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZOOMAIN="-Dcom.sun.management.jmxremote
+         -Dcom.sun.management.jmxremote.local.only=$JMXLOCALONLY
+         org.apache.zookeeper.server.quorum.QuorumPeerMain" (53)
+
+阅读上述配置时, 还请注意:
+
+    •  软件默认关闭 JMX 端口
+    •  软件如果开启 JMX 端口, 并开放远程访问时, 需要添加下述配置:
+        •  -Dcom.sun.management.jmxremote.port=2182
+        •  -Dcom.sun.management.jmxremote.ssl=false
+        •  -Dcom.sun.management.jmxremote.authenticate=false
+
+""""""""" 演示 JMX 配置的开启办法
+[root ~]# cat /usr/share/zookeeper/bin/zkServer.sh
+... ...
+... ...
+ZOOMAIN="-Dcom.sun.management.jmxremote.port=2182
+         -Dcom.sun.management.jmxremote.ssl=false
+         -Dcom.sun.management.jmxremote.authenticate=false
+         org.apache.zookeeper.server.quorum.QuorumPeerMain" (53)
+... ...
+... ...
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
