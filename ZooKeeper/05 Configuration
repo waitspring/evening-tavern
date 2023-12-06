@@ -110,7 +110,7 @@ nohup "$JAVA" $ZOO_DATADIR_AUTOCREATE "-Dzookeeper.log.dir=$ZOO_LOG_DIR" "-Dzook
 ZooKeeper 软件的 JMX 配置
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ZooKeeper 软件在 v3.3.0 版本添加 JMX (Java Management Extension) 插件
-ZooKeeper 软件的 JMX 插件能够为应用/ 设备植入扩展管理功能, 使得外界获取软件的进程运行数据
+ZooKeeper 软件的 JMX 插件能够为应用/ 设备植入扩展管理功能, 使得外界 (JConsole) 获取软件的进程运行数据
 
 /usr/share/zookeeper/bin/zkServer.sh
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -122,7 +122,8 @@ ZOOMAIN="-Dcom.sun.management.jmxremote
 
     •  软件默认关闭 JMX 端口
     •  软件如果开启 JMX 端口, 并开放远程访问时, 需要添加下述配置:
-        •  -Dcom.sun.management.jmxremote.port=2182
+        •  -Djava.rmi.server.hostname=HOSTNAME
+        •  -Dcom.sun.management.jmxremote.port=PORT
         •  -Dcom.sun.management.jmxremote.ssl=false
         •  -Dcom.sun.management.jmxremote.authenticate=false
 
@@ -130,7 +131,8 @@ ZOOMAIN="-Dcom.sun.management.jmxremote
 [root ~]# cat /usr/share/zookeeper/bin/zkServer.sh
 ... ...
 ... ...
-ZOOMAIN="-Dcom.sun.management.jmxremote.port=2182
+ZOOMAIN="-Djava.rmi.server.hostname=172.16.0.100
+         -Dcom.sun.management.jmxremote.port=2182
          -Dcom.sun.management.jmxremote.ssl=false
          -Dcom.sun.management.jmxremote.authenticate=false
          org.apache.zookeeper.server.quorum.QuorumPeerMain" (53)
