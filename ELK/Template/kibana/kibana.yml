@@ -41,3 +41,5 @@ i18n.locale: "zh-CN"
 # =====================================================================================================================
 # elasticsearch.username: kibana
 # elasticsearch.password: kibana
+# xpack.reporting.csv.maxSizeBytes: 10485760  # 10MB
+# xpack.reporting.queue.timeout: 120000  # 2MIN
