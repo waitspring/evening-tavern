@@ -51,12 +51,14 @@ Kibana 软件的配置文件 /etc/kibana/kibana.yml
 # server.port: 5601                              Kibana 软件的 HTTP 服务监听端口
 # server.host: "localhost"                       Kibana 软件的 HTTP 服务监听范围
 # elasticsearch.hosts: ["http://localhost:9200"] Kibana 软件的上游索引数据库集群的连接列表
-# elasticsearch.username: "username"             Kibana 软件的上游索引数据库集群的认证用户
-# elasticsearch.password: "password"             Kibana 软件的上游索引数据库集群的认证密码
 # kibana.index: ".kibana"                        Kibana 软件在上游索引数据库集群内使用固定值作为索引
 # pid.file: /var/run/kibana.pid                  Kibana 软件的进程文件工作目录
 # logging.timezone: "Asia/Shanghai"              Kibana 软件的日志时区设置
 # i18n.locale: "zh-CN"                           Kibana 软件的区域设置, 用于配置前端界面的语言类型
+# elasticsearch.username: "username"             Kibana 软件的上游索引数据库集群的认证用户 (配合 X-Pack 模块使用)
+# elasticsearch.password: "password"             Kibana 软件的上游索引数据库集群的认证密码 (配合 X-Pack 模块使用)
+# xpack.reporting.csv.maxSizeBytes: 10485760     Kibana 软件默认允许导出 10MB 容量的数据到 CSV 文件 (配合 X-Pack 模块使用)
+# xpack.reporting.queue.timeout: 120000          Kibana 软件导出数据到 CSV 文件时, 默认 2 分钟超时 (配合 X-Pack 模块使用)
 
 """"""""" 演示 /etc/kibana/kibana.yml 文件的基本配置
 [root ~]# cat /etc/kibana/kibana.yml
