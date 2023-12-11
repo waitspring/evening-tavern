@@ -129,9 +129,9 @@
 
 检测心跳:
 
-    分布式集群架构中, 应用节点相互之间可以使用 PingTong/ TCP 长连接检测心跳
+    分布式集群架构中, 应用节点相互之间可以使用 PingTong, TCP 长连接检测心跳
     如果引入 ZooKeeper 软件协调分布式集群, 多个应用节点可以在指定命名空间下注册不同的临时节点, 并启动 Watcher 监视机制
-    数据节点发生数据变动 (临时节点增加/ 减少), 那么 ZooKeeper 软件会主动向应用节点推送数据变动, 协助分布式集群实现弹性扩缩容
+    数据节点发生数据变动 (临时节点增加, 减少), 那么 ZooKeeper 软件会主动向应用节点推送数据变动, 协助分布式集群实现弹性扩缩容
 
 
 
@@ -140,28 +140,63 @@ ZooKeeper 软件在其他项目中的实际应用
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 HBase
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-HBase (Hadoop Database) 是基于 Hadoop 文件系统且面向高性能/ 高可用设计的分布式存储系统, 针对数据写入操作具有强一致性
+HBase (Hadoop Database) 是基于 Hadoop 文件系统且面向高性能, 高可用设计的分布式存储系统, 针对数据写入操作具有强一致性
 HBase 使用 ZooKeeper 软件协调自身的分布式集群:
 
-    •  HBase 服务冗错
-       HBase 分布式集群的每个区域应用节点 (Region Server) 都会在启动时向 ZooKeeper 软件创建临时节点 /hbase/rs/${HOSTNAME}
-       HBase 分布式集群的管理者基于 Watcher 监视机制及时接收 /hbase/rs 目录下临时节点的变动, 由此完成区域应用节点的弹性扩缩容
-    •  HBase 管理配置数据
-       HBase 分布式集群选择把配置数据寄存在 ZooKeeper 软件 (例如: Root Region --> /hbase/root-region-server)
-       HBase 分布式集群的应用客户端统一访问 ZooKeeper 软件以获取准确的配置数据
-    •  HBase 协调工作任务
-       HBase 分布式集群
-    •
+    •  服务冗错
+       HBase 的应用节点 (Region Server) 在启动时会基于 ZK_DATABASE 创建临时数据节点 /hbase/rs/${HOSTNAME}
+       HBase 的分布式集群管理者基于 Watcher 监视机制监测 /hbase/rs/${HOSTNAME} 的变动, 由此完成区域应用节点的弹性扩缩容
+    •  管理配置数据
+       HBase 的配置数据统一寄存在 ZK_DATABASE, 例如: Root Region 元数据寄存在 /hbase/root-region-server 数据节点
+       HBase 的应用客户端统一访问 ZK_DATABASE 获取准确的配置数据
+    •  管理副本文件
+       HBase 的副本文件元数据统一寄存在 ZK_DATABASE 的 /hbase/replication/${REPLICATION} 数据节点, 由此形成断点记录
+       HBase 的副本节点出现宕机需要恢复数据时, 可以根据断点记录定位数据恢复起点
 
 Kafka
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Kafka 是互联网生态中最常见的消息发布订阅软件, 通常用作收集业务日志的中间管道
+Kafka 使用 ZooKeeper 软件协调自身的分布式集群:
 
+    •  选举管理者
+       Kafka 的应用节点会在启动时基于 ZK_DATABASE 抢注 /kafka/controller 临时节点, 抢注成功的应用节点成为分布式集群的主节点
+       Kafka 的从节点基于 Watcher 监视机制监测 /kafka/controller 的变动, 如果主节点出现掉线, 从节点会发起抢注并由此再次选举主节点
+    •  注册消息发布者, 消息订阅者, 消息主题
+       Kafka 的消息发布者在启动时会把自己的元数据注册为 /kafka/brokers/ids/${ID} 临时节点
+       Kafka 的消息订阅者在启动时会把自己的元数据注册为 /kafka/consumers/${GROUPNAME}/ids/${ID} 临时节点
+       Kafka 的消息发布者和订阅者在启动时会把自己需要的消息主题注册到 /kafka/brokers/topics/${TOPIC} 数据节点
+    •  管理配置数据, 副本文件
+       Kafka 的配置数据, 副本文件统一寄存在 ZK_DATABASE 的 /kafka/config 数据节点
+    •  负载均衡
+       Kafka 的消息发布者, 消息订阅者, 消息主题全部注册为 ZK_DATABASE 的数据节点
+       Kafka 的消息订阅者能够基于 ZK_DATABASE 提供的信息寻址到负载较低的消息发布者并建立连接, 由此形成业务层面的负载均衡
 
 Dubbo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Dubbo 是基于 Java 语言编写的分布式服务编程框架
+Dubbo 使用 ZooKeeper 软件作为编程框架的服务注册中心:
 
+    •  /dubbo
+       /dubbo 数据节点是 Dubbo 注册到 ZK_DATABASE 的根数据节点
+    •  /dubbo/com.foo.demo
+       /dubbo/com.foo.demo 数据节点是 Dubbo 注册到 ZK_DATABASE 的服务数据节点, 标记一项 Dubbo 业务服务
+    •  /dubbo/com.foo.demo/providers
+       /dubbo/com.foo.demo/providers 数据节点是 Dubbo 服务提供者的根节点, 其下属的临时节点代表一个服务提供者
+    •  /dubbo/com.foo.demo/consumers
+       /dubbo/com.foo.demo/consumers 数据节点是 Dubbo 服务消费者的根节点, 其下属的临时节点代表一个服务消费者
+    •  服务治理: Dubbo 的监控中心组件基于 Watcher 监视机制监测 /dubbo/com.foo.demo 的变动, 由此完成分布式集群中的微服务治理
 
 JStorm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+JStorm 是使用 Java 语言基于 Storm 二次开发得到的分布式实时计算引擎, 能够调度微服务的各种任务
+JStorm 由中央调度器 (Nimbus), 守护者 (Supervisor), 任务容器 (Worker), 任务 (Task) 在内的组件节点构成
+JStorm 使用 ZooKeeper 软件协调自身的分布式集群:
+
+    •  选举中央调度器
+       JStorm 的应用节点会在启动时基于 ZK_DATABASE 抢注 /jstrom/nimbus_master 临时节点, 抢注成功的应用节点成为中央调度器
+    •  检测心跳
+       JStorm 的守护者与任务会在 ZK_DATABASE 注册 /jstorm/supervisors 数据节点与 /jstorm/tasks 数据节点
+       JStorm 的中央调度器基于 Watcher 监视机制监测选择需要心跳检测的守护者与任务对象
+
 
 
