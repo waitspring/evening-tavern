@@ -8,6 +8,7 @@
 [![Software](https://img.shields.io/badge/ELK-6.8.23-00BFB3)](https://github.com/waitspring/evening-tavern/tree/master/ELK)
 [![Software](https://img.shields.io/badge/Kafka-3.3.2-242021)](https://github.com/waitspring/evening-tavern/tree/master/Kafka)
 [![Software](https://img.shields.io/badge/NginX-1.20.2-8E989B)](https://github.com/waitspring/evening-tavern/tree/master/NginX)
+[![Software](https://img.shields.io/badge/ZooKeeper-3.8.2-7E450E)](https://github.com/waitspring/evening-tavern/tree/master/ZooKeeper)
 
 </div>
 
