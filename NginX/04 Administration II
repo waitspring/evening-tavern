@@ -194,6 +194,8 @@ SERVER 配置块能够内嵌的子配置项登记如下
 │ connection_pool_size NUM;            │         │ HTTP 连接分配到的内存池容量为 NUMkb
 │ request_pool_size 4k;                │    √    │ HTTP 请求分配到的内存池容量为 4kb
 │ request_pool_size SIZE;              │         │ HTTP 请求分配到的内存池容量为 SIZE (容量单位)
+│ allow ADDR;                          │         │ 允许符合 ADDR 的地址范围访问 (白名单), 先写 allow 配置项
+│ deny ADDR;                           │         │ 拒绝符合 ADDR 的地址范围访问 (黑名单), 后写 deny 配置项
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 listen num [ parameter... ];
@@ -225,6 +227,8 @@ server {
     client_max_body_size 1024m;
     connection_pool_size 1024;
     request_pool_size 8k;
+    allow 172.16.0.0/24;
+    deny 0.0.0.0/0;
     ... ...
     ... ...
 }

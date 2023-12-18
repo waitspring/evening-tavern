@@ -37,7 +37,7 @@ NginX 软件的源码编译选项有
 │ --with-debug       │                           │ 启用 NginX 软件的调试日志
 └────────────────────┴───────────────────────────┴─────────────────────────────────────────────────────────────────────
 
-NginX 软件的编译过程中, 可以使用下述参数停用默认会被 NginX 软件启用的 HTTP 功能模块
+NginX 软件的编译过程中, 可以使用下述参数停用默认会被 NginX 软件启用的 HTTP/STREAM 功能模块
 **  --without-http_charset_module
 **  --without-http_gzip_module
 **  --without-http_ssi_module
@@ -60,8 +60,19 @@ NginX 软件的编译过程中, 可以使用下述参数停用默认会被 NginX
 **  --without-http_upstream_ip_hash_module
 **  --without-http_upstream_least_conn_module
 **  --without-http_split_clients_module
+**  --without-stream_limit_conn_module
+**  --without-stream_access_module
+**  --without-stream_geo_module
+**  --without-stream_map_module
+**  --without-stream_split_clients_module
+**  --without-stream_set_module
+**  --without-stream_return_module
+**  --without-stream_upstream_hash_module
+**  --without-stream_upstream_least_conn_module
+**  --without-stream_upstream_random_module
+**  --without-stream_upstream_zone_module
 
-NginX 软件的编译过程中, 可以使用下述参数启用默认会被 NginX 软件停用的 HTTP 功能模块
+NginX 软件的编译过程中, 可以使用下述参数启用默认会被 NginX 软件停用的 HTTP/STREAM 功能模块
 **  --with-http_ssl_module                       | 该模块能够提供 HTTPS 服务, 其底层依赖 OpenSSL 软件包
 **  --with-http_realip_module                    | 该模块能够基于请求头获取客户端的真实地址 (X-Forwarded-For 关键字)
 **  --with-http_addition_module                  | 该模块能够管理请求头的字符串内容
@@ -77,6 +88,9 @@ NginX 软件的编译过程中, 可以使用下述参数启用默认会被 NginX
 **  --with-http_spdy_module                      | 该模块能够支持 SPDY 协议
 **  --with-http_gunzip_module                    | 该模块仍是 HTTP_GZIP_MODULE 的扩展功能模块, 提供 GZIP 格式压缩的过滤器
 **  --with-http_auth_request_module              | 该模块用于支持用户认证体系
+**  --with-stream                                | 该模块能够基于 TCP/UDP 协议层提供负载均衡
+**  --with-stream_ssl_module                     | 该模块能够基于 TCP/UDP 协议层提供 SSL 加密认证
+**  --with-stream_realip_module                  | 该模块能够基于 TCP/UDP 请求头获取客户端的真实地址
 
 编译 NginX 软件时, 我们建议:
 
@@ -169,6 +183,8 @@ perl-Digest-SHA1.x86_64
 --group=nginx \
 --with-debug \
 --with-stream \
+--with-stream_ssl_module \
+--with-stream_realip_module \
 --with-http_ssl_module \
 --with-http_realip_module \
 --with-http_flv_module \
@@ -184,6 +200,7 @@ perl-Digest-SHA1.x86_64
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 编写 NginX 软件的服务单元文件, 并启动软件服务
+[root ~]# vim /etc/nginx/nginx.conf
 [root ~]# cat > /usr/lib/systemd/system/nginx.service << EOF
 [Unit]
 Description = NginX Service

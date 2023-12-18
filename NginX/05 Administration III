@@ -41,6 +41,7 @@ LOCATION 配置块能够内嵌的子配置项登记如下
 │ autoindex_exact_size off;            │         │ 展示 LOCATION 配置块的根目录结构时, 使用符合使用习惯的容量单位描述文件大小
 │ autoindex_localtime on;              │         │ 展示 LOCATION 配置块的根目录结构时, 使用服务端的时间戳
 │ autoindex_localtime off;             │    √    │ 展示 LOCATION 配置块的根目录结构时, 使用客户端的时间戳
+│ proxy_pass DEST;                     │         │ 设置请求的转发目标为 DEST (允许 HTTP 站点, UPSTREAM 组名, 变量等多种格式)
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 基于 LOCATION 配置块定义资源根目录时, 还请注意:
