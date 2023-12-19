@@ -185,6 +185,7 @@ perl-Digest-SHA1.x86_64
 --with-stream \
 --with-stream_ssl_module \
 --with-stream_realip_module \
+--with-stream_ssl_preread_module \
 --with-http_ssl_module \
 --with-http_realip_module \
 --with-http_flv_module \
