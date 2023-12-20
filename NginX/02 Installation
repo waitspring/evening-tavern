@@ -90,6 +90,7 @@ NginX 软件的编译过程中, 可以使用下述参数启用默认会被 NginX
 **  --with-http_auth_request_module              | 该模块用于支持用户认证体系
 **  --with-stream                                | 该模块能够基于 TCP/UDP 协议层提供负载均衡
 **  --with-stream_ssl_module                     | 该模块能够基于 TCP/UDP 协议层提供 SSL 加密认证
+**  --with-stream_ssl_preread_module             | 该模块能够基于 SSL 证书预读取域名, 使得 SSL/TLS 连接建立前能确定转发对象
 **  --with-stream_realip_module                  | 该模块能够基于 TCP/UDP 请求头获取客户端的真实地址
 
 编译 NginX 软件时, 我们建议:
@@ -184,8 +185,8 @@ perl-Digest-SHA1.x86_64
 --with-debug \
 --with-stream \
 --with-stream_ssl_module \
---with-stream_realip_module \
 --with-stream_ssl_preread_module \
+--with-stream_realip_module \
 --with-http_ssl_module \
 --with-http_realip_module \
 --with-http_flv_module \
