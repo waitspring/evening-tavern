@@ -193,9 +193,13 @@ STREAM SERVER 配置块能够内嵌的子配置项登记如下
 │ proxy_protocol_timeout TIME;         │         │ 转发请求时, 设置软件读取代理协议头的超时时间为 TIME 时间长度
 │ proxy_socket_keepalive on;           │    √    │ 转发请求时, 开启会话保持
 │ proxy_socket_keepalive off;          │         │ 转发请求时, 关闭会话保持
+│ ssl_preread on;                      │         │ 建立 SSL/TLS 连接前, 预读取域名数据到 $ssl_preread_server_name 变量内
+│ ssl_preread off;                     │    √    │ 关闭预读取机制
 │ access_log /PATH/TO/LOG [ FORMAT ];  │         │ 转发请求时, 使用 FORMAT 日志格式输出访问日志到 /PATH/TO/LOG 文件
 │ error_log /PATH/TO/LOG [ LEVEL ];    │         │ 转发请求时, 高于 LEVEL  等级的错误日志输出到 /PATH/TO/LOG 文件
-│ proxy_pass DEST;                     │         │ 设置请求的转发目的地为 DEST (允许套接字, UPSTREAM 组名, 变量等多种格式)
+│ proxy_pass DEST;                     │         │ 设置请求的转发目标为 DEST (允许套接字, UPSTREAM 组名, 变量等多种格式)
+│ allow ADDR;                          │         │ 允许符合 ADDR 的地址范围访问 (白名单)
+│ deny ADDR;                           │         │ 拒绝符合 ADDR 的地址范围访问 (黑名单)
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 listen num [ parameter... ];
@@ -216,6 +220,8 @@ server {
     proxy_connect_timeout 300;
     proxy_protocol_timeout 300s;
     access_log /var/log/nginx/foo.season.com.log demo;
+    allow 172.16.0.250/32;
+    deny 0.0.0.0/0;
     proxy_pass 127.0.0.1:8080;
 }
 --------------------------------------------------------------------------------------------------------------------- ✻
