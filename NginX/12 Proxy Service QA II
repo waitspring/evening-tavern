@@ -104,13 +104,36 @@ server {
     ┊  └───────────────┘    ┊    └───────────┘   ┊                                          ┊                     ┊
     └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┴╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘                                          └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
 
-    •  互联网服务通常会把 HTTP 请求重写为 HTTPS 请求
-    •  隔离区的 NginX 节点缺少互联网服务的 SSL 证书, 如果 HTTP 请求被重写为 HTTPS 请求, 代理会话将丢失
+    •  互联网服务通常会引导 HTTP 请求重写为 HTTPS 请求
+    •  隔离区的 NginX 节点缺少互联网服务的 SSL 证书, 如果 HTTP 请求被重写为 HTTPS 请求, 基于 HTTP 协议的代理会话将会丢失
         *  http://api.github.com (√: 301)
         *  https://api.github.com (x: 502)
 
-应对方式: 使用四层代理绕开 SSL 证书, 使用代理资源池集成多个互联网服务
+解决办法:
+
+    •  使用四层代理绕开 SSL 证书
+    •  使用 ngx_stream_ssl_preread_module 模块制作代理资源池集成多个互联网服务
+
+map $variable $foo {
+    express ...;
+    default ...;
+}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+map 配置块能够针对变量 $variable 编写匹配规则, 使得规则的命中结果被赋予变量 $foo 用于支撑后续的使用过程
+map 配置块的匹配规则支持下述多种语法:
+
+    •  'conexp'   0;
+       常量精准匹配, 常量字符串 conexp 等于变量 $variable 的参数值, 变量 $foo 的取值为 0
+       ──────────────────────────────────────────────────────────────
+    •  '~regexp'  1;
+       大小写字符敏感的正则匹配, 正则表达式 regexp 能匹配变量 $variable 的参数值, 变量 $foo 的取值为 1
+       ──────────────────────────────────────────────────────────────
+    •  '~*regexp' 2;
+       大小写字符不敏感的正则匹配, 正则表达式 regexp 能匹配变量 $variable 的参数值, 变量 $foo 的取值为 2
+       ──────────────────────────────────────────────────────────────
+    •  '~^(<?demo>.*)$' '$demo';
+       大小写字符敏感的正则匹配, 正则表达式 ^(<?demo>.*)$ 能匹配变量 $variable 的参数值, 变量 $foo 的取值为内置变量 $demo
+       ──────────────────────────────────────────────────────────────
 
 """"""""" 演示 NginX 软件的配置文件内, 如何在没有 SSL 证书的前提下代理请求
 [root ~]# vim /etc/nginx/stream.d/forward.season.com.conf
@@ -120,12 +143,12 @@ server {
     proxy_timeout 86400;
     proxy_connect_timeout 86400;
     proxy_protocol_timeout 86400;
-    access_log /var/log/nginx/forward.season.com.log stream;
+    access_log /var/log/nginx/forward.season.com.log stream_map;
     proxy_pass $forward_obj;
 }
 map $ssl_preread_server_name $forward_obj {
-    www.github.com www_github_com;
-    api.github.com api_github_com;
+    'www.github.com' www_github_com;
+    'api.github.com' api_github_com;
 }
 upstream www_github_com {
     server www.github.com:443;

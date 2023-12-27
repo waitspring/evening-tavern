@@ -151,6 +151,7 @@ STREAM 配置块能够内嵌的子配置项登记如下
 │ resolver_timeout TIME;               │         │ 配置 DNS 服务的响应超时时间为 TIME 时间长度
 │ tcp_nodelay on;                      │    √    │ 启用操作系统的 tcp_nodelay 机制
 │ tcp_nodelay off;                     │         │ 禁用操作系统的 tcp_nodelay 机制
+│ map STRING $VARIABLE { ... }         │         │ 提取 STRING 字符串的一部分内容赋予变量 $VARIABLE 作为参数值
 │ include /PATH/TO/FILE;               │         │ 加载 /PATH/TO/FILE 文件内的配置块与配置项
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
