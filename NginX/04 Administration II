@@ -83,6 +83,7 @@ HTTP 配置块能够内嵌的子配置项登记如下
 │ resolver ADDR;                       │         │ 使用 ADDR 作为 DNS 服务器
 │ resolver_timeout 30s;                │    √    │ 配置 DNS 服务的响应超时时间为 30 秒
 │ resolver_timeout TIME;               │         │ 配置 DNS 服务的响应超时时间为 TIME 时间长度
+│ map STRING $VARIABLE { ... }         │         │ 提取 STRING 字符串的一部分内容赋予变量 $VARIABLE 作为参数值
 │ default_type text/plain;             │    √    │ 软件在无法锚定 MIME 与文件扩展名之间的映射关系时, 默认使用 text/plain 类型
 │ default_type MIME;                   │         │ 软件在无法锚定 MIME 与文件扩展名之间的映射关系时, 默认使用 MIME 类型
 │ include /PATH/TO/FILE;               │         │ 加载 /PATH/TO/FILE 文件内的配置块与配置项
