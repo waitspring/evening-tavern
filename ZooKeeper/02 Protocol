@@ -133,7 +133,7 @@ Paxos 把分布式集群的服务实例分为下述不同角色:
     5. 提议者向全部决策者广播 Accept(N, Value) 请求
     6. 决策者在接收到 Accept(N, Value) 的时候:
         •  如果 N >= MinProposal 为真, 则决策者接受提案 (AcceptProposal = MinProposal = N, AcceptValue = Value)
-        •  如果 N >= MinProposal 为真, 则决策者接受提案的同时, 
+        •  如果 N >= MinProposal 为真, 则决策者接受提案的同时返回已经批准的最小提案编号给提议者
         •  如果 N >= MinProposal 为假, 则决策者无响应
     7. 提议者针对提案统计决策者的响应数量:
         •  如果超过半数的决策者都在接受并响应提案, 则提议者认为分布式集群就提案达成一致
