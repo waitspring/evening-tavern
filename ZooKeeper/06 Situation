@@ -112,10 +112,10 @@
                                                     │ business_A2 ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
                                                     └─────────────┘
 
-阅读上述图例时, 还请注意:
+上述图例能够很好的为用户展示分布式集群如何基于 ZooKeeper 软件选举管理者, 并登记任务的中间状态:
 
-    (1)  应用节点 business_A1    注册数据节点 /business/com.foo.demo/mission/mission_000000 成功, 允许执行对应任务
-    (2)  应用节点 business_A0/A2 注册数据节点 /business/com.foo.demo/mission/mission_000000 失败, 无法执行对应任务
+    (1)  应用节点 business_A1    抢注数据节点 /business/com.foo.demo/mission/mission_000000 成功, 允许执行对应任务
+    (2)  应用节点 business_A0/A2 抢注数据节点 /business/com.foo.demo/mission/mission_000000 失败, 无法执行对应任务
     (3)  应用节点 business_A1    注册数据节点 /business/com.foo.demo/mission/mission_000000/running, 登记任务的中间状态
          ────────────────────────────────────────────────────────────
          抢注数据节点的过程可用于选举分布式集群的管理者: 成功抢注指定数据节点的应用节点成为分布式集群的管理者
