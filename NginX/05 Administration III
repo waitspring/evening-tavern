@@ -48,7 +48,7 @@ LOCATION 配置块能够内嵌的子配置项登记如下
 
     •  LOCATION 配置块内不允许同时使用 root 配置项与 alias 配置项, 两者互斥冲突
     •  LOCATION 配置块内使用 root  配置项定义资源根目录时, 客户端发出的请求实际命中为 /PATH/TO/DIR/$uri 的资源内容
-    •  LOCATION 配置块内使用 alias 配置项定义资源根目录时, 具有一定的路径除重要求, 不建议使用该配置项
+    •  LOCATION 配置块内使用 alias 配置项定义资源根目录时, 务必使用符号 '/' 作为资源根目录的结尾, 作者不建议使用该配置项
 
 location [ option ] uri {}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,7 +57,7 @@ location 配置项常见的编写方法如下:
 
     •  location =  uri {}                       uri 仅允许使用常量编写, 请求路由精确且完整的命中规则才能生效
     •  location    uri {}                       uri 仅允许使用常量编写, 请求路由命中规则时生效
-    •  location ^~ uri {}                       uri 仅允许使用常量编写, 请求路由命中规则时生效
+    •  location ^~ uri {}                       uri 仅允许使用常量编写, 请求路由从头开始命中规则时生效
     •  location ~  uri {}                       uri 允许使用正则表达式编写, 请求路由在匹配该规则时要区分字符大小写
     •  location ~* uri {}                       uri 允许使用正则表达式编写, 请求路由在匹配该规则时不区分字符大小写
     •  location    /   {}                       表示通用匹配, 无论请求路由如何都会命中规则
@@ -70,11 +70,24 @@ location 配置项常见的编写方法如下:
     •  若请求路由可以命中多个 LOCATION 配置块, 此时存在一个复杂的优先级关系 (优先级相同的 LOCATION 配置块先命中的先分流):
        1. location =  uri {} 命中结果的优先级最高
        2. location    uri {} 完全命中结果的优先级次高
-       3. location ^~ uri {} 命中结果的优先级一般
+       3. location ^~ uri {} 从头命中结果的优先级一般
        4. location ~  uri {} 命中结果的优先级一般
        4. location ~* uri {} 命中结果的优先级一般
        6. location    uri {} 部分命中结果的优先级较低
        7. location    /   {} 命中结果的优先级最低
+
+    例如:
+    ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    │  https://foo.season.com/request/demo?para=good                                                              │
+    │  ──────────────────────────────────────────────────────────────                                             │
+    │  1. location =  /request/demo {}                                                                            │
+    │  2. location    /request/demo {}                                                                            │
+    │  3. location ^~ /request      {}                                                                            │
+    │  4. location ~  /[0-9a-zA-Z]+ {}                                                                            │
+    │  5. location ~* /[0-9a-z]     {}                                                                            │
+    │  6. location    /request      {}                                                                            │
+    │  7. location    /             {}                                                                            │
+    └─────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
 """"""""" 演示 NginX 软件的配置文件内, LOCATION 配置块的使用办法
 [root ~]# mkdir -p /var/nginx && chown -R nginx:nginx /var/nginx
