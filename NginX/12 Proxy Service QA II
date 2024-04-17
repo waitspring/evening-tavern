@@ -160,3 +160,75 @@ upstream api_github_com {
 
 
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+如何使用 Windows 操作系统编译 NginX?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+如果基于 Windows 操作系统部署 NginX 软件, 用户可以选择社区已经编译好的软件包, 亦可下载源码文件按需编译软件再行部署
+如果基于 Windows 操作系统编译 NginX 软件, 大概需要经历下述步骤: ( https://nginx.org/en/docs/howto_build_on_win32.html )
+
+    1. 安装 Microsoft Visual Studio 2022 (组件: C++ 桌面开发)
+    2. 安装 MSYS2
+    3. 安装 Strawberry Perl
+    4. 下载 NginX 1.20.2
+    5. 下载 PCRE 8.45
+    6. 下载 ZLIB 1.3.1
+    7. 下载 OpenSSL 3.3.0
+    8. 准备源码目录
+    9. 使用 MSYS2 窗口执行预编译命令
+   10. 使用 x64 Native Tools Command Prompt for VS 2022 窗口执行编译命令
+   11. 提取 nginx.exe 二进制文件, 覆盖掉社区发布版本内的 nginx.exe 二进制文件并使用
+   ---------------------------------------------------------------- https://nginx.org/en/docs/howto_build_on_win32.html
+
+源码目录的结构准备如下:
+
+    nginx-release-1.20.2
+    ├─── auto
+    ├─── conf
+    ├─── contrib
+    ├─── docs
+    ├─── misc
+    ├─── objs
+    │    └─── lib
+    │         ├─── openssl-3.3.0
+    │         ├─── pcre-8.45
+    │         └─── zlib-1.3.1
+    └─── src
+
+""""""""" 使用 MSYS2 窗口执行预编译命令
+MSYS nginx-release-1.20.2
+$ auto/configure \
+    --prefix= \
+    --conf-path=conf/nginx.conf \
+    --pid-path=logs/nginx.pid \
+    --http-log-path=logs/access.log \
+    --error-log-path=logs/error.log \
+    --sbin-path=nginx.exe \
+    --http-client-body-temp-path=temp/client_body_temp \
+    --http-proxy-temp-path=temp/proxy_temp \
+    --http-fastcgi-temp-path=temp/fastcgi_temp \
+    --http-scgi-temp-path=temp/scgi_temp \
+    --http-uwsgi-temp-path=temp/uwsgi_temp \
+    --with-cc=cl \
+    --with-cc-opt=-DFD_SETSIZE=1024 \
+    --with-debug \
+    --with-stream \
+    --with-stream_ssl_module \
+    --with-stream_ssl_preread_module \
+    --with-stream_realip_module \
+    --with-http_ssl_module \
+    --with-http_realip_module \
+    --with-http_flv_module \
+    --with-http_mp4_module \
+    --with-http_gzip_static_module \
+    --with-http_secure_link_module \
+    --with-http_stub_status_module \
+    --with-http_gunzip_module \
+    --with-http_auth_request_module \
+    --with-openssl=objs/lib/openssl-3.3.0 \
+    --with-openssl-opt=no-asm \
+    --with-pcre=objs/lib/pcre-8.45 \
+    --with-zlib=objs/lib/zlib-1.3.1
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
