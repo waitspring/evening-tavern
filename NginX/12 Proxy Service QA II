@@ -171,7 +171,7 @@ upstream api_github_com {
     3. 安装 Strawberry Perl
     4. 下载 NginX 1.20.2
     5. 下载 PCRE 8.45
-    6. 下载 ZLIB 1.3.1
+    6. 下载 ZLib 1.3.1
     7. 下载 OpenSSL 3.3.0
     8. 准备源码目录
     9. 使用 MSYS2 窗口执行预编译命令
@@ -195,7 +195,7 @@ upstream api_github_com {
     └─── src
 
 """"""""" 使用 MSYS2 窗口执行预编译命令
-MSYS nginx-release-1.20.2
+MSYS2 nginx-release-1.20.2
 $ auto/configure \
     --prefix= \
     --conf-path=conf/nginx.conf \
@@ -228,6 +228,15 @@ $ auto/configure \
     --with-openssl-opt=no-asm \
     --with-pcre=objs/lib/pcre-8.45 \
     --with-zlib=objs/lib/zlib-1.3.1
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 使用 x64 Native Tools Command Prompt for VS 2022 窗口执行编译命令
+nginx-release-1.20.2
+> nmake
+> dir objs
+  ... ...
+  nginx.exe                                      | 提取 nginx.exe 二进制文件
+  ... ...                                        | 覆盖掉社区发布版本内的 nginx.exe 二进制文件即可
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
