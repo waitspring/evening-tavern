@@ -204,7 +204,7 @@ Kafka 软件目前认为 KRaft 元数据模式的成熟度不足以达到生产�
 [root ~]# mkdir -p /usr/local/kafka /var/log/kafka /var/kafka/{data,metadata} /etc/kafka/kraft
 [root ~]# chown -R kafka:kafka /usr/local/kafka /var/log/kafka /var/kafka
 [root ~]# sudo -u kafka tar -xzf /srv/kafka_2.13-3.3.2.tgz -C /usr/local/kafka --strip-components 1
-[root ~]# cp /usr/local/kafka/config/{server.properties,log4j.properties} /etc/kafka
+[root ~]# cp /usr/local/kafka/config/log4j.properties /etc/kafka
 [root ~]# cp /usr/local/kafka/config/kraft/server.properties /etc/kafka/kraft
 --------------------------------------------------------------------------------------------------------------------- ✻
 
@@ -231,14 +231,14 @@ Formatting /var/kafka/metadata with metadata.version 3.3-IV3
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 使用 KRaft 元数据模式启动服务
-[root ~]# vim /usr/lib/systemd/system/kafka.service
-[root ~]# vim /etc/init.d/kafka
+[root ~]# vim /usr/lib/systemd/system/kafka-kraft.service
+[root ~]# vim /etc/init.d/kafka-kraft
 [root ~]# systemctl daemon-reload
-[root ~]# systemctl enable kafka.service
-[root ~]# systemctl start kafka.service
+[root ~]# systemctl enable kafka-kraft.service
+[root ~]# systemctl start kafka-kraft.service
 [root ~]# tree /var/kafka/metadata/__cluster_metatdata-0
 
-/var/kafka/metadata/__cluster_metatdata-0
+/var/kafka/metadata/__cluster_metadata-0
 │
 ├─── 00000000000000000000.index
 ├─── 00000000000000000000.log
