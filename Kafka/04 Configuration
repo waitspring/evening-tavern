@@ -126,9 +126,9 @@ Kafka 软件的 JMX 端口接受 Java 请求, 使得第三方软件 (例如 Kafk
 Kafka 软件的 JMX 端口默认是关闭的, 启用时需要在环境变量内添加 JMX_PORT 参数
 
 """"""""" 开启 Kafka 软件的 JMX 端口
-[root ~]# sed -i -r '/^exec/i\export JMX_PORT=9093' /usr/local/kafka/bin/kafka-server-start.sh
+[root ~]# sed -i -r '/^exec/i\export JMX_PORT=9094' /usr/local/kafka/bin/kafka-server-start.sh
 [root ~]# systemctl restart kafka.service
-[root ~]# netstat -elnptu | grep 9093
+[root ~]# netstat -elnptu | grep 9094
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 

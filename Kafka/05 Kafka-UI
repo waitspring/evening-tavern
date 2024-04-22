@@ -122,7 +122,7 @@ Kafka-UI 软件的配置文件 /etc/kafka-ui/application.yml 样例写作如下:
 #       name: local                              # Kafka 集群的名称信息
 #       bootstrapServers: localhost:9092         # Kafka 集群的连接信息
 #       metrics:                                 # Kafka 集群的指标监控配置部分
-#         port: 9093                             # Kafka 集群的 JMX 端口配置信息 (默认使用 9093 端口)
+#         port: 9094                             # Kafka 集群的 JMX 端口配置信息 (默认使用 9094 端口)
 #         type: JMX
 # auth:
 #   type: "ldap"

@@ -180,8 +180,7 @@ Kafka 软件如果按照演示文档的步骤部署, 可以得到下述文件
 /usr/local/kafka/bin/kafka-run-class.sh \
 /usr/local/kafka/bin/kafka-server-start.sh \
 /usr/local/kafka/bin/zookeeper-server-start.sh
-[root ~]# sed -i -r '/^exec/i\export JMX_PORT=9093' \
-/usr/local/kafka/bin/kafka-server-start.sh
+[root ~]# sed -i -r '/^exec/i\export JMX_PORT=9094' /usr/local/kafka/bin/kafka-server-start.sh
 [root ~]# vim /usr/lib/systemd/system/kafka.service
 [root ~]# vim /etc/init.d/kafka
 [root ~]# systemctl daemon-reload
@@ -218,6 +217,7 @@ Kafka 软件目前认为 KRaft 元数据模式的成熟度不足以达到生产�
 /usr/local/kafka/bin/kafka-run-class.sh \
 /usr/local/kafka/bin/kafka-server-start.sh \
 /usr/local/kafka/bin/zookeeper-server-start.sh
+[root ~]# sed -i -r '/^exec/i\export JMX_PORT=9094' /usr/local/kafka/bin/kafka-server-start.sh
 [root ~]# /usr/local/kafka/bin/kafka-storage.sh random-uuid
 
 VW3aScTKQTWJeBkZtcJHRQ
