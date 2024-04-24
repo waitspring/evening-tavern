@@ -236,7 +236,7 @@ Formatting /var/kafka/metadata with metadata.version 3.3-IV3
 [root ~]# systemctl daemon-reload
 [root ~]# systemctl enable kafka-kraft.service
 [root ~]# systemctl start kafka-kraft.service
-[root ~]# tree /var/kafka/metadata/__cluster_metatdata-0
+[root ~]# tree /var/kafka/metadata/__cluster_metadata-0
 
 /var/kafka/metadata/__cluster_metadata-0
 │
