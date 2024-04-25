@@ -164,7 +164,7 @@ Kafka 软件如果按照演示文档的步骤部署, 可以得到下述文件
 
 """"""""" 准备软件的运行环境
 [root ~]# useradd -r -s /sbin/nologin -M kafka
-[root ~]# mkdir -p /usr/local/kafka /var/log/kafka /var/kafka/data
+[root ~]# mkdir -p /usr/local/kafka /var/log/kafka /var/kafka/data /etc/kafka
 [root ~]# chown -R kafka:kafka /usr/local/kafka /var/log/kafka /var/kafka
 [root ~]# sudo -u kafka tar -xzf /srv/kafka_2.13-3.3.2.tgz -C /usr/local/kafka --strip-components 1
 [root ~]# cp /usr/local/kafka/config/{server.properties,log4j.properties} /etc/kafka

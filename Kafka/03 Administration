@@ -156,7 +156,8 @@ bin/kafka-console-consumer.sh 工具常用选项有
 ::  --bootstrap-server=socket,...                必要选项, 标记软件的服务节点为 socket,... (集群可以省略为其中的某个节点)
 ::  --topic=topic                                必要选项, 要求工具从名为 topic 的主题内消费消息
 ::  --group=gid                                  可选选项, 要求工具使用指定的 gid 作为消费组的组名称
-::  --from-beginning                             可选选项, 要求工具直接从头开始消费相应主题内的消息 (不使用消费组的偏移量数据)
+                                                          如果消费组不存在, 则创建同名消费组并设置消费偏移量为 LSO 位移值
+::  --from-beginning                             可选选项, 要求工具在创建消费组时, 设置消费位移值为 0 (从头消费副本消息)
 ::  --skip-message-on-error                      可选选项, 要求工具消费到错误消息时, 跳过错误继续消费
 ::  --property=prop ...                          可选选项, 使用键值对模式定义消费工具的执行特性
 ::  --help                                       帮助选项
@@ -173,7 +174,7 @@ bin/kafka-console-consumer.sh 工具使用 --property=prop 选项定义消费工
 
     •  如果消费者有发生过消费行为, 则软件会自行创建主题 __consumer_offsets 用以存储消费者的消费元数据
     •  消费者的元数据主题 __consumer_offsets 默认有 50 个分区, 每个分区默认创建与节点数量一致的副本
-    •
+    •  消费组已经存在的情况下, --from-beginning 选项不生效 (已有消费组的消费位移值仅允许使用群组管理工具操作)
 
 """"""""" 演示消息生产工具的基本使用方法
 [root ~]# bin/kafka-console-producer.sh --bootstrap-server kafka-0.season.com:9092 \
