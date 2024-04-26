@@ -86,8 +86,8 @@ if __name__ == '__main__':
     foo.subscribe(topics=('foo'))
     for message in foo:
         print('--------------------------------------------------')
-        print(message.topic)
-        print(message.partition)
-        print(message.offset)
-        print(message.key)
-        print(message.value)
+        print('message.topic: ' + message.topic)
+        print('message.partition: ' + message.partition)
+        print('message.offset: ' + message.offset)
+        print('message.key: ' + message.key)
+        print('message.value: ' + message.value)

@@ -126,9 +126,9 @@ Kafka 软件的 JMX 端口接受 Java 请求, 使得第三方软件 (例如 Kafk
 Kafka 软件的 JMX 端口默认是关闭的, 启用时需要在环境变量内添加 JMX_PORT 参数
 
 """"""""" 开启 Kafka 软件的 JMX 端口
-[root ~]# sed -i -r '/^exec/i\export JMX_PORT=9093' /usr/local/kafka/bin/kafka-server-start.sh
+[root ~]# sed -i -r '/^exec/i\export JMX_PORT=9094' /usr/local/kafka/bin/kafka-server-start.sh
 [root ~]# systemctl restart kafka.service
-[root ~]# netstat -elnptu | grep 9093
+[root ~]# netstat -elnptu | grep 9094
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
@@ -159,61 +159,6 @@ Kafka 软件的 KRaft 配置文件常用配置项如下 (前文所述的其余�
 │ process.roles=controller                       │         │ 集群内软件扮演的角色为控制器
 │ process.roles=broker,controller                │         │ 集群内软件扮演的角色为节点 + 控制器
 └────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
-
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Doing Simple │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-提前准备资源: /srv/kafka_2.13-3.3.2.tgz
-注意: $(/usr/local/kafka/bin/kafka-storage.sh random-uuid) 命令制作的随机码应当用在集群的全部节点且保持不变
-
-""""""""" 准备软件的运行环境
-[root ~]# useradd -r -s /sbin/nologin -M kafka
-[root ~]# mkdir -p /usr/local/kafka /var/log/kafka /var/kafka/{data,metadata} /etc/kafka/kraft
-[root ~]# chown -R kafka:kafka /usr/local/kafka /var/log/kafka /var/kafka
-[root ~]# sudo -u kafka tar -xzf /srv/kafka_2.13-3.3.2.tgz -C /usr/local/kafka --strip-components 1
-[root ~]# cp /usr/local/kafka/config/{server.properties,log4j.properties} /etc/kafka
-[root ~]# cp /usr/local/kafka/config/kraft/server.properties /etc/kafka/kraft
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 更新软件的配置文件
-[root ~]# vim /etc/kafka/kraft/server.properties
-[root ~]# vim /etc/kafka/log4j.properties
-[root ~]# sed -i.bakp -r '/-Dlog4j\.configuration/s/^(.*)(file:)(.*)(\")$/\1\2\/etc\/kafka\/log4j.properties\4/g' \
-/usr/local/kafka/bin/connect-distributed.sh \
-/usr/local/kafka/bin/connect-mirror-maker.sh \
-/usr/local/kafka/bin/connect-standalone.sh \
-/usr/local/kafka/bin/kafka-run-class.sh \
-/usr/local/kafka/bin/kafka-server-start.sh \
-/usr/local/kafka/bin/zookeeper-server-start.sh
-[root ~]# /usr/local/kafka/bin/kafka-storage.sh random-uuid
-
-VW3aScTKQTWJeBkZtcJHRQ
-
-[root ~]# /usr/local/kafka/bin/kafka-storage.sh format \
--t VW3aScTKQTWJeBkZtcJHRQ \
--c /etc/kafka/kraft/server.properties
-
-Formatting /var/kafka/data with metadata.version 3.3-IV3
-Formatting /var/kafka/metadata with metadata.version 3.3-IV3
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 使用 KRaft 元数据模式启动服务
-[root ~]# vim /usr/lib/systemd/system/kafka.service
-[root ~]# vim /etc/init.d/kafka
-[root ~]# systemctl daemon-reload
-[root ~]# systemctl enable kafka.service
-[root ~]# systemctl start kafka.service
-[root ~]# tree /var/kafka/metadata/__cluster_metatdata-0
-
-/var/kafka/metadata/__cluster_metatdata-0
-│
-├─── 00000000000000000000.index
-├─── 00000000000000000000.log
-├─── 00000000000000000000.timeindex
-├─── leader-epoch-checkpoint
-├─── partition.metadata
-└─── quorum-state
---------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
