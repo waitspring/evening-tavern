@@ -55,26 +55,43 @@ Kafka Connect 组件需要使用到的文件如下
 ::  /path/to/kafka/libs/connect-json-*.jar       | 面向 Json 数据格式的转换器库文件
 ::  /path/to/kafka/libs/connect-runtime-*.jar    | 核心任务库文件
 ::  /path/to/kafka/libs/connect-transforms-*.jar | 核心转换器库文件
-::  /path/to/kafka/bin/connect-standalone.sh     | Kafka Connect 组件的启动脚本, 能够调整软件的 JVM 启动参数
-::  /path/to/kafka/config/connect-standalone...  | Kafka Connect 组件的主配置文件
-::  /path/to/kafka/config/connect-file-source... | Kafka Connect 组件的 Source Connector 配置文件
-::  /path/to/kafka/config/connect-file-sink...   | Kafka Connect 组件的 Sink Connector 配置文件
+::  /path/to/kafka/bin/connect-distributed.sh    | Kafka Connect 组件的集群启动脚本
+::  /path/to/kafka/bin/connect-standalone.sh     | Kafka Connect 组件的单点启动脚本
+::  /path/to/kafka/config/connect-distributed... | Kafka Connect 组件的集群配置文件
+::  /path/to/kafka/config/connect-standalone...  | Kafka Connect 组件的单点配置文件
+::  /path/to/kafka/config/connect-file-source... | Kafka Connect 组件的单点 Source Connector 配置文件
+::  /path/to/kafka/config/connect-file-sink...   | Kafka Connect 组件的单点 Sink Connector 配置文件
 
-/etc/kafka/connect-standalone.properties
+阅读上述文件列表时还请注意:
+
+    •  Kafka Connect 组件的单点启动模式常用于调试和诊断任务, 集群启动模式则用于运行正式的生产任务, 
+    •  Kafka Connect 组件的单点启动模式把元数据寄存在内容中, 集群启动模式则把元数据寄存在 Kafka 软件服务的固定主题下
+    •  Kafka Connect 组件的单点启动模式需要固定加载 Source/ Sink Connector 配置文件, 不支持使用 REST API 动态加载配置文件
+
+/path/to/kafka/config/connect-distributed.properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # bootstrap.servers=kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
+# group.id=connect-cluster                       # Kafka Connect 组件集群的分组标识
 # key.converter=org.apache.kafka.connect.json.JsonConverter
+# key.converter.schemas.enable=true              # 消息键的 JSON 数据结构允许附带模式内容
 # value.converter=org.apache.kafka.connect.json.JsonConverter
-# key.converter.schemas.enable=true              # 允许消息键的 JSON 数据结构内附带模式信息 
-# value.converter.shecmas.enable=true            # 允许消息值的 JSON 数据结构内附带模式信息
-# offset.storage.file.filename=/tmp/connect.offsets
-# offset.flush.interval.ms=10000                 # 
-# plugin.path=/usr/local/kafka/libs              # 
+# value.converter.schemas.enable=true            # 消息体的 JSON 数据结构允许附带模式内容
+# offset.storage.topic=connect-offsets           # Kafka Connect 组件集群使用的偏移量元数据存储在固定主题下
+# offset.storage.replication.factor=3
+# offset.storage.partitions=3
+# config.storage.topic=connect-configs
+# config.storage.replication.factor=3
+# config.storage.partitions=3
+# status.storage.topic=connect-status
+# status.storage.replication.factor=3
+# status.storage.partitions=3
+# offset.flush.interval.ms=10000                 # Kafka Connect 组件集群使用的偏移量元数据的提交频率为 10000 毫秒/次
+# listeners=HTTP://:8083                         # Kafka Connect 组件集群使用的 REST API 监听端口为 8083
+# plugin.path=                                   # Kafka Connect 组件集群使用的补充库文件加载路径
 
 """"""""" 编写 Kafka Connect 组件的配置文件, 并启动 Kafka Connect 组件
-[root ~]# cp /usr/local/kafka/configure/connect-{standalone,file-*}.properties /etc/kafka
-[root ~]# vim /etc/kafka/connect-standalone.properties
-[root ~]# vim /etc/kafka/connect-file-source.properties
+[root ~]# cp /usr/local/kafka/config/connect-distributed.properties /etc/kafka
+[root ~]# vim /etc/kafka/connect-distributed.properties
 [root ~]# vim /usr/lib/systemd/system/kafka-connect.service
 [root ~]# systemctl daemon-reload
 [root ~]# systemctl enable kafka-connect.service
@@ -82,13 +99,16 @@ Kafka Connect 组件需要使用到的文件如下
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 针对 Kafka Connect 组件扫描文本文件的对象, 写入若干数据并尝试消费
-[root ~]# cat > /tmp/kafka-connect.txt << EOF
-012345
-123456
-234567
-345678
-456789
-EOF
+[root ~]# curl -X POST -H "Content-Type: Application/Json" -d " \
+    { \
+        'name': 'kafka-connect', \
+        'config': { \
+            'connector.class': 'FileStreamSource', \
+            'file': '/etc/kafka/server.properties', \
+            'topic': 'kafka-config' \
+        } \
+    } \
+"
 [root ~]# bin/kafka-console-consumer.sh --bootstrap-server kafka-0.season.com:9092 \
 --topic kafka-connect \
 --group demo \
