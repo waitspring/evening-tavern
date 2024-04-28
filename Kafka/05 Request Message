@@ -1,0 +1,103 @@
+ , __                                   ,__ __                              
+/|/  \                                 /|  |  |                             
+ |___/  _   __,          _   , _|_      |  |  |   _   ,   ,   __,   __,  _  
+ | \   |/  /  |  |   |  |/  / \_|       |  |  |  |/  / \_/ \_/  |  /  | |/  
+ |  \_/|__/\_/|_/ \_/|_/|__/ \/ |_/     |  |  |_/|__/ \/  \/ \_/|_/\_/|/|__/
+              |\                                                     /|     
+              |/                                                     \|     
+--  This document was created by Xuanming in 2024, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+消息的通信请求方式
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    ┌─────────────┐        ┌──────────────────┐        ┌─────────────┐        ┌────────────────┐        ┌─────────────┐
+    │             │        │ Producer         │        │             │        │ Consumer       │        │             │
+    │             │        ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤        │             │        ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤        │             │
+    │ Data Source ├──────> │ Source Connector ├──────> │ Kafka       ├──────> │ Sink Connector ├──────> │ Data Sink   │
+    │             │        ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤        │             │        ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤        │             │
+    │             │        │ POST Request     │        │             │        │ GET Request    │        │             │
+    └─────────────┘        └──────────────────┘        └─────────────┘        └────────────────┘        └─────────────┘
+
+Kafka 软件向 C(C++)/ Java/ Python/ Go 在内的主流编程语言提供可引用库文件, 使得业务软件基于内置客户端能够连接 Kafka 软件:
+
+    •  C(C++) [ https://github.com/edenhill/librdkafka ]
+    •    Java [ https://github.com/apache/kafka ]
+    •  Python [ https://github.com/confluentinc/confluent-kafka-python ]
+    •      Go [ https://github.com/confluentinc/confluent-kafka-go ]
+
+Kafka Connect 组件能够直连数据库或是扫描文本文件, 绕开业务客户端的情况下读写数据消息
+Kafka Connect 组件已经内置到标准发布版本, 但使用独立进程维持自身服务, 进程具有单点和集群两种工作模式, 其核心概念有:
+
+    •  Task [ 任务 ]
+       Kafka Connect 组件向 Kafka 软件服务执行消息数据拷入拷出的最小动作单元
+       --------------------------------------------------------------
+    •  Connector [ 连接器 ]
+       Kafka Connect 组件的任务管理单元, 能够进一步细分为:
+           *  Source Connector - 管理向 Kafka 软件服务拷入消息数据的动作
+           *    Sink Connector - 管理从 Kafka 软件服务拷出消息数据的动作
+       --------------------------------------------------------------
+    •  Converter [ 转换器 ]
+       Kafka Connect 组件的数据转换单元: 把拷入 Kafka 软件服务的数据转换为消息格式, 把拷出 Kafka 软件服务的消息转换为数据格式
+
+Kafka REST API 组件支持 HTTP/HTTPS 协议请求, 使用 POST 请求写入数据消息, 使用 GET 请求读取数据消息
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka Connect
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka Connect 组件需要使用到的文件如下
+::  /path/to/kafka/libs/connect-api-*.jar        | 核心接口库文件
+::  /path/to/kafka/libs/connect-file-*.jar       | 面向文件的连接器库文件
+::  /path/to/kafka/libs/connect-json-*.jar       | 面向 Json 数据格式的转换器库文件
+::  /path/to/kafka/libs/connect-runtime-*.jar    | 核心任务库文件
+::  /path/to/kafka/libs/connect-transforms-*.jar | 核心转换器库文件
+::  /path/to/kafka/bin/connect-standalone.sh     | Kafka Connect 组件的启动脚本, 能够调整软件的 JVM 启动参数
+::  /path/to/kafka/config/connect-standalone...  | Kafka Connect 组件的主配置文件
+::  /path/to/kafka/config/connect-file-source... | Kafka Connect 组件的 Source Connector 配置文件
+::  /path/to/kafka/config/connect-file-sink...   | Kafka Connect 组件的 Sink Connector 配置文件
+
+/etc/kafka/connect-standalone.properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# bootstrap.servers=kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
+# key.converter=org.apache.kafka.connect.json.JsonConverter
+# value.converter=org.apache.kafka.connect.json.JsonConverter
+# key.converter.schemas.enable=true              # 允许消息键的 JSON 数据结构内附带模式信息 
+# value.converter.shecmas.enable=true            # 允许消息值的 JSON 数据结构内附带模式信息
+# offset.storage.file.filename=/tmp/connect.offsets
+# offset.flush.interval.ms=10000                 # 
+# plugin.path=/usr/local/kafka/libs              # 
+
+""""""""" 编写 Kafka Connect 组件的配置文件, 并启动 Kafka Connect 组件
+[root ~]# cp /usr/local/kafka/configure/connect-{standalone,file-*}.properties /etc/kafka
+[root ~]# vim /etc/kafka/connect-standalone.properties
+[root ~]# vim /etc/kafka/connect-file-source.properties
+[root ~]# vim /usr/lib/systemd/system/kafka-connect.service
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enable kafka-connect.service
+[root ~]# systemctl start kafka-connect.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 针对 Kafka Connect 组件扫描文本文件的对象, 写入若干数据并尝试消费
+[root ~]# cat > /tmp/kafka-connect.txt << EOF
+012345
+123456
+234567
+345678
+456789
+EOF
+[root ~]# bin/kafka-console-consumer.sh --bootstrap-server kafka-0.season.com:9092 \
+--topic kafka-connect \
+--group demo \
+--from-beginning \
+--property print.timestamp=true \
+--property print.key=true \
+--property print.headers=true
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+
