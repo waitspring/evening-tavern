@@ -10,7 +10,7 @@
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-消息的通信请求方式
+Kafka 软件的消费办法
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     ┌─────────────┐        ┌──────────────────┐        ┌─────────────┐        ┌────────────────┐        ┌─────────────┐
@@ -21,35 +21,37 @@
     │             │        │ POST Request     │        │             │        │ GET Request    │        │             │
     └─────────────┘        └──────────────────┘        └─────────────┘        └────────────────┘        └─────────────┘
 
-Kafka 软件向 C(C++)/ Java/ Python/ Go 在内的主流编程语言提供可引用库文件, 使得业务软件基于内置客户端能够连接 Kafka 软件:
+使用库文件在业务软件内嵌入客户端 (溪流公司提供 C(C++)/ Java/ Python/ Go 四种客户端库文件):
 
     •  C(C++) [ https://github.com/edenhill/librdkafka ]
     •    Java [ https://github.com/apache/kafka ]
     •  Python [ https://github.com/confluentinc/confluent-kafka-python ]
     •      Go [ https://github.com/confluentinc/confluent-kafka-go ]
 
-Kafka Connect 组件能够直连数据库或是扫描文本文件, 绕开业务客户端的情况下读写数据消息
-Kafka Connect 组件已经内置到标准发布版本, 但使用独立进程维持自身服务, 进程具有单点和集群两种工作模式, 其核心概念有:
+使用 Kafka Connect 组件能够直连数据源, 在绕开业务客户端的情况下读写数据消息:
 
-    •  Task [ 任务 ]
-       Kafka Connect 组件向 Kafka 软件服务执行消息数据拷入拷出的最小动作单元
-       --------------------------------------------------------------
-    •  Connector [ 连接器 ]
-       Kafka Connect 组件的任务管理单元, 能够进一步细分为:
-           *  Source Connector - 管理向 Kafka 软件服务拷入消息数据的动作
-           *    Sink Connector - 管理从 Kafka 软件服务拷出消息数据的动作
-       --------------------------------------------------------------
-    •  Converter [ 转换器 ]
-       Kafka Connect 组件的数据转换单元: 把拷入 Kafka 软件服务的数据转换为消息格式, 把拷出 Kafka 软件服务的消息转换为数据格式
-
-Kafka REST API 组件支持 HTTP/HTTPS 协议请求, 使用 POST 请求写入数据消息, 使用 GET 请求读取数据消息
+    •  Kafka Connect 组件连同文本文件连接器已经内置于 Kafka 软件的标准版本
+    •  Kafka Connect 组件额外支持 Elasticsearch/ Database/ HDFS/ Splunk 多种连接器, 用户需在溪流公司的仓库内单独下载使用
 
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Kafka Connect
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Kafka Connect 组件需要使用到的文件如下
+Kafka Connect 组件的核心概念有:
+
+    •  Task [ 任务 ]
+       Kafka Connect 组件向 Kafka 软件服务执行消息数据拷入拷出的最小动作单元
+       --------------------------------------------------------------
+    •  Connector [ 连接器 ]
+       Kafka Connect 组件的任务管理单元, 连接器名称必须唯一, 能够进一步细分为:
+           *  Source Connector - 管理向 Kafka 软件服务拷入消息数据的动作
+           *    Sink Connector - 管理从 Kafka 软件服务拷出消息数据的动作
+       --------------------------------------------------------------
+    •  Converter [ 转换器 ]
+       Kafka Connect 组件的数据转换单元: 把拷入 Kafka 软件服务的数据转换为消息格式, 把拷出 Kafka 软件服务的消息转换为数据格式
+
+Kafka Connect 组件的核心文件如下
 ::  /path/to/kafka/libs/connect-api-*.jar        | 核心接口库文件
 ::  /path/to/kafka/libs/connect-file-*.jar       | 面向文件的连接器库文件
 ::  /path/to/kafka/libs/connect-json-*.jar       | 面向 Json 数据格式的转换器库文件
@@ -65,59 +67,55 @@ Kafka Connect 组件需要使用到的文件如下
 阅读上述文件列表时还请注意:
 
     •  Kafka Connect 组件的单点启动模式常用于调试和诊断任务, 集群启动模式则用于运行正式的生产任务, 
-    •  Kafka Connect 组件的单点启动模式把元数据寄存在内容中, 集群启动模式则把元数据寄存在 Kafka 软件服务的固定主题下
-    •  Kafka Connect 组件的单点启动模式需要固定加载 Source/ Sink Connector 配置文件, 不支持使用 REST API 动态加载配置文件
+    •  Kafka Connect 组件的单点启动模式把元数据寄存在临时文件中, 集群启动模式则把元数据寄存在 Kafka 软件服务的固定主题下
+    •  Kafka Connect 组件的单点启动模式使用 Source/ Sink Connector 配置文件并由此创建连接器实例
+    •  Kafka Connect 组件的集群启动模式使用 REST API 动态管理连接器实例
+                     目前笔者基于集群模式的 REST API 创建连接器时遭遇无日志的 500 错误且无法解决, 文档使用单点启动模式作为案例
+                     ------------------------------------------------
 
-/path/to/kafka/config/connect-distributed.properties
+/path/to/kafka/config/connect-standalone.properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # bootstrap.servers=kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
-# group.id=connect-cluster                       # Kafka Connect 组件集群的分组标识
-# key.converter=org.apache.kafka.connect.json.JsonConverter
-# key.converter.schemas.enable=true              # 消息键的 JSON 数据结构允许附带模式内容
-# value.converter=org.apache.kafka.connect.json.JsonConverter
-# value.converter.schemas.enable=true            # 消息体的 JSON 数据结构允许附带模式内容
-# offset.storage.topic=connect-offsets           # Kafka Connect 组件集群使用的偏移量元数据存储在固定主题下
-# offset.storage.replication.factor=3
-# offset.storage.partitions=3
-# config.storage.topic=connect-configs
-# config.storage.replication.factor=3
-# config.storage.partitions=3
-# status.storage.topic=connect-status
-# status.storage.replication.factor=3
-# status.storage.partitions=3
-# offset.flush.interval.ms=10000                 # Kafka Connect 组件集群使用的偏移量元数据的提交频率为 10000 毫秒/次
-# listeners=HTTP://:8083                         # Kafka Connect 组件集群使用的 REST API 监听端口为 8083
-# plugin.path=                                   # Kafka Connect 组件集群使用的补充库文件加载路径
+# key.converter=org.apache.kafka.connect.json... # 加载 Json 数据格式的转换器作为消息键的转换器
+# key.converter.schemas.enable=true              # 允许 Json 数据格式的转换器嵌入模式信息到消息键内
+# value.converter=org.apache.kafka.connect...    # 加载 Json 数据格式的转换器作为消息值的转换器
+# value.converter.schemas.enable=true            # 允许 Json 数据格式的转换器嵌入模式信息到消息值内
+# offset.storage.file.filename=/tmp/connect...   # Kafka Connect 默认使用 /tmp/connect.offsets 文件存储偏移量元数据
+# offset.flush.interval.ms=10000                 # Kafka Connect 默认每隔 10000 毫秒 (10 秒钟) 刷新一次偏移量文件
+# plugin.path=                                   # Kafka Connect 默认不加载其他库文件
+
+/path/to/kafka/config/connect-file-source.properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# name=local-file-source                         # 连接器的名称默认为 local-file-source
+# connector.class=FileStreamSource               # 连接器的工作模式默认为 FileStreamSource 类型 (文本文件 -> Kafka)
+# tasks.max=1                                    # 连接器的最大并发任务默认为 1 个任务
+# file=test.txt                                  # 连接器的文本文件扫描对象默认为 test.txt
+# topic=connect-test                             # 连接器的主题发布对象默认为 connect-test
+
+/path/to/kafka/config/connect-file-sink.properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# name=local-file-sink                           # 连接器的名称默认为 local-file-sink
+# connector.class=FileStreamSink                 # 连接器的工作模式默认为 FileStreamSource 类型 (Kafka -> 文本文件)
+# tasks.max=1                                    # 连接器的最大并发任务默认为 1 个任务
+# file=test.sink.txt                             # 连接器的文本文件输出对象默认为 test.sink.txt
+# topics=connect-test                            # 连接器的主题订阅对象默认为 connect-test
 
 """"""""" 编写 Kafka Connect 组件的配置文件, 并启动 Kafka Connect 组件
-[root ~]# cp /usr/local/kafka/config/connect-distributed.properties /etc/kafka
-[root ~]# vim /etc/kafka/connect-distributed.properties
-[root ~]# vim /usr/lib/systemd/system/kafka-connect.service
-[root ~]# systemctl daemon-reload
-[root ~]# systemctl enable kafka-connect.service
-[root ~]# systemctl start kafka-connect.service
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 针对 Kafka Connect 组件扫描文本文件的对象, 写入若干数据并尝试消费
-[root ~]# curl -X POST -H "Content-Type: Application/Json" -d " \
-    { \
-        'name': 'kafka-connect', \
-        'config': { \
-            'connector.class': 'FileStreamSource', \
-            'file': '/etc/kafka/server.properties', \
-            'topic': 'kafka-config' \
-        } \
-    } \
-"
+[root ~]# cp /usr/local/kafka/config/connect-{standalone,file-*}.properties /etc/kafka
+[root ~]# vim /etc/kafka/connect-standalone.properties
+[root ~]# vim /etc/kafka/connect-file-source.properties
+[root ~]# vim /etc/kafka/connect-file-sink.properties
+[root ~]# bin/connect-standalone.sh /etc/kafka/connect-standalone.properties \
+                                    /etc/kafka/connect-file-source.properties \
+                                    /etc/kafka/connect-file-sink.properties
 [root ~]# bin/kafka-console-consumer.sh --bootstrap-server kafka-0.season.com:9092 \
---topic kafka-connect \
+--topic kafka-config \
 --group demo \
 --from-beginning \
 --property print.timestamp=true \
 --property print.key=true \
 --property print.headers=true
 --------------------------------------------------------------------------------------------------------------------- ✻
-
 
 
 
