@@ -33,6 +33,10 @@ Kafka 软件的消费办法
     •  Kafka Connect 组件连同文本文件连接器已经内置于 Kafka 软件的标准版本
     •  Kafka Connect 组件额外支持 Elasticsearch/ Database/ HDFS/ Splunk 多种连接器, 用户需在溪流公司的仓库内单独下载使用
 
+使用 Kafka REST 组件能够启动 REST API 服务, 使得用户使用 POST 请求发布消息, 使用 GET 请求订阅消息:
+
+    •  Kafka REST 组件在底层依赖模式注册组件 (Kafka Schema Registry)
+
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -115,6 +119,49 @@ Kafka Connect 组件的核心文件如下
 --property print.timestamp=true \
 --property print.key=true \
 --property print.headers=true
+
+{"schema":{"type":"string","optional":"false"},"payload":"... ..."}
+
+[root ~]# cat /tmp/kafka-config.txt
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka REST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka REST 组件由溪流公司单独维护, 未整合进入 Kafka 软件的标准发布版本, 使用时需要单独从溪流公司的软件仓库内下载 Kafka REST 组件
+Kafka REST 组件为用户发布订阅消息提供 REST API 接口, 能够进一步降低用户发布订阅消息的技术成本
+Kafka REST 组件主要包含下述软件包:
+
+    •  confluent-kafka-rest.noarch               | Kafka REST 组件的核心软件包
+    •  confluent-schema-registry.noarch          | Kafka REST 组件的底层依赖软件包, 支持用户自定义数据格式的模版
+    •  confluent-common.noarch                   | Kafka REST 组件的底层依赖软件包, 提供公共方法
+    •  confluent-rest-utils.noarch               | Kafka REST 组件的底层依赖软件包, 提供管理工具
+
+/etc/schema-registry/schema-registry.properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# listeners=http://0.0.0.0:8081
+# kafkastore.bootstrap.servers=PLAINTEXT://kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
+# kafkastore.topic=_schemas
+# debug=false
+# metadata.encoder.secret=REPLACE_ME_WITH_HIGH_ENTROPY_STRING
+# resource.extension.class=io.confluent.dekregistry.DekRegistryResourceExtention
+
+/etc/kafka-rest/kafka-rest.properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# id=
+
+""""""""" 指定溪流公司的官方仓库, 安装 Kafka REST 组件
+[root ~]# cat > /etc/yum.repos.d/confluent.repo << EOF
+[confluent]
+name     = confluent
+gpgcheck = 0
+enabled  = 1
+baseurl  = http://packages.confluent.io/rpm/7.6/
+EOF
+[root ~]# yum makecache
+[root ~]# yum install -y confluent-kafka-rest.noarch
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
