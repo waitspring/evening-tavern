@@ -141,18 +141,22 @@ Kafka REST 组件主要包含下述软件包:
 
 /etc/schema-registry/schema-registry.properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# listeners=http://0.0.0.0:8081
+# listeners=http://0.0.0.0:8081                  # Kafka Schema Registry 组件默认监听 8081 端口
 # kafkastore.bootstrap.servers=PLAINTEXT://kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
-# kafkastore.topic=_schemas
-# debug=false
+# kafkastore.topic=_schemas                      # Kafka Schema Registry 组件默认发布消息到主题 _schemas
+# debug=false                                    # Kafka Schema Registry 组件默认关闭 DEBUG 模式 (接口屏蔽 DEBUG 信息)
 # metadata.encoder.secret=REPLACE_ME_WITH_HIGH_ENTROPY_STRING
 # resource.extension.class=io.confluent.dekregistry.DekRegistryResourceExtention
 
 /etc/kafka-rest/kafka-rest.properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# id=
+# id=kafka-rest-test-server                      # Kafka REST 组件默认名称为 kafka-rest-test-server
+# listeners=http://0.0.0.0:8082                  # Kafka REST 组件默认监听 8082 端口
+# schema.registry.url=http://localhost:8081      # Kafka REST 组件连接 Kafka Schema Registry 组件的参数配置
+# zookeeper.connect=localhost:2181               # Kafka REST 组件连接 ZooKeeper 集群的参数配置
+# bootstrap.servers=PLANTEXT://kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
 
-""""""""" 指定溪流公司的官方仓库, 安装 Kafka REST 组件
+""""""""" 指定溪流公司的官方仓库, 安装 Kafka REST 组件及其依赖组件
 [root ~]# cat > /etc/yum.repos.d/confluent.repo << EOF
 [confluent]
 name     = confluent
@@ -161,7 +165,19 @@ enabled  = 1
 baseurl  = http://packages.confluent.io/rpm/7.6/
 EOF
 [root ~]# yum makecache
-[root ~]# yum install -y confluent-kafka-rest.noarch
+[root ~]# yum install -y confluent-kafka-rest.noarch confluent-schema-registry
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 依次编辑 Kafka Schema Registry 组件/ Kafka REST 组件并启动服务
+[root ~]# vim /etc/schema-registry/schema-registry.properties
+[root ~]# vim /etc/kafka-rest/kafka-rest.properties
+[root ~]# systemctl enable confluent-schema-registry.service
+[root ~]# systemctl enable confluent-kafka-rest.service
+[root ~]# systemctl start confluent-schema-registry.service
+[root ~]# systemctl start confluent-kafka-rest.service
+[root ~]# curl -X POST -H "Content-Type: application/vnd.kafka.json.v1+json" \
+               -d '{"records":[{"key":"key0","value":"value0"}]}' \
+               http://kafka-0.season.com:8082/topics/rest-test
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
