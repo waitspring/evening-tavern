@@ -140,7 +140,7 @@ Kafka REST 组件主要包含下述软件包:
 /etc/schema-registry/schema-registry.properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # listeners=http://0.0.0.0:8081                  # Kafka Schema Registry 组件默认监听 8081 端口
-# kafkastore.bootstrap.servers=kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
+# kafkastore.bootstrap.servers=PLANTEXT://kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
 # kafkastore.topic=_schemas                      # Kafka Schema Registry 组件默认发布消息到主题 _schemas
 # debug=false                                    # Kafka Schema Registry 组件默认关闭 DEBUG 模式 (接口屏蔽 DEBUG 信息)
 # metadata.encoder.secret=REPLACE_ME_WITH_HIGH_ENTROPY_STRING
@@ -206,9 +206,32 @@ EOF
 [root ~]# systemctl start confluent-schema-registry.service
 [root ~]# systemctl start confluent-kafka-rest.service
 [root ~]# curl http://kafka-0.season.com:8082/topics
+
+["_dek_registry_keys", "_schemas", "_schema_encoders"]
+
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-""""""""" 依次编辑 Kafka Schema Registry 组件/ Kafka REST 组件并启动服务
+""""""""" 创建测试主题并发布消费消息
+[root ~]# curl -X POST -H "Content-Type:application/vnd.kafka.json.v2+json" \
+               -d '{"name":"foo","format":"json"}' \
+               http://kafka-0.season.com:8082/consumers/foo
+
+{"instance_id":"foo","base_uri":"http://kafka-0.season.com:8082/consumers/foo/instances/foo"}
+
+[root ~]# curl -X POST -H "Content-Type:application/vnd.kafka.json.v2+json" \
+               -d '{"topics":["foo"]}' \
+               http://kafka-0.season.com:8082/consumers/foo/instances/foo/subscription
+
+[root ~]# curl -X POST -H "Content-Type:application/vnd.kafka.json.v2+json" \
+               -d '{"records": [{"value":"ABCD"},{"value":"BCDE"}]}' \
+               http://kafka-0.season.com:8082/topics/foo
+
+{"offsets":[{"partition":1,"offset":0,"error_code":null,"error":null},...],"key_schema_id":null,"value_schema_id":null}
+
+[root ~]# curl -H "Accept:application/vnd.kafka.json.v2+json" \
+               http://kafka-0.season.com:8082/consumers/foo/instances/foo/records
+
+[{"topic":"foo","key":null,"value":"ABCD","partition":1,"offset":2},...]
 
 --------------------------------------------------------------------------------------------------------------------- ✻
 
