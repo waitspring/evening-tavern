@@ -36,6 +36,7 @@ Kafka 软件的消费办法
 使用 Kafka REST 组件能够启动 REST API 服务, 使得用户使用 POST 请求发布消息, 使用 GET 请求订阅消息:
 
     •  Kafka REST 组件在底层依赖模式注册组件 (Kafka Schema Registry)
+    •  Kafka REST 组件
 
 
 
@@ -58,7 +59,7 @@ Kafka Connect 组件的核心概念有:
 Kafka Connect 组件的核心文件如下
 ::  /path/to/kafka/libs/connect-api-*.jar        | 核心接口库文件
 ::  /path/to/kafka/libs/connect-file-*.jar       | 面向文件的连接器库文件
-::  /path/to/kafka/libs/connect-json-*.jar       | 面向 Json 数据格式的转换器库文件
+::  /path/to/kafka/libs/connect-json-*.jar       | 面向 JSON 数据格式的转换器库文件
 ::  /path/to/kafka/libs/connect-runtime-*.jar    | 核心任务库文件
 ::  /path/to/kafka/libs/connect-transforms-*.jar | 核心转换器库文件
 ::  /path/to/kafka/bin/connect-distributed.sh    | Kafka Connect 组件的集群启动脚本
@@ -80,10 +81,10 @@ Kafka Connect 组件的核心文件如下
 /path/to/kafka/config/connect-standalone.properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # bootstrap.servers=kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
-# key.converter=org.apache.kafka.connect.json... # 加载 Json 数据格式的转换器作为消息键的转换器
-# key.converter.schemas.enable=true              # 允许 Json 数据格式的转换器嵌入模式信息到消息键内
-# value.converter=org.apache.kafka.connect...    # 加载 Json 数据格式的转换器作为消息值的转换器
-# value.converter.schemas.enable=true            # 允许 Json 数据格式的转换器嵌入模式信息到消息值内
+# key.converter=org.apache.kafka.connect.json... # 加载 JSON 数据格式的转换器作为消息键的转换器
+# key.converter.schemas.enable=true              # 允许 JSON 数据格式的转换器嵌入模式信息到消息键内
+# value.converter=org.apache.kafka.connect...    # 加载 JSON 数据格式的转换器作为消息值的转换器
+# value.converter.schemas.enable=true            # 允许 JSON 数据格式的转换器嵌入模式信息到消息值内
 # offset.storage.file.filename=/tmp/connect...   # Kafka Connect 默认使用 /tmp/connect.offsets 文件存储偏移量元数据
 # offset.flush.interval.ms=10000                 # Kafka Connect 默认每隔 10000 毫秒 (10 秒钟) 刷新一次偏移量文件
 # plugin.path=                                   # Kafka Connect 默认不加载其他库文件
@@ -115,10 +116,7 @@ Kafka Connect 组件的核心文件如下
 [root ~]# bin/kafka-console-consumer.sh --bootstrap-server kafka-0.season.com:9092 \
 --topic kafka-config \
 --group demo \
---from-beginning \
---property print.timestamp=true \
---property print.key=true \
---property print.headers=true
+--from-beginning
 
 {"schema":{"type":"string","optional":"false"},"payload":"... ..."}
 
@@ -142,7 +140,7 @@ Kafka REST 组件主要包含下述软件包:
 /etc/schema-registry/schema-registry.properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # listeners=http://0.0.0.0:8081                  # Kafka Schema Registry 组件默认监听 8081 端口
-# kafkastore.bootstrap.servers=PLAINTEXT://kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
+# kafkastore.bootstrap.servers=kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
 # kafkastore.topic=_schemas                      # Kafka Schema Registry 组件默认发布消息到主题 _schemas
 # debug=false                                    # Kafka Schema Registry 组件默认关闭 DEBUG 模式 (接口屏蔽 DEBUG 信息)
 # metadata.encoder.secret=REPLACE_ME_WITH_HIGH_ENTROPY_STRING
@@ -156,6 +154,38 @@ Kafka REST 组件主要包含下述软件包:
 # zookeeper.connect=localhost:2181               # Kafka REST 组件连接 ZooKeeper 集群的参数配置
 # bootstrap.servers=PLANTEXT://kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
 
+Kafka REST 组件的接口文档见: https://docs.confluent.io/platform/current/kafka-rest/api.html
+
+    •  如果 v2 版本的 POST 请求使用二进制表单数据, 则请求头使用 "application/vnd.kafka.binary.v2+json"
+    •  如果 v2 版本的 POST 请求使用 JSON 表单数据, 则请求头使用 "application/vnd.kafka.json.v2+json"
+    •  如果 v2 版本的 POST 请求使用 Apache Avro 表单数据, 则请求头使用 "application/vnd.kafka.avro.v2+json"
+    •  如果 v2 版本的 POST 请求使用 Protobuf 表单数据, 则请求头使用 "application/vnd.kafka.protobuf.v2+json"
+
+Kafka REST 组件常用的 v2 版本接口如下
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+│   •  GET    /topics
+│   •  GET    /topics/(string: topic_name)
+│   •  POST   /topics/(string: topic_name)
+│   •  GET    /topics/(string: topic_name)/partitions
+│   •  GET    /topics/(string: topic_name)/partitions/(int: partition_id)
+│   •  GET    /topics/(string: topic_name)/partitions/(int: partition_id)/offsets
+│   •  POST   /topics/(string: topic_name)/partitions/(int: partition_id)
+│   •  POST   /consumers/(string: group_name)
+│   •  DELETE /consumers/(string: group_name)/instances/(string: instance)
+│   •  POST   /consumers/(string: group_name)/instances/(string: instance)/offsets
+│   •  GET    /consumers/(string: group_name)/instances/(string: instance)/offsets
+│   •  POST   /consumers/(string: group_name)/instances/(string: instance)/subscription
+│   •  GET    /consumers/(string: group_name)/instances/(string: instance)/subscription
+│   •  DELETE /consumers/(string: group_name)/instances/(string: instance)/subscription
+│   •  POST   /consumers/(string: group_name)/instances/(string: instance)/assignments
+│   •  GET    /consumers/(string: group_name)/instances/(string: instance)/assignments
+│   •  POST   /consumers/(string: group_name)/instances/(string: instance)/positions
+│   •  POST   /consumers/(string: group_name)/instances/(string: instance)/positions/beginning
+│   •  POST   /consumers/(string: group_name)/instances/(string: instance)/positions/end
+│   •  GET    /consumers/(string: group_name)/instances/(string: instance)/records
+│   •  GET    /brokers
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 """"""""" 指定溪流公司的官方仓库, 安装 Kafka REST 组件及其依赖组件
 [root ~]# cat > /etc/yum.repos.d/confluent.repo << EOF
 [confluent]
@@ -165,7 +195,7 @@ enabled  = 1
 baseurl  = http://packages.confluent.io/rpm/7.6/
 EOF
 [root ~]# yum makecache
-[root ~]# yum install -y confluent-kafka-rest.noarch confluent-schema-registry
+[root ~]# yum install -y confluent-kafka-rest.noarch confluent-schema-registry.noarch
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 依次编辑 Kafka Schema Registry 组件/ Kafka REST 组件并启动服务
@@ -175,9 +205,11 @@ EOF
 [root ~]# systemctl enable confluent-kafka-rest.service
 [root ~]# systemctl start confluent-schema-registry.service
 [root ~]# systemctl start confluent-kafka-rest.service
-[root ~]# curl -X POST -H "Content-Type: application/vnd.kafka.json.v1+json" \
-               -d '{"records":[{"key":"key0","value":"value0"}]}' \
-               http://kafka-0.season.com:8082/topics/rest-test
+[root ~]# curl http://kafka-0.season.com:8082/topics
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 依次编辑 Kafka Schema Registry 组件/ Kafka REST 组件并启动服务
+
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 

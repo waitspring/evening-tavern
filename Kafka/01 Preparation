@@ -65,7 +65,7 @@ Kafka 软件的发展历程清晰简单
 │ 2020-12-21 │ 2.7.0    │ • PEM format for SSL                                                                        │
 │            │          │ • add sliding-window support for aggregations                                               │
 ├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
-│            │          │ • Json request & response debug log                                                         │
+│            │          │ • JSON request & response debug log                                                         │
 │ 2021-04-19 │ 2.8.0    │ • limit broker connection creation rate                                                     │
 │            │          │ • KRaft metadata mode                                                                       │
 ├────────────┼──────────┼─────────────────────────────────────────────────────────────────────────────────────────────┤
