@@ -1,0 +1,239 @@
+ , __                                   ,__ __                              
+/|/  \                                 /|  |  |                             
+ |___/  _   __,          _   , _|_      |  |  |   _   ,   ,   __,   __,  _  
+ | \   |/  /  |  |   |  |/  / \_|       |  |  |  |/  / \_/ \_/  |  /  | |/  
+ |  \_/|__/\_/|_/ \_/|_/|__/ \/ |_/     |  |  |_/|__/ \/  \/ \_/|_/\_/|/|__/
+              |\                                                     /|     
+              |/                                                     \|     
+--  This document was created by Xuanming in 2024, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka 软件的消费办法
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    ┌─────────────┐        ┌──────────────────┐        ┌─────────────┐        ┌────────────────┐        ┌─────────────┐
+    │             │        │ Producer         │        │             │        │ Consumer       │        │             │
+    │             │        ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤        │             │        ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤        │             │
+    │ Data Source ├──────> │ Source Connector ├──────> │ Kafka       ├──────> │ Sink Connector ├──────> │ Data Sink   │
+    │             │        ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤        │             │        ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤        │             │
+    │             │        │ POST Request     │        │             │        │ GET Request    │        │             │
+    └─────────────┘        └──────────────────┘        └─────────────┘        └────────────────┘        └─────────────┘
+
+使用库文件在业务软件内嵌入客户端 (溪流公司提供 C(C++)/ Java/ Python/ Go 四种客户端库文件):
+
+    •  C(C++) [ https://github.com/edenhill/librdkafka ]
+    •    Java [ https://github.com/apache/kafka ]
+    •  Python [ https://github.com/confluentinc/confluent-kafka-python ]
+    •      Go [ https://github.com/confluentinc/confluent-kafka-go ]
+
+使用 Kafka Connect 组件能够直连数据源, 在绕开业务客户端的情况下读写数据消息:
+
+    •  Kafka Connect 组件连同文本文件连接器已经内置于 Kafka 软件的标准版本
+    •  Kafka Connect 组件额外支持 Elasticsearch/ Database/ HDFS/ Splunk 多种连接器, 用户需在溪流公司的仓库内单独下载使用
+
+使用 Kafka REST 组件能够启动 REST API 服务, 使得用户使用 POST 请求发布消息, 使用 GET 请求订阅消息:
+
+    •  Kafka REST 组件在底层依赖模式注册组件 (Kafka Schema Registry)
+    •  Kafka REST 组件
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka Connect
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka Connect 组件的核心概念有:
+
+    •  Task [ 任务 ]
+       Kafka Connect 组件向 Kafka 软件服务执行消息数据拷入拷出的最小动作单元
+       --------------------------------------------------------------
+    •  Connector [ 连接器 ]
+       Kafka Connect 组件的任务管理单元, 连接器名称必须唯一, 能够进一步细分为:
+           *  Source Connector - 管理向 Kafka 软件服务拷入消息数据的动作
+           *    Sink Connector - 管理从 Kafka 软件服务拷出消息数据的动作
+       --------------------------------------------------------------
+    •  Converter [ 转换器 ]
+       Kafka Connect 组件的数据转换单元: 把拷入 Kafka 软件服务的数据转换为消息格式, 把拷出 Kafka 软件服务的消息转换为数据格式
+
+Kafka Connect 组件的核心文件如下
+::  /path/to/kafka/libs/connect-api-*.jar        | 核心接口库文件
+::  /path/to/kafka/libs/connect-file-*.jar       | 面向文件的连接器库文件
+::  /path/to/kafka/libs/connect-json-*.jar       | 面向 JSON 数据格式的转换器库文件
+::  /path/to/kafka/libs/connect-runtime-*.jar    | 核心任务库文件
+::  /path/to/kafka/libs/connect-transforms-*.jar | 核心转换器库文件
+::  /path/to/kafka/bin/connect-distributed.sh    | Kafka Connect 组件的集群启动脚本
+::  /path/to/kafka/bin/connect-standalone.sh     | Kafka Connect 组件的单点启动脚本
+::  /path/to/kafka/config/connect-distributed... | Kafka Connect 组件的集群配置文件
+::  /path/to/kafka/config/connect-standalone...  | Kafka Connect 组件的单点配置文件
+::  /path/to/kafka/config/connect-file-source... | Kafka Connect 组件的单点 Source Connector 配置文件
+::  /path/to/kafka/config/connect-file-sink...   | Kafka Connect 组件的单点 Sink Connector 配置文件
+
+阅读上述文件列表时还请注意:
+
+    •  Kafka Connect 组件的单点启动模式常用于调试和诊断任务, 集群启动模式则用于运行正式的生产任务, 
+    •  Kafka Connect 组件的单点启动模式把元数据寄存在临时文件中, 集群启动模式则把元数据寄存在 Kafka 软件服务的固定主题下
+    •  Kafka Connect 组件的单点启动模式使用 Source/ Sink Connector 配置文件并由此创建连接器实例
+    •  Kafka Connect 组件的集群启动模式使用 REST API 动态管理连接器实例
+                     目前笔者基于集群模式的 REST API 创建连接器时遭遇无日志的 500 错误且无法解决, 文档使用单点启动模式作为案例
+                     ------------------------------------------------
+
+/path/to/kafka/config/connect-standalone.properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# bootstrap.servers=kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
+# key.converter=org.apache.kafka.connect.json... # 加载 JSON 数据格式的转换器作为消息键的转换器
+# key.converter.schemas.enable=true              # 允许 JSON 数据格式的转换器嵌入模式信息到消息键内
+# value.converter=org.apache.kafka.connect...    # 加载 JSON 数据格式的转换器作为消息值的转换器
+# value.converter.schemas.enable=true            # 允许 JSON 数据格式的转换器嵌入模式信息到消息值内
+# offset.storage.file.filename=/tmp/connect...   # Kafka Connect 默认使用 /tmp/connect.offsets 文件存储偏移量元数据
+# offset.flush.interval.ms=10000                 # Kafka Connect 默认每隔 10000 毫秒 (10 秒钟) 刷新一次偏移量文件
+# plugin.path=                                   # Kafka Connect 默认不加载其他库文件
+
+/path/to/kafka/config/connect-file-source.properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# name=local-file-source                         # 连接器的名称默认为 local-file-source
+# connector.class=FileStreamSource               # 连接器的工作模式默认为 FileStreamSource 类型 (文本文件 -> Kafka)
+# tasks.max=1                                    # 连接器的最大并发任务默认为 1 个任务
+# file=test.txt                                  # 连接器的文本文件扫描对象默认为 test.txt
+# topic=connect-test                             # 连接器的主题发布对象默认为 connect-test
+
+/path/to/kafka/config/connect-file-sink.properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# name=local-file-sink                           # 连接器的名称默认为 local-file-sink
+# connector.class=FileStreamSink                 # 连接器的工作模式默认为 FileStreamSource 类型 (Kafka -> 文本文件)
+# tasks.max=1                                    # 连接器的最大并发任务默认为 1 个任务
+# file=test.sink.txt                             # 连接器的文本文件输出对象默认为 test.sink.txt
+# topics=connect-test                            # 连接器的主题订阅对象默认为 connect-test
+
+""""""""" 编写 Kafka Connect 组件的配置文件, 并启动 Kafka Connect 组件
+[root ~]# cp /usr/local/kafka/config/connect-{standalone,file-*}.properties /etc/kafka
+[root ~]# vim /etc/kafka/connect-standalone.properties
+[root ~]# vim /etc/kafka/connect-file-source.properties
+[root ~]# vim /etc/kafka/connect-file-sink.properties
+[root ~]# bin/connect-standalone.sh /etc/kafka/connect-standalone.properties \
+                                    /etc/kafka/connect-file-source.properties \
+                                    /etc/kafka/connect-file-sink.properties
+[root ~]# bin/kafka-console-consumer.sh --bootstrap-server kafka-0.season.com:9092 \
+--topic kafka-config \
+--group demo \
+--from-beginning
+
+{"schema":{"type":"string","optional":"false"},"payload":"... ..."}
+
+[root ~]# cat /tmp/kafka-config.txt
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka REST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Kafka REST 组件由溪流公司单独维护, 未整合进入 Kafka 软件的标准发布版本, 使用时需要单独从溪流公司的软件仓库内下载 Kafka REST 组件
+Kafka REST 组件为用户发布订阅消息提供 REST API 接口, 能够进一步降低用户发布订阅消息的技术成本
+Kafka REST 组件主要包含下述软件包:
+
+    •  confluent-kafka-rest.noarch               | Kafka REST 组件的核心软件包
+    •  confluent-schema-registry.noarch          | Kafka REST 组件的底层依赖软件包, 支持用户自定义数据格式的模版
+    •  confluent-common.noarch                   | Kafka REST 组件的底层依赖软件包, 提供公共方法
+    •  confluent-rest-utils.noarch               | Kafka REST 组件的底层依赖软件包, 提供管理工具
+
+/etc/schema-registry/schema-registry.properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# listeners=http://0.0.0.0:8081                  # Kafka Schema Registry 组件默认监听 8081 端口
+# kafkastore.bootstrap.servers=PLANTEXT://kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
+# kafkastore.topic=_schemas                      # Kafka Schema Registry 组件默认发布消息到主题 _schemas
+# debug=false                                    # Kafka Schema Registry 组件默认关闭 DEBUG 模式 (接口屏蔽 DEBUG 信息)
+# metadata.encoder.secret=REPLACE_ME_WITH_HIGH_ENTROPY_STRING
+# resource.extension.class=io.confluent.dekregistry.DekRegistryResourceExtention
+
+/etc/kafka-rest/kafka-rest.properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# id=kafka-rest-test-server                      # Kafka REST 组件默认名称为 kafka-rest-test-server
+# listeners=http://0.0.0.0:8082                  # Kafka REST 组件默认监听 8082 端口
+# schema.registry.url=http://localhost:8081      # Kafka REST 组件连接 Kafka Schema Registry 组件的参数配置
+# zookeeper.connect=localhost:2181               # Kafka REST 组件连接 ZooKeeper 集群的参数配置
+# bootstrap.servers=PLANTEXT://kafka-0.season.com:9092,kafka-1.season.com:9092,kafka-2.season.com:9092
+
+Kafka REST 组件的接口文档见: https://docs.confluent.io/platform/current/kafka-rest/api.html
+
+    •  如果 v2 版本的 POST 请求使用二进制表单数据, 则请求头使用 "application/vnd.kafka.binary.v2+json"
+    •  如果 v2 版本的 POST 请求使用 JSON 表单数据, 则请求头使用 "application/vnd.kafka.json.v2+json"
+    •  如果 v2 版本的 POST 请求使用 Apache Avro 表单数据, 则请求头使用 "application/vnd.kafka.avro.v2+json"
+    •  如果 v2 版本的 POST 请求使用 Protobuf 表单数据, 则请求头使用 "application/vnd.kafka.protobuf.v2+json"
+
+Kafka REST 组件常用的 v2 版本接口如下
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+│   •  GET    /topics
+│   •  GET    /topics/(string: topic_name)
+│   •  POST   /topics/(string: topic_name)
+│   •  GET    /topics/(string: topic_name)/partitions
+│   •  GET    /topics/(string: topic_name)/partitions/(int: partition_id)
+│   •  GET    /topics/(string: topic_name)/partitions/(int: partition_id)/offsets
+│   •  POST   /topics/(string: topic_name)/partitions/(int: partition_id)
+│   •  POST   /consumers/(string: group_name)
+│   •  DELETE /consumers/(string: group_name)/instances/(string: instance)
+│   •  POST   /consumers/(string: group_name)/instances/(string: instance)/offsets
+│   •  GET    /consumers/(string: group_name)/instances/(string: instance)/offsets
+│   •  POST   /consumers/(string: group_name)/instances/(string: instance)/subscription
+│   •  GET    /consumers/(string: group_name)/instances/(string: instance)/subscription
+│   •  DELETE /consumers/(string: group_name)/instances/(string: instance)/subscription
+│   •  POST   /consumers/(string: group_name)/instances/(string: instance)/assignments
+│   •  GET    /consumers/(string: group_name)/instances/(string: instance)/assignments
+│   •  POST   /consumers/(string: group_name)/instances/(string: instance)/positions
+│   •  POST   /consumers/(string: group_name)/instances/(string: instance)/positions/beginning
+│   •  POST   /consumers/(string: group_name)/instances/(string: instance)/positions/end
+│   •  GET    /consumers/(string: group_name)/instances/(string: instance)/records
+│   •  GET    /brokers
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+""""""""" 指定溪流公司的官方仓库, 安装 Kafka REST 组件及其依赖组件
+[root ~]# cat > /etc/yum.repos.d/confluent.repo << EOF
+[confluent]
+name     = confluent
+gpgcheck = 0
+enabled  = 1
+baseurl  = http://packages.confluent.io/rpm/7.6/
+EOF
+[root ~]# yum makecache
+[root ~]# yum install -y confluent-kafka-rest.noarch confluent-schema-registry.noarch
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 依次编辑 Kafka Schema Registry 组件/ Kafka REST 组件并启动服务
+[root ~]# vim /etc/schema-registry/schema-registry.properties
+[root ~]# vim /etc/kafka-rest/kafka-rest.properties
+[root ~]# systemctl enable confluent-schema-registry.service
+[root ~]# systemctl enable confluent-kafka-rest.service
+[root ~]# systemctl start confluent-schema-registry.service
+[root ~]# systemctl start confluent-kafka-rest.service
+[root ~]# curl http://kafka-0.season.com:8082/topics
+
+["_dek_registry_keys", "_schemas", "_schema_encoders"]
+
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 创建测试主题并发布消费消息
+[root ~]# curl -X POST -H "Content-Type:application/vnd.kafka.json.v2+json" \
+               -d '{"name":"foo","format":"json"}' \
+               http://kafka-0.season.com:8082/consumers/foo
+
+{"instance_id":"foo","base_uri":"http://kafka-0.season.com:8082/consumers/foo/instances/foo"}
+
+[root ~]# curl -X POST -H "Content-Type:application/vnd.kafka.json.v2+json" \
+               -d '{"topics":["foo"]}' \
+               http://kafka-0.season.com:8082/consumers/foo/instances/foo/subscription
+
+[root ~]# curl -X POST -H "Content-Type:application/vnd.kafka.json.v2+json" \
+               -d '{"records": [{"value":"ABCD"},{"value":"BCDE"}]}' \
+               http://kafka-0.season.com:8082/topics/foo
+
+{"offsets":[{"partition":1,"offset":0,"error_code":null,"error":null},...],"key_schema_id":null,"value_schema_id":null}
+
+[root ~]# curl -H "Accept:application/vnd.kafka.json.v2+json" \
+               http://kafka-0.season.com:8082/consumers/foo/instances/foo/records
+
+[{"topic":"foo","key":null,"value":"ABCD","partition":1,"offset":2},...]
+
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
