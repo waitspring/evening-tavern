@@ -195,7 +195,7 @@ server {
     proxy_temp_file_write_size 2m;
     location /product/ {
         # 请求被重构为 https://foo.season.com/check/demo.html
-        proxy_pass http://$host/;
+        proxy_pass https://$host/;
     }
     location /check/ {
         autoindex on;
