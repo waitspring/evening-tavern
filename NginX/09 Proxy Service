@@ -146,7 +146,9 @@ proxy_pass { URL | backname };
 proxy_pass 配置项仅允许在 LOCATION 配置块内部使用, 用于把请求转发到固定的目标地址, 目标地址支持 URL, UPSTREAM 组名, 变量等多种格式
 proxy_pass 配置项的使用要点如下:
 
-    •  使用 URL 作为目标地址时, 如果 URL 带有路由则请求被转发给绝路路径, 否则请求被转发给相对路径 (详情见下述案例)
+    •  使用 URL 作为目标地址时:
+       *  如果 URL 使用路由, 那么请求被转发后使用拼接路由, 否则请求被转发后使用原有路由 (详情见下述案例)
+       *  如果 URL 使用路由的同时还使用有变量 (例如 $host/ $port), 那么请求被转发后使用固定的静态路由 (详情见下述案例)
     •  使用 backname 作为目标地址时, 相应的 UPSTREAM 配置块应当提前定义
 
 """"""""" 演示 NginX 软件的配置文件内, 转发请求相关的参数配置方法
@@ -186,6 +188,14 @@ server {
     location /demo_4/ {
         # 请求 .../demo_4/index.html 转发为请求 .../chck/index.html
         proxy_pass http://www.nginx.com/chck/;
+    }
+    location /demo_5/ {
+        # 请求 .../demo_5/index.html 转发为请求 .../chck/
+        proxy_pass http://$host/check/;
+    }
+    location /demo_6/ {
+        # 请求 .../demo_6/index.html 转发为请求 .../demo_6/index.html
+        proxy_pass http://$host;
     }
 }
 --------------------------------------------------------------------------------------------------------------------- ✻
