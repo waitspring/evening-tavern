@@ -44,6 +44,10 @@ ZooKeeper 软件的主配置文件常用配置项如下
 │ autopurge.snapRetainCount=NUM                  │         │ 要求实例在自动清理数据快照文件时, 仅保存最近 NUM 份数据快照文件
 │ autopurge.purgeInterval=0                      │    √    │ 设置实例不自动清理一次数据快照文件
 │ autopurge.purgeInterval=NUM                    │         │ 设置实例每间隔 NUM 小时自动清理一次数据快照文件
+│ admin.serverPort=8080                          │    √    │ 设置实例监听 8080 端口用于接受 REST API 管理操作
+│ admin.serverPort=NUM                           │         │ 设置实例监听 NUM 端口用于接受 REST API 管理操作
+│ admin.enableServer=true                        │    √    │ 开启实例的 REST API 管理端口
+│ admin.enableServer=false                       │         │ 关闭实例的 REST API 管理端口
 │ server.ID=HOST:PORT:PORT                       │         │ 集群配置项, 依次设置实例的独立编号/ 主机地址/ 通信端口/ 选举端口
 └────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
 
@@ -58,6 +62,8 @@ autopurge.snapRetainCount=3
 autopurge.purgeInterval=1
 clientPort=2181
 maxClientCnxns=9999
+admin.serverPort=8080
+admin.enableServer=false
 server.0=zookeeper-0.season.com:2888:3888
 server.1=zookeeper-1.season.com:2888:3888
 server.2=zookeeper-2.season.com:2888:3888
