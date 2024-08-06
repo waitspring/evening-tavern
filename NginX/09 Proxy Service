@@ -88,6 +88,8 @@ SERVER 配置块/ LOCATION 配置块有下述专门用于转发请求的子配�
 │ proxy_pass_request_headers off;      │         │ 转发请求时, 不再转发 HTTP 包头
 │ proxy_pass_request_body on;          │    √    │ 转发请求时, 一并转发 HTTP 包体
 │ proxy_pass_request_body off;         │         │ 转发请求时, 不再转发 HTTP 包体
+│ proxy_http_version 1.0;              │    √    │ 转发 HTTP/HTTPS 请求时, 使用 HTTP/1.0 版本的协议
+│ proxy_http_version 1.1;              │         │ 转发 HTTP/HTTPS 请求时, 使用 HTTP/1.1 版本的协议 (支持持久连接与复杂渲染)
 │ proxy_redirect default;              │    √    │ 转发响应时, 若响应结果为重定向请求, 重组响应头中的 location 字段值
 │ proxy_redirect off;                  │         │ 转发响应时, 若响应结果为重定向请求, 保持响应头中的 location 字段值保持不变
 │ proxy_set_header FIELD VALUE;        │         │ 转发请求时, 设置请求头部的 FIELD 字段的值为 VALUE
@@ -156,6 +158,7 @@ proxy_pass 配置项的使用要点如下:
 server {
     ... ...
     ... ...
+    proxy_http_version 1.1;
     proxy_redirect off;
     proxy_set_header Host $host;
     proxy_connect_timeout 86400;
