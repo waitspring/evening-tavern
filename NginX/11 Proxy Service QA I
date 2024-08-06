@@ -141,6 +141,7 @@ WS/WSS 协议的核心特性为:
 server {
     ... ...
     ... ...
+    proxy_http_version 1.1;
     proxy_redirect off;
     proxy_set_header Host $host;
     proxy_set_header Connection 'Upgrade';
@@ -184,6 +185,7 @@ proxy_pass https://$host/;                       转发请求至 $host 站点其
 server {
     ... ...
     ... ...
+    proxy_http_version 1.1;
     proxy_redirect off;
     proxy_set_header Host $host;
     proxy_connect_timeout 86400;
