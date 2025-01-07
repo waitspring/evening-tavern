@@ -75,3 +75,48 @@ i18n.locale: "zh-CN"
 
 
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KQL (Kibana Query Language)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KQL (Kibana Query Language) 数据查询语句通常基于 Kibana 软件的 UI 界面使用
+KQL (Kibana Query Language) 数据查询语句使用分词依据如下:
+
+    •  使用空格 ( ) 短横线 (-) 冒号 (:) 正斜杠 (/) 反斜杠 (\) 单引号 (') 双引号 (") 在内的特殊符号作为间隔对被查询的源数据做分词
+       同时把点 (.) 下划线 (_) 在内的特殊符号视作为单词的组成部分
+    •  使用空格 ( ) 作为间隔对查询的词组做分词, 查询结果为单词的命中匹配结果
+    •  使用引号 (') (") 修饰查询的词组时, 词组整体会被视为一个单词, 同时模糊匹配使用的星号 (*) 会因被视为一个常量而失效
+
+简而言之
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+等值匹配 (key0: v0 v1 ...) 能够把 key0 键内含有单词 v0 或(和) v1 或(和) ... 的日志条目筛选出来
+等值匹配 (key0: "v0 v1 ...") 能够把 "v0 v1 ..." 视为一个单词, 再把key 键内含有单词 "v0 v1 ..." 的日志条目筛选出来
+模糊匹配 (key0: v0* v1* ...) 能够把 key0 键内含有 v0* 或(和) v1* 或(和) ... 的日志条目筛选出来
+逻辑运算 (key0: v0 and key1: v1) 能够把 key0 键内含有 v0 并且 key1 键内含有 v1 的日志条目筛选出来
+逻辑运算 (key0: v0 or key1: v1) 能够把 key0 键内含有 v0 或是 key1 键内含有 v1 的日志条目筛选出来
+逻辑运算 (key0: v0 and (not key1: v1)) 能够把 key0 键内含有 v0 并且 key1 键内不包含 v1 的日志条目筛选出来
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                                     │
+│   @timestamp: 2021-03-05 11:57:18.111                                                                               │
+│   ipaddr: 127.0.0.1                                                                                                 │
+│   source: /path/to/dir                                                                                              │
+│   topic: foo                                                                                                        │
+│   theme: demo                                                                                                       │
+│   message: 2021-03-05 11:57:18.111 ERROR [Logger.error] This is error demo                                          │
+│           at org.apache.hadoop.util.Shell.checkHadoopHomeInner(Shell.java:448) ~[hadoop-common-2.8.0.jar:?]         │
+│           at org.apache.hadoop.util.Shell.checkHadoopHome(Shell.java:419) ~[hadoop-common-2.8.0.jar:?]              │
+│           at org.apache.hadoop.util.Shell.<clinit>(Shell.java:496) [hadoop-common-2.8.0.jar:?]                      │
+│           at org.apache.hadoop.util.StringUtils.<clinit>(StringUtils.java:79) [hadoop-common-2.8.0.jar:?]           │
+│           at org.apache.hadoop.conf.Configuration.getBoolean(Configuration.java:1445) [hadoop-common-2.8.0.jar:?]   │
+│           at com.cherrish.hadoop.TestHBase2.init(TestHBase2.java:28) [bin/:?]                                       │
+│           at com.cherrish.hadoop.TestHBase2.listTables(TestHBase2.java:107) [bin/:?]                                │
+│           at com.cherrish.hadoop.TestHBase2.main(TestHBase2.java:17) [bin/:?]                                       │
+│                                                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+等值匹配 message: Logger.error
+模糊匹配 message: *error
+逻辑运算 message: error and theme: demo
+
+
+
