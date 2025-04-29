@@ -1,0 +1,106 @@
+ , __                                                     
+/|/  \                                    o               
+ |___/ ,_    _    _   __,   ,_    __, _|_     __   _  _   
+ |    /  |  |/  |/ \_/  |  /  |  /  |  |  |  /  \_/ |/ |  
+ |       |_/|__/|__/ \_/|_/   |_/\_/|_/|_/|_/\__/   |  |_/
+               /|                                         
+               \|                                                                                                         
+--  This document was created by Xuanming in 2025, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Git 软件的发展历程
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Git 软件当前由 Git 社区 (https://git-scm.com) 负责迭代与维护, 已是软件工程领域内最常见的分布式版本控制工具
+Git 软件目前能够适配 Windows/ Linux/ MacOS 三种不同的操作系统
+Git 软件当前统一使用 Git 2.49.0 (Win10) / Git 1.8.3.1 (RHEL7) 版本作为演示案例
+
+Git 软件的发展历程清晰简单
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**  1991 年, 林纳斯发布 Linux 内核项目, 开源社区内部使用邮件订阅协调各自工作, 项目的版本管理工作极为繁琐
+**  2002 年, 开源社区得到分布式版本控制工具 BitKeeper 的免费授权, 林纳斯使用 BitKeeper 工具管理 Linux 内核项目的版本
+**  2005 年, 开源社区原有分布式版本控制工具 BitKeeper 的免费授权到期且无法续订, 林纳斯基于前者的用户使用经验逆向仿写出 Git 软件
+**  2008 年, GitHub 项目上线, 成为开源社区的具象载体活跃至今
+**  2011 年, GitLab 项目上线, 成为企业使用最为普遍的私有仓库
+**  2012 年, Bitbucket 项目上线, 阿特拉森公司 (Atlassian Inc.) 运维三件套工具 (Jira/ Confluence/ Bitbucket) 正式成型
+**  2015 年, GitHub 项目被微软公司收购, 但仍然作为独立的平台产品对外提供服务
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Git 软件的使用说明
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Git 软件在 RHEL7 操作系统内的组成元件有
+::  /etc/bash_completion.d/git                   Git 软件的内置文件, 用于帮助用户补全 Git 软件的操作命令
+::  /usr/bin/git                                 Git 软件的执行命令
+::  /usr/libexec/git-core                        Git 软件的扩展命令目录
+::  /usr/share/git-core                          Git 软件的共享资源目录
+::  /etc/gitconfig                               Git 软件的全局参数文件
+::  ~/.gitconfig                                 Git 软件的用户参数文件
+::  /path/to/dir/.git/config                     Git 软件的项目参数文件
+::  ~/.git-credentials                           Git 软件明文存储用户凭据时使用的文件
+
+Git 软件在 Win10 操作系统内的组成元件有
+::  /path/to/git/git-bash.exe                    Git 软件的 Bash 仿真窗口, 能够为 Win10 用户提供 Linux 操作命令
+::  /path/to/git/git-cmd.exe                     Git 软件的 Dos  终端窗口, 能够为 Win10 用户提供 Dos   操作命令
+::  /path/to/git/cmd/git-gui.exe                 Git 软件的图形操作窗口
+::  /path/to/git/usr/bin                         Git 软件的扩展命令目录
+::  /path/to/git/mingw64                         Git 软件的内置编译组件
+::  /path/to/git/etc/gitconfig                   Git 软件的全局参数文件
+::  C:%HOMEPATH%/.gitconfig                      Git 软件的用户参数文件
+::  /path/to/dir/.git/config                     Git 软件的项目参数文件
+::  C:%HOMEPATH%/.git-credentials                Git 软件明文存储用户凭据时使用的文件
+
+Git 软件的参数文件 gitconfig (使用 .ini 参数文件的编写语法)
+┌────────────────────────────────────────────────┬─────────┬───────────────────────────────────────────────────────────
+│ Configuration                                  │ Default │ Comment
+├────────────────────────────────────────────────┼─────────┼───────────────────────────────────────────────────────────
+│ alias.KEY = COMMAND                            │         │ 设置长命令 COMMAND 的别名为关键字 KEY
+│ credential.helper = store                      │         │ 软件使用文件明文存储认证凭据
+│ credential.helper = cache                      │         │ 软件使用内存临时寄存认证凭据 (有效期 15 分钟)
+│ color.ui = auto                                │    √    │ 软件开启终端着色特性
+│ color.ui = false                               │         │ 软件关闭终端着色特性
+│ core.editor = vi                               │    √    │ 用户使用 Vi  编辑器维护提交信息
+│ core.editor = vim                              │         │ 用户使用 Vim 编辑器维护提交信息
+│ core.pager = less                              │    √    │ 软件使用 less 命令作为终端的内容分页器
+│ core.autocrlf = true                           │    √    │ 软件转换文件内的 LF(\n) 换行符为 CRLF(\r\n) 换行符
+│ core.autocrlf = input                          │         │ 软件转换文件内的 CRLF(\r\n) 换行符为 LF(\n) 换行符
+│ core.autocrlf = false                          │         │ 软件不检测且不转换文件内的换行符
+│ core.whitespace = blank-at-eol                 │         │ 支持使用 $(git diff --check ...) 命令检测文件内的行尾空格符
+│ core.whitespace = cr-at-eol                    │         │ 支持使用 $(git diff --check ...) 命令检测文件内的行尾回车符
+│ core.whitespace = tab-in-indent                │         │ 支持使用 $(git diff --check ...) 命令检测文件内的缩进制表符
+│ core.excludesfile = /PATH/TO/FILE              │         │ 软件读取 /PATH/TO/FILE 文件内容作为需要忽略的文件列表
+│ commit.template = /PATH/TO/FILE                │         │ 软件读取 /PATH/TO/FILE 文件内容作为提交信息的维护模版
+│ help.autocorrect = NUM                         │         │ 软件检测到命令错误时给出建议命令, 停顿 0.1 x NUM 秒钟执行建议命令
+│ user.name = USERNAME                           │         │ 软件使用 USERNAME 作为用户名称
+│ user.email = USERNAME@DOMAIN                   │         │ 软件使用 USERNAME@HOSTNAME 作为邮件地址
+└────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
+
+阅读上述参数表格时, 还请注意:
+
+    •  Git 软件内参数文件的生效优先级从低到高依次是全局参数文件, 用户参数文件, 项目参数文件
+    •  使用 alias.KEY = COMMAND 设置 KEY 为别名参数时, KEY 关键字不能复用 Git 软件的静态关键字, 否则设置无法生效
+    •  使用相对路径 /PATH/TO/FILE 设置文件参数时, 相对路径的根文件为工程目录的根文件
+    •  $(git config { --system | --global | --local } key value)   设置全局/ 用户/ 项目三个级别的参数
+    •  $(git config { --system | --global | --local } --list)      查看全局/ 用户/ 项目三个级别的参数
+    •  $(git config { --system | --global | --local } --unset key) 删除全局/ 用户/ 项目三个级别的参数
+
+/path/to/dir/.git/config
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# [alias]
+#     logs       = "log --pretty=format:\"%cd %h %s (%cn)\" --date=format:\"%Y-%m-%d %H:%M:%S\""
+# [credential]
+#     helper     = store
+# [core]
+#     editor     = vim
+#     autocrlf   = input
+#     whitespace = blank-at-eol,cr-at-eol,tab-in-indent
+# [commit]
+#     template   = .git/gitemplate
+# [user]
+#     name       = waitspring
+#     email      = waitspring@season.com
+
+
+
