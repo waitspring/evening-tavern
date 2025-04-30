@@ -26,6 +26,37 @@ Git 软件的发展历程清晰简单
 **  2012 年, Bitbucket 项目上线, 阿特拉森公司 (Atlassian Inc.) 运维三件套工具 (Jira/ Confluence/ Bitbucket) 正式成型
 **  2015 年, GitHub 项目被微软公司收购, 但仍然作为独立的平台产品对外提供服务
 
+diff [option...] file...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+diff 命令用于逐行比对若干文件内容, 比对差异默认输出到标准信道, option... 是数量不定的可选选项, file... 是数量不定的文件参数
+diff 命令能够帮助读者理解项目的版本管理工作的繁琐程度
+diff 命令常用的可选选项有
+::  -q        --brief                            摘要模式, 如果若干文件的内容存在比对差异, 输出逻辑判断语句
+::  -r        --recursive                        递归模式, 如果文件参数为文件目录, 比对若干文件目录下同名文件的内容差异
+::  -y        --side-by-side                     并列模式, 比对差异使用并列模式输出到标准信道
+::  -i        --ignore-case                      比对差异时忽略字符的大小写差异
+::  -B        --ignore-blank-lines               比对差异时忽略空白行
+
+""""""""" 演示 diff 命令的基本用法
+[root ~]# diff -q /etc/hosts /etc/passwd
+Files /etc/hosts and /etc/passwd differ
+
+[root ~]# diff /etc/hosts /etc/passwd
+1,2c1,9                                          | 1,2: /etc/hosts  文件内的第1至第2行内容
+< 127.0.0.1 localhost                            | 1,9: /etc/passwd 文件内的第1至第9行内容
+<                                                | c  : 上述两个文件的指定内容行之间存在更改 (change) 差异
+---
+> nobody:*:-2:-2:Unprivileged User:/var/empty:/usr/bin/false
+> root:*:0:0:System Administrator:/var/root:/bin/sh
+> daemon:*:1:1:System Services:/var/root:/usr/bin/false
+> ... ...
+
+[root ~]# diff -y -i -B /var/log/messages /var/log/secure
+127.0.0.1 localhost                              | nobody:*:-2:-2:Unprivileged User:/var/empty:/usr/bin/false
+                                                 | root:*:0:0:System Administrator:/var/root:/bin/sh
+                                                 > daemon:*:1:1:System Services:/var/root:/usr/bin/false
+--------------------------------------------------------------------------------------------------------------------- ✻
+
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
