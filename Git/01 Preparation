@@ -51,10 +51,11 @@ Files /etc/hosts and /etc/passwd differ
 > daemon:*:1:1:System Services:/var/root:/usr/bin/false
 > ... ...
 
-[root ~]# diff -y -i -B /var/log/messages /var/log/secure
+[root ~]# diff -y -i -B /etc/hosts /etc/passwd
 127.0.0.1 localhost                              | nobody:*:-2:-2:Unprivileged User:/var/empty:/usr/bin/false
                                                  | root:*:0:0:System Administrator:/var/root:/bin/sh
                                                  > daemon:*:1:1:System Services:/var/root:/usr/bin/false
+                                                 ... ...
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
