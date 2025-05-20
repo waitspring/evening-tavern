@@ -134,5 +134,24 @@ Git 软件的参数文件 gitconfig (使用 .ini 参数文件的编写语法)
 #     name       = waitspring
 #     email      = waitspring@season.com
 
+git init [option...] [/path/to/dir]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git init 命令默认基于当前目录创建一个本地仓库 (创建 ./.git 目录), 使用可选的命令参数能够改变本地仓库的创建位置
+git init 命令常用的可选选项有
+::  -q        --quiet                            静默输出选项, 仅输出命令错误信息
+::            --bare                             裸库创建选项, 基于命令的目录参数直接创建 .git/* 文件元素
+
+""""""""" 演示 Git 软件的初始管理办法
+[root ~]# mkdir -p /tmp/foo
+[root ~]# git init /tmp/foo
+[root ~]# cat >> /tmp/foo << EOF
+[alias]
+    logs = "log --pretty=format:\"%cd %h %s (%cn)\" --date=format:\"%Y-%m-%d %H:%M:%S\""
+[user]
+    name = waitspring
+    email = waitspring@season.com
+EOF
+--------------------------------------------------------------------------------------------------------------------- ✻
+
 
 
