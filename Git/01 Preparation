@@ -73,6 +73,8 @@ Git 软件在 RHEL7 操作系统内的组成元素有
 ::  /etc/gitconfig                               Git 软件的全局参数文件
 ::  ~/.gitconfig                                 Git 软件的用户参数文件
 ::  /path/to/dir/.git/config                     Git 软件的项目参数文件
+::  /path/to/dir/.git/HEAD                       Git 软件的分支指针文件
+::  /path/to/dir/.git/objects                    Git 仓库的变更存储目录, 存储用户每一次变更提交的数据内容, 目录结构, 作者元数据
 ::  ~/.git-credentials                           Git 软件明文存储用户凭据时使用的文件
 
 Git 软件在 Win10 操作系统内的组成元素有
@@ -84,6 +86,8 @@ Git 软件在 Win10 操作系统内的组成元素有
 ::  /path/to/git/etc/gitconfig                   Git 软件的全局参数文件
 ::  C:%HOMEPATH%/.gitconfig                      Git 软件的用户参数文件
 ::  /path/to/dir/.git/config                     Git 软件的项目参数文件
+::  /path/to/dir/.git/HEAD                       Git 软件的分支指针文件
+::  /path/to/dir/.git/objects                    Git 仓库的变更存储目录, 存储用户每一次变更提交的数据内容, 目录结构, 作者元数据
 ::  C:%HOMEPATH%/.git-credentials                Git 软件明文存储用户凭据时使用的文件
 
 Git 软件的参数文件 gitconfig (使用 .ini 参数文件的编写语法)
