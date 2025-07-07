@@ -112,6 +112,8 @@ Git 软件的参数文件 gitconfig (使用 .ini 参数文件的编写语法)
 │ core.whitespace = tab-in-indent                │         │ 支持使用 $(git diff --check ...) 命令检测文件内的缩进制表符
 │ core.excludesfile = /PATH/TO/FILE              │         │ 软件读取 /PATH/TO/FILE 文件内容作为需要忽略的文件列表
 │ commit.template = /PATH/TO/FILE                │         │ 软件读取 /PATH/TO/FILE 文件内容作为提交信息的维护模版
+│ clean.requireForce = True                      │    √    │ 用户使用 $(git clean ...) 命令删除文件时, 必须使用强制删除选项
+│ clean.requireForce = False                     │         │ 用户使用 $(git clean ...) 命令删除文件时, 无需使用强制删除选项
 │ help.autocorrect = NUM                         │         │ 软件检测到命令错误时给出建议命令, 停顿 0.1 x NUM 秒钟执行建议命令
 │ user.name = USERNAME                           │         │ 软件使用 USERNAME 作为用户名称
 │ user.email = USERNAME@DOMAIN                   │         │ 软件使用 USERNAME@HOSTNAME 作为邮件地址

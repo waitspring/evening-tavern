@@ -1,0 +1,248 @@
+  ___                                                
+ / (_)                                            |  
+|      __   _  _  _    _  _  _    __,   _  _    __|  
+|     /  \_/ |/ |/ |  / |/ |/ |  /  |  / |/ |  /  |  
+ \___/\__/   |  |  |_/  |  |  |_/\_/|_/  |  |_/\_/|_/
+                                                     
+                                                     
+--  This document was created by Xuanming in 2025, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Git 软件的基本文件命令
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+git add [option...] file...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git add 命令使用递归模式添加若干文件的快照数据至索引区域, option... 是数量不定的可选选项, file... 是数量不定的必要参数
+git add 命令常用的可选选项有
+::  -f        --force                            强制选项, 强制添加黑名单文件的快照数据至索引区域
+::  -v        --verbose                          调试选项, 显示命令的详细执行过程
+::  -e        --edit                             编辑选项, 使用 Diff (Vi) 编辑模式比较索引区域和工作区域的文件快照
+::  -u        --update                           更新选项, 添加 MODIFIED 状态的文件快照到索引区域 (忽略 UNTRACKED 状态的文件)
+
+    ┌────────────────────────────────────────────┐
+    │    IGNORED -------------------> STAGED     │
+    │  UNTRACKED -------------------> STAGED     │
+    │   MODIFIED -------------------> STAGED     │
+    └────────────────────────────────────────────┘
+
+""""""""" 演示 git add 命令的基本用法
+[root ~]# mkdir /tmp/season/{spring,summer,autumn,winter}
+[root ~]# touch /tmp/season/{spring,summer,autumn,winter}/foo
+[root ~]# echo "In the journey of heaven and earth" | tee /tmp/season/{spring,summer,autumn,winter}/foo
+[root ~]# cd /tmp/season && git add .
+[root /tmp/season]# echo "We share the sorrow of all eternity" | tee -a /tmp/season/{spring,summer,autumn,winter}/foo
+[root /tmp/season]# git add -e .
+diff --git a/spring/foo b/spring/foo             | 标记索引区域的文件快照 (a/spring/foo)
+index 1dd5fc6..684f4e4 100644                    | 标记工作区域的文件快照 (b/spring/foo)
+--- a/spring/foo                                 | 标记索引区域的文件内容从这里开始
++++ b/spring/foo                                 | 标记工作区域的文件内容从这里开始
+@@ -1 +1,2 @@                                    | 标记索引区域的第一行文件内容 (-1)
+ In the journey of heaven and earth              | 标记工作区域的第一行至第二行文件内容 (+1,2)
++We share the sorrow of all eternity             | 标记工作区域的第二行文件内容为新增状态
+... ...
+... ...
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+git restore [option...] file...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git restore 命令默认清空工作区域内参数文件的变更记录
+git restore 命令常用的可选选项有
+::  -S        --staged                           要求命令清空索引区域内参数文件的文件快照 (保留工作区域内参数文件的变更记录)
+::  -q        --quiet                            屏蔽命令的执行进度
+::            --progress                         显示命令的执行进度
+
+    ┌────────────────────────────────────────────┐
+    │     STAGED -------------------> UNTRACKED  │
+    │     STAGED -------------------> MODIFIED   │
+    │   MODIFIED -------------------> UNMODIFIED │
+    └────────────────────────────────────────────┘
+
+阅读上述命令时, 还请注意:
+
+    •  如果工程仓库记录有提交动作, 可以使用 $(git restore [option...] file...) 命令
+
+""""""""" 演示 git restore 命令的基本用法
+[root /tmp/season]# echo 0 >> foo && git commit -a -m "Feature T202507013160 Add new file foo for making test case"
+[root /tmp/season]# echo 1 >> foo && git status && git add foo
+[root /tmp/season]# echo 2 >> foo && git status
+[root /tmp/season]# git restore --staged foo && git restore foo
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+git commit [option...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git commit 命令默认读取索引区域内全量文件快照以创建提交动作, 同时提供编辑工具使得用户能够维护提交动作的注释消息
+git commit 命令常用的可选选项有
+::  -a        --all                              软件在创建提交动作前, 自动添加 MODIFIED 状态的文件快照到索引区域
+::            --amend                            软件把当前提交动作追加到前一次提交动作, 并允许用户再次维护提交动作的注释信息
+::  -C        --reuse-message=COMMIT             软件在创建提交动作时, 复用指定 COMMIT 提交动作的元数据信息 (不再提供编辑工具)
+::            --author=AUTHOR                    软件在创建提交动作时, 直接使用 AUTHOR 覆盖提交动作内元数据的作者名称
+::            --date=DATE                        软件在创建提交动作时, 直接使用 DATE   覆盖提交动作内元数据的提交日期
+                                                 提交日期允许使用: YYYY-MM-DD YYYY.MM.DD MM/DD/YYYY DD.MM.YYYY 四种格式
+::  -m        --message=MSG                      软件在创建提交动作时, 直接使用 MSG    覆盖提交动作内元数据的注释消息
+::  -t        --template=/PATH/TO/FILE           软件在创建提交动作时, 读取文件 /PATH/TO/FILE 作为用户编辑注释消息的数据模版
+::  -s        --signoff                          软件在创建提交动作时, 自动添加用户签收文案到注释消息的末尾数据行
+::            --cleanup=strip                    软件在创建提交动作时, 清理注释消息内的尾随空行, 尾随空格
+::            --only=/PATH/TO/FILE...            软件在创建提交动作时, 仅提交 /PATH/TO/FILE... 文件在索引区域内的文件快照
+::  -q        --quiet                            软件在创建提交动作后, 屏蔽回显消息
+
+    ┌────────────────────────────────────────────┐
+    │     STAGED -------------------> UNMODIFIED │
+    └────────────────────────────────────────────┘
+
+""""""""" 演示 git commit 命令的基本用法
+[root ~]# cat > /tmp/season/commit.template << EOF
+ Feature \${ITSM} \${SUBJECT}
+  Bugfix \${ITSM} \${SUBJECT}
+    Docs \${ITSM} \${SUBJECT}
+Refactor \${ITSM} \${SUBJECT}
+    Perf \${ITSM} \${SUBJECT}
+   Merge \${ITSM} \${SUBJECT}
+  Revert \${ITSM} \${SUBJECT}
+EOF
+[root ~]# cd /tmp/season && git config --local commit.template ./commit.template
+[root /tmp/season]# git commit --only ./spring/foo
+#Feature \${ITSM} \${SUBJECT}
+ Feature T202507013159 Input Li Bai's poem into project file spring
+[root /tmp/season]# git commit --amend --only ./summer/foo
+ Feature T202507013159 Input Li Bai's poem into project file spring
+ Feature T202507013160 Input Li Bai's poem into project file summer
+[root /tmp/season]# git commit
+ Feature T202507013161 Input Li Bai's poem into project file autumn
+ Feature T202507013162 Input Li Bai's poem into project file winter
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Git 软件的常用文件命令
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+git clean [option...] [file...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git clean 命令默认从工作区域内删除状态为 UNTRACKED 的若干文件, file... 是数量不定的可选参数, 命令使用当前目录 (.) 作为默认参数
+git clean 命令常用的可选选项有
+::  -d                                           递归删除动作, 使用目录作为参数列表
+::  -f        --force                            强制删除选项, 如果存在 clean.requireForce = True 参数, 必须使用强制删除选项
+::  -n        --dry-run                          模拟删除动作, 使用文件列表的形式返回模拟删除结果
+::  -q        --quiet                            屏蔽删除动作的标准输出
+::  -X                                           删除符合黑名单参数文件 (.gitignore) 全量黑名单规则的文件对象
+
+""""""""" 演示 git clean 命令的基本用法
+[root /tmp/season]# mkdir -p demo/{spring,summer,autumn,winter}
+[root /tmp/season]# git clean -f demo/spring
+[root /tmp/season]# git clean -f -d demo
+[root /tmp/season]# git clean -X
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+git rm [option...] file...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git rm 命令默认从本地分支和工作区域内删除状态为 UNMODIFIED 的若干文件
+git rm 命令常用的可选选项有
+::  -f        --force                            强制删除状态为 UNMODIFIED/ MODIFIED/ STAGED 的若干文件及其文件快照
+::  -n        --dry-run                          模拟删除动作, 使用文件列表的形式返回模拟删除结果
+::  -r                                           递归删除动作, 使用目录作为参数列表
+::            --cached                           删除本地分支内若干文件的同时, 转换工作区域内的若干文件为 UNTRACKED 状态
+::  -q        --quiet                            屏蔽删除动作的标准输出
+::            --ignore-unmatch                   如果若干文件 file... 存在虚假路径, 命令依然使用 0 号退出码执行正常退出
+
+""""""""" 演示 git rm 命令的基本用法
+[root /tmp/season]# git rm --dry-run -r spring
+[root /tmp/season]# git rm --cached summer/foo
+[root /tmp/season]# git rm --force --ignore-unmatch autumn/foo demo
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+git mv [option...] file...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git mv 命令能够移动 (重命名) 文件/ 目录/ 链接, 如果移动目标已经存在, 命令抛出异常且执行中断
+git mv 命令常用的可选选项有
+::  -f        --force                            即使移动目标已经存在, 强制移动 (重命名) 文件/ 目录/ 链接覆盖移动目标
+::  -n        --dry-run                          模拟移动 (重命名) 动作, 使用文件列表的形式返回模拟移动结果
+::  -v        --verbose                          输出移动 (重命名) 动作的详细执行过程
+
+阅读上述命令时, 还请注意:
+
+    •  $(git rm ...) 命令的执行结果等于 $(rm ...) 命令拼接 $(git add ...) 命令
+    •  $(git mv ...) 命令的执行结果等于 $(mv ...) 命令拼接 $(git add ...) 命令
+
+git blame [option...] file...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git blame 命令默认使用分屏的方式查看文件内容及其相应提交动作的元数据
+git blame 命令常用的可选选项有
+::  -L BP,EP                                     取消分屏的方式, 输出 BP/ EP 行序之间的内容到标准输出
+::            --line-porcelain                   按照文件内容逐行给出提交元数据 (常用于统计作者的内容贡献值)
+
+    识别码 (提交作者 提交时间 行序) 文件内容
+    ... ...
+
+""""""""" 演示 git blame 命令的基本用法
+[root /tmp/season]# git blame spring/foo
+a21bdd15 (waitspring 2025-07-10 09:10:00 +0800 1) In the journey of heaven and earth
+a21bdd15 (waitspring 2025-07-10 09:10:00 +0800 2) We share the sorrow of all eternity
+[root /tmp/season]# git blame --line-porcelain spring/foo | sed -n 's/^author //p' | sort | uniq -c | sort -rn
+
+ 2 waitspring
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+git checkout [option...] commit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git checkout 命令能够使得 HEAD 指针进入游离状态, commit 是有且仅有的必要参数, 标记 HEAD 指针的游离目标
+git checkout 命令常用的可选选项有
+::  -q        --quiet                            屏蔽游离动作的标准输出
+::  -f        --force                            内容文件和历史文件存在冲突时, 丢弃内容文件的冲突部分
+::  -m        --merge                            内容文件和历史文件存在冲突时, 使用三路合并的方式等待用户人工裁剪处理冲突部分
+
+                                                    ┌──────────────┐                                ┌──────────────┐
+                                                    │         HEAD │                                │ Branch: booo │
+                                                    └───────┬──────┘                                └───────┬──────┘
+                                                            ┊                                               │
+                                                            ┊                                               │
+                                                            ┊                                               │
+                                                            v                                               v
+    ┌──────────────┐        ┌──────────────┐        ┌──────────────┐        ┌──────────────┐        ┌──────────────┐
+    │ Commit: 658c │<───────┤ Commit: 6574 │<───────┤ Commit: 6508 │<───────┤ Commit: 6502 │<───────┤ Commit: 6598 │
+    └──────────────┘        └──────────────┘        └──────────────┘        └──────────────┘        └──────────────┘
+
+阅读上述图例时, 还请注意:
+
+    •  用户可以选择任意分支的任意提交动作作为 HEAD 指针的游离目标
+    •  HEAD 指针进入游离状态前, 将检查工作区域的内容文件和提交动作的历史文件是否冲突, 确认冲突则中断游离, 否则携带变更游离
+    •  HEAD 指针进入游离状态后, 用户可以创建提交动作, 但如果提交动作在游离状态结束前未合并到任意有效分支, 会被软件当作脏数据清除
+
+""""""""" 演示 git checkout 命令的基本用法
+[root /tmp/season]# git log --oneline
+954f4cd (HEAD -> master)  Feature T202507013161 Input Li Bai's poem into project file autumn...
+8ff614d  Feature T202507013159 Input Li Bai's poem into project file spring...
+[root /tmp/season]# git checkout 8ff614d
+[root /tmp/season]# git log --oneline
+8ff614d (HEAD)  Feature T202507013159 Input Li Bai's poem into project file spring...
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+git reset [option...] {commit | HEAD~NUM}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git reset 命令能够使得工作分支的引用记录修正为任意分支的任意提交动作, HEAD~NUM 关键字指代工作分支前溯 NUM 次提交动作
+git reset 命令常用的可选选项有
+::            --soft                             软重置模式, 使用 STAGED 状态保留差异变更
+::            --mixed [ DEFAULT ]                混合重置模式, 使用 MODIFIED/ UNTRACKED 状态保留差异变更
+::            --hard                             硬重置模式, 清除差异变更, 工作区域同提交动作之间保持完全一致
+
+                                                    ┌──────────────┐        ┌──────────────┐
+                                                    │         HEAD ├╌╌╌╌╌╌╌>│ Branch: booo │
+                                                    └──────────────┘        └───────┬──────┘
+                                                                                    │
+    ┌──────────────┐        ┌──────────────┐                                        │
+    │ Commit: e7b4 │<───────┤ Commit: e713 │<───┐                                   │
+    └──────────────┘        └──────────────┘    │                                   v
+    ┌──────────────┐        ┌──────────────┐    │   ┌──────────────┐        ┌──────────────┐        ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+    │ Commit: 658c │<───────┤ Commit: 6574 │<───┴───┤ Commit: 6508 │<───────┤ Commit: 6502 │<╌╌╌╌╌╌╌┤ Commit: 6598 ┊
+    └──────────────┘        └──────────────┘        └──────────────┘        └──────────────┘        └╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+
+""""""""" 演示 git reset 命令的基本用法
+[root /tmp/season]# git log --oneline
+954f4cd (HEAD -> master)  Feature T202507013161 Input Li Bai's poem into project file autumn...
+8ff614d  Feature T202507013159 Input Li Bai's poem into project file spring...
+[root /tmp/season]# git reset 8ff614d && git status
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
