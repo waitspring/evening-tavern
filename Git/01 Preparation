@@ -131,7 +131,7 @@ Git 软件的参数文件 gitconfig (使用 .ini 参数文件的编写语法)
 /path/to/dir/.git/config
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # [alias]
-#     logs       = "log --pretty=format:\"%cd %h %s (%cn)\" --date=format:\"%Y-%m-%d %H:%M:%S\""
+#     logs = "log --pretty=format:'%cd %h %cn %s' --date=format:'%F %T'"
 # [credential]
 #     helper     = store
 # [core]
@@ -156,7 +156,7 @@ git init 命令常用的可选选项有
 [root ~]# git init /tmp/season
 [root ~]# cat >> /tmp/season/.git/config << EOF
 [alias]
-    logs = "log --pretty=format:\"%cd %h %s (%cn)\" --date=format:\"%Y-%m-%d %H:%M:%S\""
+    logs = "log --pretty=format:'%cd %h %cn %s' --date=format:'%F %T'"
 [user]
     name = waitspring
     email = waitspring@season.com

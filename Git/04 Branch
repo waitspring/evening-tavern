@@ -43,15 +43,15 @@ git switch bname
 git switch 命令能够切换本地仓库内的工作分支为 bname 分支 (bname 分支必须是已经存在的本地分支或是远程分支)
 
 """"""""" 演示 git branch 命令的基本用法
-[root /tmp/season]# git branch
-[root /tmp/season]# git branch --contains=8ff614d
-[root /tmp/season]# git branch -a
+[root evening-tavern]# git branch
+[root evening-tavern]# git branch --contains=8ff614d
+[root evening-tavern]# git branch -a
 * master                                         | 软件使用 * 符号标记工作分支
   remotes/origin/HEAD -> origin/master           | 软件使用 remotes 关键字标记远程分支
   remotes/origin/master
-[root /tmp/season]# git branch foo
-[root /tmp/season]# git switch foo && git switch master
-[root /tmp/season]# git branch -d foo
+[root evening-tavern]# git branch foo
+[root evening-tavern]# git switch foo && git switch master
+[root evening-tavern]# git branch -d foo
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 

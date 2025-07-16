@@ -84,7 +84,7 @@ git commit 命令常用的可选选项有
 ::  -t        --template=/PATH/TO/FILE           软件在创建提交动作时, 读取文件 /PATH/TO/FILE 作为用户编辑注释消息的数据模版
 ::  -s        --signoff                          软件在创建提交动作时, 自动添加用户签收文案到注释消息的末尾数据行
 ::            --cleanup=strip                    软件在创建提交动作时, 清理注释消息内的尾随空行, 尾随空格
-::            --only=/PATH/TO/FILE...            软件在创建提交动作时, 仅提交 /PATH/TO/FILE... 文件在索引区域内的文件快照
+::            --only=/PATH/TO/FILE...            软件为 /PATH/TO/FILE... 创建一份新的文件快照, 且为这份文件快照创建提交动作
 ::  -q        --quiet                            软件在创建提交动作后, 屏蔽回显消息
 
     ┌────────────────────────────────────────────┐
@@ -103,14 +103,14 @@ Refactor \${ITSM} \${SUBJECT}
 EOF
 [root ~]# cd /tmp/season && git config --local commit.template ./commit.template
 [root /tmp/season]# git commit --only ./spring/foo
-#Feature \${ITSM} \${SUBJECT}
- Feature T202507013159 Input Li Bai's poem into project file spring
-[root /tmp/season]# git commit --amend --only ./summer/foo
- Feature T202507013159 Input Li Bai's poem into project file spring
- Feature T202507013160 Input Li Bai's poem into project file summer
+Feature T202507013159 Input Li Bai's poem into project file spring
+[root /tmp/season]# git commit --only ./summer/foo
+Feature T202507013160 Input Li Bai's poem into project file summer
+[root /tmp/season]# git commit --amend --only ./autumn/foo
+Feature T202507013160 Input Li Bai's poem into project file summer
+Feature T202507013161 Input Li Bai's poem into project file autumn
 [root /tmp/season]# git commit
- Feature T202507013161 Input Li Bai's poem into project file autumn
- Feature T202507013162 Input Li Bai's poem into project file winter
+Feature T202507013162 Input Li Bai's poem into project file winter
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
@@ -177,10 +177,9 @@ git blame 命令常用的可选选项有
 
 """"""""" 演示 git blame 命令的基本用法
 [root /tmp/season]# git blame spring/foo
-a21bdd15 (waitspring 2025-07-10 09:10:00 +0800 1) In the journey of heaven and earth
-a21bdd15 (waitspring 2025-07-10 09:10:00 +0800 2) We share the sorrow of all eternity
+^8ff614d (waitspring 2025-07-10 09:10:00 +0800 1) In the journey of heaven and earth
+^8ff614d (waitspring 2025-07-10 09:10:00 +0800 2) We share the sorrow of all eternity
 [root /tmp/season]# git blame --line-porcelain spring/foo | sed -n 's/^author //p' | sort | uniq -c | sort -rn
-
  2 waitspring
 --------------------------------------------------------------------------------------------------------------------- ✻
 
@@ -211,11 +210,13 @@ git checkout 命令常用的可选选项有
 
 """"""""" 演示 git checkout 命令的基本用法
 [root /tmp/season]# git log --oneline
-954f4cd (HEAD -> master)  Feature T202507013161 Input Li Bai's poem into project file autumn...
-8ff614d  Feature T202507013159 Input Li Bai's poem into project file spring...
+954f4cd (HEAD -> master) Feature T202507013162 Input Li Bai's poem into project file winter...
+b3c698d Feature T202507013160 Input Li Bai's poem into project file summer...
+8ff614d Feature T202507013159 Input Li Bai's poem into project file spring...
 [root /tmp/season]# git checkout 8ff614d
 [root /tmp/season]# git log --oneline
 8ff614d (HEAD)  Feature T202507013159 Input Li Bai's poem into project file spring...
+[root /tmp/season]# git checkout master          | HEAD 指针退出游离状态
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 git reset [option...] {commit | HEAD~NUM}
@@ -233,14 +234,15 @@ git reset 命令常用的可选选项有
     ┌──────────────┐        ┌──────────────┐                                        │
     │ Commit: e7b4 │<───────┤ Commit: e713 │<───┐                                   │
     └──────────────┘        └──────────────┘    │                                   v
-    ┌──────────────┐        ┌──────────────┐    │   ┌──────────────┐        ┌──────────────┐        ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+    ┌──────────────┐        ┌──────────────┐    │   ┌──────────────┐        ┌──────────────┐        ┌ ╌ ╌ ╌ ╌ ╌ ╌ ╌┐
     │ Commit: 658c │<───────┤ Commit: 6574 │<───┴───┤ Commit: 6508 │<───────┤ Commit: 6502 │<╌╌╌╌╌╌╌┤ Commit: 6598 ┊
-    └──────────────┘        └──────────────┘        └──────────────┘        └──────────────┘        └╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+    └──────────────┘        └──────────────┘        └──────────────┘        └──────────────┘        └╌ ╌ ╌ ╌ ╌ ╌ ╌ ┘
 
 """"""""" 演示 git reset 命令的基本用法
 [root /tmp/season]# git log --oneline
-954f4cd (HEAD -> master)  Feature T202507013161 Input Li Bai's poem into project file autumn...
-8ff614d  Feature T202507013159 Input Li Bai's poem into project file spring...
+954f4cd (HEAD -> master) Feature T202507013162 Input Li Bai's poem into project file winter...
+b3c698d Feature T202507013160 Input Li Bai's poem into project file summer...
+8ff614d Feature T202507013159 Input Li Bai's poem into project file spring...
 [root /tmp/season]# git reset 8ff614d && git status
 --------------------------------------------------------------------------------------------------------------------- ✻
 
