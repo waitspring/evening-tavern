@@ -1,10 +1,10 @@
- , __                           _     
-/|/  \                         | |    
- | __/ ,_    __,   _  _    __  | |    
- |   \/  |  /  |  / |/ |  /    |/ \   
- |(__/   |_/\_/|_/  |  |_/\___/|   |_/
-                                      
-                                      
+ , __                           _               ______         
+/|/  \                         | |       ()    (_) |           
+ | __/ ,_    __,   _  _    __  | |       /\        | __,   __, 
+ |   \/  |  /  |  / |/ |  /    |/ \     /  \/    _ |/  |  /  | 
+ |(__/   |_/\_/|_/  |  |_/\___/|   |_/  \__/\   (_/ \_/|_/\_/|/
+                                                            /| 
+                                                            \| 
 --  This document was created by Xuanming in 2025, thanks for your reading
 
 
@@ -81,6 +81,66 @@ Git 软件的分支合并变基具有下述使用规则:
     1. 分支合并与分支变基都可能会引发内容冲突, 笔者由衷建议使用 IDE 环境而非终端命令行操作分支合并与分支变基
     2. 长期分支严禁使用变基操作, 务必使用合并操作
     3. 短期分支建议使用变基操作, 允许使用合并操作 (保持历史提交动作干净整洁, 便于审核内容)
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Git 软件的标签管理
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Git 软件的标签固定指向某个历史提交动作
+
+git tag [option...] tagname [SHA-1]
+git tag -d tagname...
+git tag {-l | --list}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git tag 命令默认创建一个名为 tagname 的轻量标签, 并且设置标签 tagname 固定指向工作分支的最新提交动作
+git tag 命令常用的可选选项有
+::  -a        --annotate                         创建附注标签, 使用 Vi 编辑器维护标签的注释消息
+::  -m        --message=MSG                      直接使用 MSG 作为附注标签内元数据的注释消息
+::  -f        --force                            已经存在同名标签的情况下, 强制重建标签并指向工作分支的最新提交动作
+::  -d        --delete                           删除标签对象
+::  -l        --list                             展示标签对象
+
+阅读上述命令时, 还请注意:
+
+    •  $(git tag ...) 命令不能直接修改已有附注标签的注释消息, 但用户能够通过重建附注标签来实现修改注释消息的效果
+    •  $(git tag ...) 命令的标签名称允许使用的字符有 ^[a-zA-Z0-9._/-&]+$
+
+""""""""" 演示 git tag 命令的基本用法
+[root /tmp/season]# git log --pretty=format:'%cd %h %cn %s' --date=format:'%F %T'
+2025-07-01 17:17:22 954f4cd waitspring Feature T202507013162 Input Li Bai's poem into project file winter...
+2025-07-01 17:04:20 b3c698d waitspring Feature T202507013160 Input Li Bai's poem into project file summer...
+2025-07-01 17:02:31 8ff614d waitspring Feature T202507013159 Input Li Bai's poem into project file spring...
+[root /tmp/season]# git tag -a spring 8ff614d
+Li Bai's poem in spring dir
+:wq
+[root /tmp/season]# git tag -a -m "Li Bai's poem in summer & autumn dir" 'summer&autumn' b3c698d
+[root /tmp/season]# git tag -l
+spring
+summer&autumn
+[root /tmp/season]# git tag -d 'summer&autumn' spring
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+git show [option...] [obj...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git show 命令默认使用标准输出信道打印数量不定的 SHA-1 值标记的对象元数据
+git show 命令常用的可选选项有
+::            --oneline                          按行展示每个提交对象 (SHA-1 注释消息)
+::            --date=format:'%F %T'              修正时间戳的输出格式为 yyyy-mm-dd hh:mi:ss
+::            --pretty=format:'%cd %h %cn %s'    按行展示每个提交对象 (提交时间 SHA-1 作者姓名 注释消息)
+
+""""""""" 演示 git show 命令的基本用法
+[root /tmp/season]# git show --pretty=format:'%cd %h %cn %s' --date=format:'%F %T' 8ff614d
+2025-07-01 17:02:31 8ff614d waitspring Feature T202507013159 Input Li Bai's poem into project file spring
+diff --git a/spring/foo b/spring/foo
+new file mode 100644
+index 0000000..e714576
+--- /dev/null
++++ b/spring/foo
+@@ -0,0 +1,2 @@
++In the journey of heaven and earth
++We share the sorrow of all eternity
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
