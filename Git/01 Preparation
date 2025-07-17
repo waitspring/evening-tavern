@@ -76,6 +76,7 @@ Git 软件在 RHEL7 操作系统内的组成元素有
 ::  /path/to/dir/.git/HEAD                       Git 软件的分支符号文件, 标记用户工作区域加载的本地分支对象
 ::  /path/to/dir/.git/objects                    Git 仓库的变更存储目录, 存储用户每次变更提交的数据内容, 目录树结构, 提交元数据
 ::  /path/to/dir/.git/refs                       Git 仓库的引用存储目录, 存储仓库内本地分支, 远程分支, 标签的引用记录
+::  /path/to/dir/.git/logs                       Git 仓库的引用日志目录, 存储引用记录的变更历史
 ::  ~/.git-credentials                           Git 软件明文存储用户凭据时使用的文件
 
 Git 软件在 Win10 操作系统内的组成元素有
@@ -90,6 +91,7 @@ Git 软件在 Win10 操作系统内的组成元素有
 ::  /path/to/dir/.git/HEAD                       Git 软件的分支符号文件, 标记用户工作区域加载的本地分支对象
 ::  /path/to/dir/.git/objects                    Git 仓库的变更存储目录, 存储用户每次变更提交的数据内容, 目录树结构, 提交元数据
 ::  /path/to/dir/.git/refs                       Git 仓库的引用存储目录, 存储仓库内本地分支, 远程分支, 标签的引用记录
+::  /path/to/dir/.git/logs                       Git 仓库的引用日志目录, 存储引用记录的变更历史
 ::  C:%HOMEPATH%/.git-credentials                Git 软件明文存储用户凭据时使用的文件
 
 Git 软件的参数文件 gitconfig (使用 .ini 参数文件的编写语法)
@@ -117,6 +119,9 @@ Git 软件的参数文件 gitconfig (使用 .ini 参数文件的编写语法)
 │ help.autocorrect = NUM                         │         │ 软件检测到命令错误时给出建议命令, 停顿 0.1 x NUM 秒钟执行建议命令
 │ user.name = USERNAME                           │         │ 软件使用 USERNAME 作为用户名称
 │ user.email = USERNAME@DOMAIN                   │         │ 软件使用 USERNAME@HOSTNAME 作为邮件地址
+│ gc.reflogExpire = 90 days                      │    √    │ 要求软件保留 90 个自然天内的引用日志
+│ gc.reflogExpire = now                          │         │ 要求软件不再保留引用日志
+│ gc.reflogExpire = never                        │         │ 要求软件保留全部引用日志
 └────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
 
 阅读上述参数表格时, 还请注意:
