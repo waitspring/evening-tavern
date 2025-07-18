@@ -1,0 +1,152 @@
+  ___                             _     ,                                
+ / (_)                           | |   /|   | o                          
+|      ,_    __   _  _  _|_  __  | |    |___|     , _|_  __   ,_         
+|     /  |  /  \_/ |/ |  |  /  \_|/     |   |\|  / \_|  /  \_/  |  |   | 
+ \___/   |_/\__/   |  |_/|_/\__/ |__/   |   |/|_/ \/ |_/\__/    |_/ \_/|/
+                                                                      /| 
+                                                                      \| 
+--  This document was created by Xuanming in 2025, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+历史提交动作
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+git log [option...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git log 命令默认使用分屏模式, 依据提交时间倒序展示每个提交动作的元数据 (SHA-1 作者姓名 电子邮件 提交时间 注释消息)
+git log 命令常用的可选选项有
+::            --oneline                          按行展示每个提交动作 (SHA-1 注释消息)
+::            --date=format:'%F %T'              修正时间戳的输出格式为 yyyy-mm-dd hh:mi:ss
+::            --pretty=format:'%cd %h %cn %s'    按行展示每个提交动作 (提交时间 SHA-1 作者姓名 注释消息)
+::            --since='YYYY-MM-DD HH:MI:SS'      设置历史提交动作的时间过滤起点
+::            --until='YYYY-MM-DD HH:MI:SS'      设置历史提交动作的时间过滤终点
+
+""""""""" 演示 git log 命令的基本用法
+[root /tmp/season]# git log --oneline
+954f4cd (HEAD -> master) Feature T202507013162 Input Li Bai's poem into project file winter...
+b3c698d Feature T202507013160 Input Li Bai's poem into project file summer...
+8ff614d Feature T202507013159 Input Li Bai's poem into project file spring...
+[root /tmp/season]# git log --pretty=format:'%cd %h %cn %s' --date=format:'%F %T'
+2025-07-01 17:17:22 954f4cd waitspring Feature T202507013162 Input Li Bai's poem into project file winter...
+2025-07-01 17:04:20 b3c698d waitspring Feature T202507013160 Input Li Bai's poem into project file summer...
+2025-07-01 17:02:31 8ff614d waitspring Feature T202507013159 Input Li Bai's poem into project file spring...
+[root /tmp/season]# git log --pretty=format:'%cd %h %cn %s' --date=format:'%F %T' --since='2025-07-01 17:05:00'
+[root /tmp/season]# git config --local alias.logs "log --pretty=format:'%cd %h %cn %s' --date=format:'%F %T'"
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+git shortlog [option...] [file...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git shortlog 命令默认基于分屏模式, 使用作者姓名分组统计历史提交动作, 统计结果依据作者姓名正序排列
+git shortlog 命令常用的可选选项有
+::  -c        --committer                        使用提交者姓名分组统计历史提交动作
+::  -n        --numbered                         统计结果依据历史提交动作的数量倒序排列
+::  -s        --summary                          统计结果隐藏提交动作的元数据列表, 展示作者 (提交者) 姓名和历史提交动作的数量
+::  -e        --email                            展示作者 (提交者) 的电子邮件
+::            --since='YYYY-MM-DD'
+::            --until='YYYY-MM-DD'
+
+""""""""" 演示 git shortlog 命令的基本用法
+[root /tmp/season]# git shortlog
+waitspring (3):
+    Feature T202507013159 ...
+    Feature T202507013160 ... Feature T202507013161 ...
+    Feature T202507013162 ...
+[root /tmp/season]# git shortlog -s
+    3  waitspring
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+管理提交动作
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+git rebase {-i | --interactive} {HEAD~NUM | SHA-1}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git rebase {-i | --interactive} HEAD~NUM 命令能够使用倒序变基合并 NUM 个历史提交动作
+git rebase {-i | --interactive} SHA-1 命令能够使用倒序变基合并从 SHA-1 开始的全部历史提交动作
+
+                        HEAD~3              HEAD~2
+                  ┌ ╌ ╌ ╌ ╌ X ╌ ╌ ╌ ╌ ┬──────── √ ────────┐
+                  v                   v                   │
+    ──────────────O───────────────────O───────────────────O─────────>
+                  A                   B                   C
+                 (0)                 (1)                 (2)
+
+阅读上述图例时, 还请注意:
+
+    •  倒序变基合并 NUM 个历史提交动作, 将会产生额外的提交动作, 合并结果使用的 SHA-1 识别码不同于历史提交动作的 SHA-1 识别码
+    •  参数 NUM ∈ (0, 历史提交动作的总量)
+
+""""""""" 演示 git rebase {-i | --interactive} HEAD~NUM 命令的基本用法
+[root /tmp/season]# git rebase -i HEAD~2         # 分屏切入 Vi 编辑器且使用倒序排列历史提交动作
+# pick b3c698d Feature T202507013160 ...         # 最早的历史提交动作仅应使用 p/ r 命令
+# pick 954f4cd Feature T202507013162 ...         # 其余的历史提交动作可以使用任意命令, 删除数据行时将同步删除提交动作
+r b3c698d Feature T202507013160 ...              # 使用 b3c698d 提交动作作为变基合并的第一个提交动作, 为变基合并动作修改注释消息
+f 954f4cd Feature T202507013162 ...              # 合并 954f4cd 提交动作至 b3c698d 提交动作
+
+# Rebase 8ff614d..954f4cd onto 8ff614d (2 commands)
+#
+# Commands:
+# p, pick                                        # 保留当前的提交动作及注释消息不变
+# r, reword                                      # 保留当前的提交动作, 但允许用户重新编辑注释消息
+# s, squash                                      # 合并当前的提交动作到前一个提交动作, 并允许用户重新编辑注释消息
+# f, fixup                                       # 合并当前的提交动作到前一个提交动作, 并直接复用前一个提交动作的注释消息
+# d, drop                                        # 删除当前的提交动作, 等价于删除当前的数据行
+# ... ...
+#
+# These lines can be re-ordered; they are executed from top to bottom.
+# If you remove a line here that commit will be lost.
+# However, if you remove everything, the rebase will be aborted.
+: wq
+
+Feature T202507013160 ... <╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+Feature T202507013161 ... <╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+Feature T202507013162 ... <╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐    ┊
+                                                                                     ┊    ┊
+# Please enter the commit message for your changes.                                  ┊    ┊
+# Line starting with '#' will be ignored, and an empty message aborts the commit.    ┊    ┊
+#                                                                                    ┊    ┊
+# Last command done (1 command done):                                                ┊    ┊
+#     reword b3c698d Feature T202507013160 ... ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+# Next command to do (1 remaining command):                                          ┊
+#     fixup 954f4cd Feature T202507013162 ... ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+# You are currently editing a commit while rebasing branch 'master' on '8ff614d'.
+# ... ...
+: wq
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+历史引用日志
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+历史引用日志 (Reference Log) 使用明文数据临时存储引用分支符号文件和引用存储目录下若干分支引用文件的历史变更记录
+历史引用日志 (Reference Log) 临时存储的内容有工程克隆/ 分支切换/ 提交动作/ 指针游离/ 变基合并/ ...
+历史引用日志 (Reference Log) 临时存储的有效周期默认为 90 个自然天, 使用软件参数 gc.reflogExpire 能够控制历史引用日志的临时存储周期
+
+git reflog [option...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+git reflog 命令默认使用分屏模式, 回溯展示分支符号文件 (HEAD) 的历史变更记录
+git reflog 命令常用的可选选项有
+::  --all                                        一并回溯展示当前工作分支的分支引用文件的历史变更记录
+
+""""""""" 演示 git reflog 命令的基本用法
+[root /tmp/season]# git reflog
+4159060 (HEAD -> master) HEAD@{0}: rebase -i (finish): returning to refs/heads/master
+4159060 (HEAD -> master) HEAD@{1}: rebase -i (fixup): Feature T202507013160 Input Li Bai's poem into project file summer
+3a1608f HEAD@{2}:  rebase -i (reword): Feature T202507013160 Input Li Bai's poem into project file summer
+b3c698d HEAD@{3}:  rebase -i: fast-forward
+8ff614d HEAD@{4}:  rebase -i (start): checkout HEAD~2
+954f4cd HEAD@{5}:  checkout: moving from 8ff614d to master
+8ff614d HEAD@{6}:  checkout: moving from master to 8ff614d
+954f4cd HEAD@{7}:  commit: Feature T202507013162 Input Li Bai's poem into project file winter
+b3c698d HEAD@{8}:  commit (amend): Feature T202507013160 Input Li Bai's poem into project file summer
+4ceab9f HEAD@{9}:  commit: Feature T202507013160 Input Li Bai's poem into project file summer
+8ff614d HEAD@{10}: commit (initial): Feature T202507013159 Input Li Bai's poem into project file spring
+[root /tmp/season]# git reset 954f4cd
+[root /tmp/season]# git log --pretty=format:'%cd %h %cn %s' --date=format:'%F %T'
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
