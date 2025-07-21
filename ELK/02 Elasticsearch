@@ -77,10 +77,14 @@ Elasticsearch 软件的主配置文件 /etc/elasticseach/elasticsearch.yml
 
     •  参数 "bootstrap.memory_lock: true" 需要主机 /etc/security/limits.conf 内核文件支持
     •  参数 "bootstrap.memory_lock: true" 需要软件 /usr/lib/systemd/system/elasticsearch.service 服务单元文件支持
+    •  参数 "cluster.routing.allocation.disk.watermark.low: 85%"         为集群存储资源的低水位警戒线
+    •  参数 "cluster.routing.allocation.disk.watermark.high: 90%"        为集群存储资源的高水位警戒线
+    •  参数 "cluster.routing.allocation.disk.watermark.flood_stage: 95%" 为集群存储资源的洪水位警戒线, 数据无法再写入存储资源
 
 """"""""" 演示控制节点的 /etc/elasticseach/elasticsearch.yml 文件的基本配置
 master:~$ cat /etc/elasticseach/elasticsearch.yml
 cluster.name: season
+cluster.routing.allocation.disk.watermark.flood_stage: 99%
 node.name: elastic-0.season.com
 node.attr.rack: nothing
 node.master: true
@@ -101,6 +105,7 @@ action.destructive_requires_name: true
 """"""""" 演示数据节点的 /etc/elasticseach/elasticsearch.yml 文件的基本配置
 slaver:~$ cat /etc/elasticseach/elasticsearch.yml
 cluster.name: season
+cluster.routing.allocation.disk.watermark.flood_stage: 99%
 node.name: elastic-1.season.com
 node.attr.rack: nothing
 node.master: false
