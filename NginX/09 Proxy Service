@@ -105,8 +105,10 @@ SERVER 配置块/ LOCATION 配置块有下述专门用于转发请求的子配�
 │ proxy_buffers NUM SIZE;              │         │ 转发响应时, 用于缓存响应内容的内存资源为 NUM 个 SIZE 大小的资源块
 │ proxy_buffer_size 4k;                │    √    │ 转发响应时, 每个请求响应允许使用的内存资源上限为 4kb
 │ proxy_buffer_size SIZE;              │         │ 转发响应时, 每个请求响应允许使用的内存资源上限为 SIZE
-│ proxy_busy_buffers_size SIZE;        │         │
-│ proxy_temp_file_write_size SIZE;     │         │
+│ proxy_request_buffering on;          │    √    │ 转发响应时, 完整读取到上游请求后再向下游服务转发
+│ proxy_request_buffering off;         │         │ 转发响应时, 丢弃请求重试特性的同时, 流式转发上游请求到下游服务
+│ proxy_temp_file_write_size 1024m;    │    √    │ 转发响应时, 响应内容若需要写入临时文件, 默认临时文件的尺寸上限为 1024mb
+│ proxy_temp_file_write_size SIZE;     │         │ 转发响应时, 响应内容若需要写入临时文件, 设置临时文件的尺寸上限为 SIZE
 │ proxy_pass DEST;                     │         │ 设置请求的转发目的地为 DEST (允许 URL, UPSTREAM 组名, 变量等多种格式)
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
@@ -164,10 +166,10 @@ server {
     proxy_connect_timeout 86400;
     proxy_read_timeout 86400;
     proxy_send_timeout 86400;
+    proxy_buffering on;
     proxy_buffers 8 512k;
     proxy_buffer_size 128k;
-    proxy_busy_buffers_size 1m;
-    proxy_temp_file_write_size 2m;
+    proxy_temp_file_write_size 4096m;
 }
 --------------------------------------------------------------------------------------------------------------------- ✻
 
