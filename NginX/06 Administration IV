@@ -43,6 +43,7 @@ HTTP 状态码的注册表登记部分如下
 │ Forbidden                            │ 403     │ 客户端发送的请求出现越权情况, 服务端拒绝执行请求
 │ Not Found                            │ 404     │ 服务端未发现请求要求的资源
 │ Method Not Allowed                   │ 405     │ 服务端不允许请求当前使用的方法 (GET/ POST/ PUT/ DELETE)
+│ Content Too Large                    │ 413     │ 客户端发送的请求尺寸超过上限阈 (同配置项 client_max_body_size 强相关)
 │ Internal Server Error                │ 500     │ 服务端内部错误, 标记请求触发到一个 BUG 漏洞
 │ Not Implemented                      │ 501     │ 服务端不满足请求当前的需要
 │ Bad Gateway                          │ 502     │ 客户端无法连接到服务端
