@@ -104,13 +104,21 @@ SERVER 配置块/ LOCATION 配置块有下述专门用于转发请求的子配�
 │ proxy_buffers 8 4k;                  │    √    │ 转发响应时, 用于缓存响应内容的内存资源为 8 个 4kb 大小的资源块
 │ proxy_buffers NUM SIZE;              │         │ 转发响应时, 用于缓存响应内容的内存资源为 NUM 个 SIZE 大小的资源块
 │ proxy_buffer_size 4k;                │    √    │ 转发响应时, 每个请求响应允许使用的内存资源上限为 4kb
-│ proxy_buffer_size SIZE;              │         │ 转发响应时, 每个请求响应允许使用的内存资源上限为 SIZE
+│ proxy_buffer_size SIZE;              │         │ 转发响应时, 每个请求响应允许使用的内存资源上限为 SIZE (容量单位)
 │ proxy_request_buffering on;          │    √    │ 转发响应时, 完整读取到上游请求后再向下游服务转发
 │ proxy_request_buffering off;         │         │ 转发响应时, 丢弃请求重试特性的同时, 流式转发上游请求到下游服务
-│ proxy_temp_file_write_size 1024m;    │    √    │ 转发响应时, 响应内容若需要写入临时文件, 默认临时文件的尺寸上限为 1024mb
-│ proxy_temp_file_write_size SIZE;     │         │ 转发响应时, 响应内容若需要写入临时文件, 设置临时文件的尺寸上限为 SIZE
+│ proxy_temp_file_write_size 1024m;    │    √    │ 转发响应时, 响应内容被写入临时文件时, 单个临时文件的尺寸上限为 1024mb
+│ proxy_temp_file_write_size SIZE;     │         │ 转发响应时, 响应内容被写入临时文件时, 单个临时文件的尺寸上限为 SIZE (容量单位)
+│ proxy_temp_path proxy_temp;          │    √    │ 转发响应时, 响应内容被写入到 proxy_temp 变量定义的临时目录
+│ proxy_temp_path /PATH/TO/DIR;        │         │ 转发响应时, 响应内容被写入到 /PATH/TO/DIR 临时目录
 │ proxy_pass DEST;                     │         │ 设置请求的转发目的地为 DEST (允许 URL, UPSTREAM 组名, 变量等多种格式)
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+阅读上述表格时, 还请注意:
+
+    •  proxy_buffer_size/ proxy_temp_file_write_size/ proxy_temp_path 是一组相互关联的配置项
+    •  响应尺寸若属于集合 (proxy_buffer_size, +∞)
+       响应数据会被写入 proxy_temp_path 配置项定义路径的若干个临时文件
 
 阅读上述表格时, 还请注意:
 

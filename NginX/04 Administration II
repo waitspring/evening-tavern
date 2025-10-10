@@ -191,7 +191,7 @@ SERVER 配置块能够内嵌的子配置项登记如下
 │ client_body_buffer_size SIZE;        │         │ HTTP 包体分配到的内存资源容量为 SIZE (容量单位)
 │ client_max_body_size 1m;             │    √    │ HTTP 包体允许的尺寸上限为 1mb
 │ client_max_body_size SIZE;           │         │ HTTP 包体允许的尺寸上限为 SIZE (容量单位)
-│ client_body_temp_path ...;           │    √    │ HTTP 包体被写入到 client_body_temp 变量定义的临时目录
+│ client_body_temp_path client_bod...; │    √    │ HTTP 包体被写入到 client_body_temp 变量定义的临时目录
 │ client_body_temp_path /PATH/TO/DIR;  │         │ HTTP 包体被写入到 /PATH/TO/DIR 临时目录
 │ connection_pool_size 256;            │    √    │ HTTP 连接分配到的内存池容量为 256kb
 │ connection_pool_size NUM;            │         │ HTTP 连接分配到的内存池容量为 NUMkb
@@ -201,7 +201,7 @@ SERVER 配置块能够内嵌的子配置项登记如下
 │ deny ADDR;                           │         │ 拒绝符合 ADDR 的地址范围访问 (黑名单), 后写 deny 配置项
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
-阅读上述内容时, 还请注意:
+阅读上述表格时, 还请注意:
 
     •  client_body_buffer_size/ client_max_body_size/ client_body_temp_path 是一组相互关联的配置项
     •  请求尺寸应属于集合 (0, client_max_body_size), 否则报错 413: Content Too Large
