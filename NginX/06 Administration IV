@@ -171,7 +171,7 @@ SERVER 配置块允许使用 access_log/ error_log 配置项指定私有的日�
 
     •  access_log 配置项指定私有的访问日志文件
     •  error_log  配置项指定私有的错误日志文件
-    •  error_log  配置项通常复用基础配置项已有的配置, 不单独为每个 SERVER 配置块配置
+    •  error_log  配置项可以复用基础配置项已有配置, 若单独为每个 SERVER 配置块设置 error_log 配置项, 能集中存储访问日志和错误日志
     •  error_log  配置项不能修正错误日志的输出格式, 其格式定义在源码层, 默认使用 "1978/09/28 12:00:00 [level] PID#ID: ..." 输出
 
 如果要修改错误日志的输出格式, 需要在编译软件前, 更新下述源码文件:
@@ -209,7 +209,7 @@ server {
     ... ...
     ... ...
     access_log /var/log/nginx/foo.season.com.log demo;
-    error_log  /var/log/nginx/foo.season.com.err;
+    error_log  /var/log/nginx/foo.season.com.err error;
 }
 --------------------------------------------------------------------------------------------------------------------- ✻
 
