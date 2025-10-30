@@ -72,7 +72,7 @@ location 配置项常见的编写方法如下:
        2. location    uri {} 完全命中结果的优先级次高
        3. location ^~ uri {} 从头命中结果的优先级一般
        4. location ~  uri {} 命中结果的优先级一般
-       4. location ~* uri {} 命中结果的优先级一般
+       5. location ~* uri {} 命中结果的优先级一般
        6. location    uri {} 部分命中结果的优先级较低
        7. location    /   {} 命中结果的优先级最低
 
