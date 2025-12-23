@@ -68,19 +68,30 @@ Filebeat 软件的配置文件 /etc/filebeat/filebeat.yml
 #       "kafka-1.season.com:9092",
 #       "kafka-2.season.com:9092"
 #   ]
-#   topic: "os"                                  设置日志消息的下游队列寄存主题
+#   topic: os                                    设置日志消息的下游队列寄存主题
+
+阅读上述配置文件时, 还请注意:
+
+    •  Filebeat 软件支持在配置文件中使用内置变量
+    •  Filebeat 软件官方在配置文件中有定义若干路径相关的内置变量
+       ┌─────────────────────────────────────────┬─────────────────────────────────────────────────────────────────────
+       │ ${path.home}                            │ Filebeat 软件的安装目录
+       │ ${path.bin}                             │ Filebeat 软件的可执行文件目录
+       │ ${path.config}                          │ Filebeat 软件的配置文件目录
+       │ ${path.data}                            │ Filebeat 软件的数据文件目录
+       │ ${path.logs}                            │ Filebeat 软件的日志文件目录
+       └─────────────────────────────────────────┴─────────────────────────────────────────────────────────────────────
 
 """"""""" 演示 /etc/filebeat/filebeat.yml 文件的基本配置
 [root ~]# cat /etc/filebeat/filebeat.yml
 filebeat.inputs:
 - type: log
   enabled: true
-  encoding: GBK
+  encoding: UTF-8
   paths:
     - /var/log/*
   fields_under_root: true
   fields:
-    topic: os
     theme: os
   multiline.pattern: ^\d{4}-\d{2}-\d{2}
   multiline.negate: true
@@ -94,7 +105,7 @@ output.kafka:
     "kafka-1.season.com:9092",
     "kafka-2.season.com:9092"
   ]
-  topic: "os"
+  topic: os
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
