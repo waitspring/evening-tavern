@@ -99,10 +99,11 @@ KQL (Kibana Query Language) 数据查询语句使用分词依据如下:
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                                                                                                                     │
 │   @timestamp: 2021-03-05 11:57:18.111                                                                               │
-│   ipaddr: 127.0.0.1                                                                                                 │
-│   source: /path/to/dir                                                                                              │
-│   topic: foo                                                                                                        │
 │   theme: demo                                                                                                       │
+│   component: java                                                                                                   │
+│   customer: 123456                                                                                                  │
+│   ipaddr: 127.0.0.1                                                                                                 │
+│   source: /path/to/file                                                                                             │
 │   message: 2021-03-05 11:57:18.111 ERROR [Logger.error] This is error demo                                          │
 │           at org.apache.hadoop.util.Shell.checkHadoopHomeInner(Shell.java:448) ~[hadoop-common-2.8.0.jar:?]         │
 │           at org.apache.hadoop.util.Shell.checkHadoopHome(Shell.java:419) ~[hadoop-common-2.8.0.jar:?]              │
@@ -121,5 +122,45 @@ KQL (Kibana Query Language) 数据查询语句使用分词依据如下:
 模糊匹配 message: *error
 逻辑运算 message: error and theme: demo
 
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Query Json
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Query Json 数据结构由 Kibana 软件封装 KQL 数据查询语句得到
+Query Json 数据结构由 Kibana 软件塞入 GET/ POST 请求体, 并发送给 Elasticsearch 软件触发数据查询动作
+Query Json 数据结构在 Kibana 软件的开发工具菜单内能够由人工编写调试
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                                     │
+│   GET /_search                                                                                                      │
+│   {                                                                                                                 │
+│        "query": {                                                                                                   │
+│            "query_string": {                                                                                        │
+│                "default_field": "*",                                                                                │
+│                "query": "message: Logger.error"                                                                     │
+│            }                                                                                                        │
+│        },                                                                                                           │
+│        "sort": [                                                                                                    │
+│            {                                                                                                        │
+│                "@timestamp": {                                                                                      │
+│                    "order": "desc"                                                                                  │
+│                }                                                                                                    │
+│            }, {                                                                                                     │
+│                "offset": {                                                                                          │
+│                    "order": "desc"                                                                                  │
+│                }                                                                                                    │
+│            }                                                                                                        │
+│        ]                                                                                                            │
+│   }                                                                                                                 │
+│                                                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+阅读上述内容时, 还请注意:
+
+    •  Kibana 软件制作 Query Json 数据结构时, 默认使用 "@timestamp": { "order": "desc" } 倒排数据查询结果
+    •  Kibana 软件查询同一时间戳下多条业务日志时, 数据查询结果出现排序失真
+    •  用户如果要求业务日志排序严谨可靠, 需要在 Logstash.filter.mutate.remove_field 配置项放行偏移量 (Kafka.offset) 参数
+    •  用户编写查询请求时, 需要使用时间戳和偏移量同时排序数据查询结果
 
 

@@ -24,7 +24,9 @@ filebeat.inputs:
   fields_under_root: true
   fields:
     theme: foo
-    maker: foo
+    component: foo
+    customer: 123456
+    ipaddr: 127.0.0.1
   multiline.pattern: ^\d{4}-\d{2}-\d{2}
   multiline.negate: true
   multiline.match: after
