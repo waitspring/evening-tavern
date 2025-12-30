@@ -54,8 +54,10 @@ Filebeat 软件的配置文件 /etc/filebeat/filebeat.yml
 #     - /var/log/secure                          设置日志消息的第二个文件读取路径
 #   fields_under_root: true                      要求日志消息内用户添加的自定义键值对, 放置在根数据结构下
 #   fields:                                      配置日志消息内用户添加的自定义键值对列表
-#     topic: os                                  设置日志消息内用户添加的第一个自定义键值对
-#     theme: os                                  设置日志消息内用户添加的第二个自定义键值对
+#     theme: os                                  设置日志消息内用户添加的第一个自定义键值对 (标记日志的业务类型)
+#     component: os                              设置日志消息内用户添加的第二个自定义键值对 (标记日志的生产组件)
+#     customer: 123456                           设置日志消息内用户添加的第三个自定义键值对 (标记日志的客户编号)
+#     ipaddr: 127.0.0.1                          设置日志消息内用户添加的第四个自定义键值对 (标记日志的主机来源)
 #   multiline.pattern: ^\d{4}-\d{2}-\d{2}        编写日志消息的正则匹配规则
 #   multiline.negate: true                       开启日志消息的多行合并特性
 #   multiline.match: after                       开启日志消息的多行合并特性, 并使用向后合并
@@ -93,6 +95,9 @@ filebeat.inputs:
   fields_under_root: true
   fields:
     theme: os
+    component: os
+    customer: 123456
+    ipaddr: 127.0.0.1
   multiline.pattern: ^\d{4}-\d{2}-\d{2}
   multiline.negate: true
   multiline.match: after
