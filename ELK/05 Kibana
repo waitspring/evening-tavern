@@ -79,24 +79,46 @@ i18n.locale: "zh-CN"
 KQL (Kibana Query Language)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 KQL (Kibana Query Language) 数据查询语句通常基于 Kibana 软件的 UI 界面使用
-KQL (Kibana Query Language) 数据查询语句使用分词依据如下:
+KQL (Kibana Query Language) 数据查询语句被封装为 Query Json 数据查询语句 (query_string 查询方式)
+KQL (Kibana Query Language) 数据查询语句需要遵守 Elasticsearch 软件的文本分词标准:
 
-    •  使用空格 ( ) 短横线 (-) 冒号 (:) 正斜杠 (/) 反斜杠 (\) 单引号 (') 双引号 (") 在内的特殊符号作为间隔对被查询的源数据做分词
-       同时把点 (.) 下划线 (_) 在内的特殊符号视作为单词的组成部分
-    •  使用空格 ( ) 作为间隔对查询的词组做分词, 查询结果为单词的命中匹配结果
-    •  使用引号 (') (") 修饰查询的词组时, 词组整体会被视为一个单词, 同时模糊匹配使用的星号 (*) 会因被视为一个常量而失效
+    •  使用空格 ( ) 短横线 (-) 冒号 (:) 正斜杠 (/) 反斜杠 (\) 单引号 (') 双引号 (") 在内的特殊符号作为分隔符对被查询的源数据做分词
+    •  同时把点 (.) 下划线 (_) 视作为单词的组成部分
+    •  例如业务日志 2021-03-05 11:57:18.111 ERROR [Logger.error] This is error demo
+                      => 2021
+                      => 03
+                      => 05
+                      => 11
+                      => 57
+                      => 18.111
+                      => error
+                      => logger.error
+                      => this
+                      => is
+                      => error
+                      => demo
 
-简而言之
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-等值匹配 (key0: v0 v1 ...) 能够把 key0 键内含有单词 v0 或(和) v1 或(和) ... 的日志条目筛选出来
-等值匹配 (key0: "v0 v1 ...") 能够把 "v0 v1 ..." 视为一个单词, 再把 key0 键内含有单词 "v0 v1 ..." 的日志条目筛选出来
-模糊匹配 (key0: v0* v1* ...) 能够把 key0 键内含有 v0* 或(和) v1* 或(和) ... 的日志条目筛选出来
-逻辑运算 (key0: v0 and key1: v1) 能够把 key0 键内含有 v0 并且 key1 键内含有 v1 的日志条目筛选出来
-逻辑运算 (key0: v0 or key1: v1) 能够把 key0 键内含有 v0 或是 key1 键内含有 v1 的日志条目筛选出来
-逻辑运算 (key0: v0 and (not key1: v1)) 能够把 key0 键内含有 v0 并且 key1 键内不包含 v1 的日志条目筛选出来
-非法匹配 (key0: "v0 v1" "v2 v3") 单个查询键值对仅允许使用一组等值匹配, 查询条件应当修正为 (key0: "v0 v1" and key0: "v2 v3")
+""""""""" 演示 Elasticsearch 软件的文本分词标准
+[root ~]# curl -X POST \
+               -H "Content-Type: application/json" \
+               -d '{
+                       "analyzer": "standard",
+                       "text": "2021-03-05 11:57:18.111 ERROR [Logger.error] This is error demo"
+                   }'
+               http://elastic.season.com:9200/_analyze?pretty
+
+POST _analyze?pretty
+{
+    "analyzer": "standard",
+    "text": "2021-03-05 11:57:18.111 ERROR [Logger.error] This is error demo"
+}
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                                     │
+│   >message: com.cherrish.hadoop.TestHBase2.init com.cherrish.hadoop.TestHBase2.main                                 │
+│                                                                                                                     │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                                                     │
 │   @timestamp: 2021-03-05 11:57:18.111                                                                               │
 │   theme: demo                                                                                                       │
@@ -111,48 +133,10 @@ KQL (Kibana Query Language) 数据查询语句使用分词依据如下:
 │           at org.apache.hadoop.util.StringUtils.<clinit>(StringUtils.java:79) [hadoop-common-2.8.0.jar:?]           │
 │           at org.apache.hadoop.conf.Configuration.getBoolean(Configuration.java:1445) [hadoop-common-2.8.0.jar:?]   │
 │           at com.cherrish.hadoop.TestHBase2.init(TestHBase2.java:28) [bin/:?]                                       │
+│              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                                                    │
 │           at com.cherrish.hadoop.TestHBase2.listTables(TestHBase2.java:107) [bin/:?]                                │
 │           at com.cherrish.hadoop.TestHBase2.main(TestHBase2.java:17) [bin/:?]                                       │
-│                                                                                                                     │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-
-等值匹配 message: Logger.error
-等值匹配 message: "error demo"
-等值匹配 message: "error demo" and message: "This is"
-模糊匹配 message: *error
-逻辑运算 message: error and theme: demo
-
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Query Json
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Query Json 数据结构由 Kibana 软件封装 KQL 数据查询语句得到
-Query Json 数据结构由 Kibana 软件塞入 GET/ POST 请求体, 并发送给 Elasticsearch 软件触发数据查询动作
-Query Json 数据结构在 Kibana 软件的开发工具菜单内能够由人工编写调试
-
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                                                     │
-│   GET /_search                                                                                                      │
-│   {                                                                                                                 │
-│        "query": {                                                                                                   │
-│            "query_string": {                                                                                        │
-│                "default_field": "*",                                                                                │
-│                "query": "message: Logger.error"                                                                     │
-│            }                                                                                                        │
-│        },                                                                                                           │
-│        "sort": [                                                                                                    │
-│            {                                                                                                        │
-│                "@timestamp": {                                                                                      │
-│                    "order": "desc"                                                                                  │
-│                }                                                                                                    │
-│            }, {                                                                                                     │
-│                "offset": {                                                                                          │
-│                    "order": "desc"                                                                                  │
-│                }                                                                                                    │
-│            }                                                                                                        │
-│        ]                                                                                                            │
-│   }                                                                                                                 │
+│              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                                                    │
 │                                                                                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
