@@ -71,9 +71,16 @@ Filebeat 软件的配置文件 /etc/filebeat/filebeat.yml
 #       "kafka-2.season.com:9092"
 #   ]
 #   topic: os                                    设置日志消息的下游队列寄存主题
+#   security.protocol: SSL                       使用 SSL 数据加密通信
+#   ssl.verification_mode: full                  使用 SSL 完整验证模式
+#   ssl.enabled: false                           关闭 SSL 数据加密通信
+#   ssl.certificate_authorities: ["/path/to/ca"] 标记 SSL CA 机构颁发的权威证书文件的加载地址
+#   ssl.certificate: /path/to/file.pem           标记 SSL 客户端证书文件的加载地址
+#   ssl.key: /path/to/file.key                   标记 SSL 客户端密钥文件的加载地址
 
 阅读上述配置文件时, 还请注意:
 
+    •  Filebeat 软件支持在配置文件中开启 SSL 数据加密通信, 同时要求下游的 Kafka 节点开启 SSL 数据加密通信
     •  Filebeat 软件支持在配置文件中使用内置变量
     •  Filebeat 软件官方在配置文件中有定义若干路径相关的内置变量
        ┌─────────────────────────────────────────┬─────────────────────────────────────────────────────────────────────
