@@ -75,8 +75,8 @@ Filebeat 软件的配置文件 /etc/filebeat/filebeat.yml
 #   ssl.verification_mode: full                  使用 SSL 完整验证模式
 #   ssl.enabled: false                           关闭 SSL 数据加密通信
 #   ssl.certificate_authorities: ["/path/to/ca"] 标记 SSL CA 机构颁发的权威证书文件的加载地址
-#   ssl.certificate: /path/to/file.pem           标记 SSL 客户端证书文件的加载地址
-#   ssl.key: /path/to/file.key                   标记 SSL 客户端密钥文件的加载地址
+#   ssl.certificate: /path/to/file.pem           标记 SSL 公钥文件的加载地址
+#   ssl.key: /path/to/file.key                   标记 SSL 私钥文件的加载地址
 
 阅读上述配置文件时, 还请注意:
 

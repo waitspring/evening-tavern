@@ -25,6 +25,7 @@ bin/kafka-topics.sh --create
                     --topic=topic
                   [ --partitions=num ]
                   [ --replication-factor=num ]
+                  [ --command-config=/path/to/properties ]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 bin/kafka-topics.sh --create 命令用于创建主题
 bin/kafka-topics.sh --create 命令用于创建主题时, 用户务必要一次性指定准确的名称和分区的副本数量, 否则只能通过删除/重建主题来调整
@@ -33,12 +34,14 @@ bin/kafka-topics.sh --create 命令常用选项有
 ::  --topic=topic                                必要选项, 要求软件创建名为 topic 的主题
 ::  --partitions=num                       [ 1 ] 可选选项, 配置软件的新建主题有 num 个分区 (若省略则使用默认值 1)
 ::  --replication-factor=num               [ 1 ] 可选选项, 配置软件的新建分区有 num 份副本 (若省略则使用默认值 1)
+::  --command-config=/path/to/properties         可选选项, 配置软件的执行参数, 常用于存储建立 SSL 加密通信连接的认证信息
 ::  --help                                       帮助选项
 
 bin/kafka-topics.sh --alter
                     --bootstrap-server=socket,...
                     --topic=topic
                     --partitions=num
+                  [ --command-config=/path/to/properties ]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 bin/kafka-topics.sh --alter 命令用于扩展主题的分区数量
 bin/kafka-topics.sh --alter 命令常用选项有
@@ -49,24 +52,25 @@ bin/kafka-topics.sh --alter 命令常用选项有
 
 """"""""" 演示创建主题的基本使用方法
 [root ~]# bin/kafka-topics.sh --create \
---bootstrap-server kafka-0.season.com:9092 \
---topic A \
---partitions 1 \
---replication-factor 1
+                              --bootstrap-server kafka-0.season.com:9092 \
+                              --topic A \
+                              --partitions 1 \
+                              --replication-factor 1
 [root ~]# bin/kafka-topics.sh --create \
---bootstrap-server kafka-0.season.com:9092 \
---topic B \
---partitions 3 \
---replication-factor 3
+                              --bootstrap-server kafka-0.season.com:9092 \
+                              --topic B \
+                              --partitions 3 \
+                              --replication-factor 3
 [root ~]# bin/kafka-topics.sh --alter \
---bootstrap-server kafka-0.season.com:9092 \
---topic A \
---partitions 3
+                              --bootstrap-server kafka-0.season.com:9092 \
+                              --topic A \
+                              --partitions 3
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 bin/kafka-topics.sh --delete
                     --bootstrap-server=socket,...
                     --topic=topic
+                  [ --command-config=/path/to/properties ]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 bin/kafka-topics.sh --delete 命令用于删除主题
 bin/kafka-topics.sh --delete 命令常用选项有
@@ -76,13 +80,14 @@ bin/kafka-topics.sh --delete 命令常用选项有
 
 """"""""" 演示删除主题的基本使用方法
 [root ~]# bin/kafka-topics.sh --delete \
---bootstrap-server kafka-0.season.com:9092 \
---topic A
+                              --bootstrap-server kafka-0.season.com:9092 \
+                              --topic A
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 bin/kafka-topics.sh --describe
                     --bootstrap-server=socket,...
                   [ --topic=topic ]
+                  [ --command-config=/path/to/properties ]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 bin/kafka-topics.sh --describe 命令用于查阅主题
 bin/kafka-topics.sh --describe 命令用于查阅主题时, 如果省略主题名称选项, 则命令将一次性的查阅全部主题的元数据
@@ -93,7 +98,7 @@ bin/kafka-topics.sh --describe 命令常用选项有
 
 """"""""" 演示查阅主题的基本使用方法
 [root ~]# bin/kafka-topics.sh --describe \
---bootstrap-server kafka-0.season.com:9092
+                              --bootstrap-server kafka-0.season.com:9092
 
     Topic: foo     Partition: 0    Leader: 0     Replicas: 0,2,1 Isr: 0,2,1
     Topic: foo     Partition: 1    Leader: 2     Replicas: 2,1,0 Isr: 2,1,0
@@ -114,6 +119,7 @@ bin/kafka-console-producer.sh --bootstrap-server=socket,...
                             [ --batch-size=num ]
                             [ --message-send-max-retries=num ]
                             [ --property=prop ] ...
+                            [ --producer.config=/path/to/properties ]
                             [ --help ]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 bin/kafka-console-producer.sh 工具能够作为命令行式的生产者, 生产若干消息并推送到指定主题
@@ -123,6 +129,7 @@ bin/kafka-console-producer.sh 工具常用选项有
 ::  --batch-size=num                   [ 16384 ] 可选选项, 设置单个消息批次含有 num 个消息
 ::  --message-send-max-retries=num         [ 3 ] 可选选项, 设置单个消息批次在推送失败之后, 执行 num 次重试
 ::  --property=prop ...                          可选选项, 使用键值对模式定义单个消息批次的单个属性
+::  --producer.config=/path/to/properties        可选选项, 配置软件的执行参数, 常用于存储建立 SSL 加密通信连接的认证信息
 ::  --help                                       帮助选项
 
 bin/kafka-console-producer.sh 工具使用 --property=prop 选项定义单个消息批次的属性时, 常用属性键值对有
@@ -149,6 +156,7 @@ bin/kafka-console-consumer.sh --bootstrap-server=socket,...
                             [ --from-beginning ]
                             [ --skip-message-on-error ]
                             [ --property=prop ] ...
+                            [ --consumer.config=/path/to/properties ]
                             [ --help ]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 bin/kafka-console-consumer.sh 工具能够作为命令行式的消费者, 从指定主题消费若干消息
@@ -160,6 +168,7 @@ bin/kafka-console-consumer.sh 工具常用选项有
 ::  --from-beginning                             可选选项, 要求工具在创建消费组时, 设置消费位移值为 0 (从头消费副本消息)
 ::  --skip-message-on-error                      可选选项, 要求工具消费到错误消息时, 跳过错误继续消费
 ::  --property=prop ...                          可选选项, 使用键值对模式定义消费工具的执行特性
+::  --consumer.config=/path/to/properties        可选选项, 配置软件的执行参数, 常用于存储建立 SSL 加密通信连接的认证信息
 ::  --help                                       帮助选项
 
 bin/kafka-console-consumer.sh 工具使用 --property=prop 选项定义消费工具的执行特性时, 常用特性键值对有
@@ -178,11 +187,11 @@ bin/kafka-console-consumer.sh 工具使用 --property=prop 选项定义消费工
 
 """"""""" 演示消息生产工具的基本使用方法
 [root ~]# bin/kafka-console-producer.sh --bootstrap-server kafka-0.season.com:9092 \
---topic A \
---batch-size 100 \
---message-send-max-retries 10 \
---property parse.key=true \
---property parse.headers=true
+                                        --topic A \
+                                        --batch-size 100 \
+                                        --message-send-max-retries 10 \
+                                        --property parse.key=true \
+                                        --property parse.headers=true
 
 > HK00:HV00,HK01:HV01,HK02:HV02    KEY0    VALUE0
 > HK10:HV10,HK11:HV11,HK12:HV12    KEY1    VALUE1
@@ -191,12 +200,12 @@ bin/kafka-console-consumer.sh 工具使用 --property=prop 选项定义消费工
 
 """"""""" 演示消息消费工具的基本使用方法
 [root ~]# bin/kafka-console-consumer.sh --bootstrap-server kafka-0.season.com:9092 \
---topic A \
---group demo \
---from-beginning \
---property print.timestamp=true \
---property print.key=true \
---property print.headers=true
+                                        --topic A \
+                                        --group demo \
+                                        --from-beginning \
+                                        --property print.timestamp=true \
+                                        --property print.key=true \
+                                        --property print.headers=true
 
 CreateTime: 1679998574385    HK00:HV00,HK01:HV01,HK02:HV02    KEY0    VALUE0
 CreateTime: 1680000908559    HK10:HV10,HK11:HV11,HK12:HV12    KEY1    VALUE1
@@ -222,6 +231,7 @@ bin/kafka-consumer-groups.sh --bootstrap-server=socket,...
                            | --to-earliest
                            | --to-latest
                            | --to-offset=num }]
+                           [ --command-config=/path/to/properties ]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 bin/kafka-consumer-groups.sh 工具能够查阅/ 删除/ 控制群组的元数据
 bin/kafka-consumer-groups.sh 工具常用选项有
@@ -236,11 +246,12 @@ bin/kafka-consumer-groups.sh 工具常用选项有
 ::  --to-earliest                                操作选项, 要求命令把群组的偏移量重置到起始偏移量
 ::  --to-latest                                  操作选项, 要求命令把群组的偏移量重置到最大偏移量
 ::  --to-offset=num                              操作选项, 要求命令把群组的偏移量重置到 num 位置处
+::  --command-config=/path/to/properties         可选选项, 配置软件的执行参数, 常用于存储建立 SSL 加密通信连接的认证信息
 
 """"""""" 演示查阅群组元数据的基本使用方法
 [root ~]# bin/kafka-consumer-groups.sh --bootstrap-server kafka-0.season.com:9092 \
---group demo \
---describe
+                                       --group demo \
+                                       --describe
 
 Consumer group 'demo' has no active members.
 
@@ -250,11 +261,11 @@ demo     A        1            1                 1                 0      -     
 demo     A        2            1                 1                 0      -              -       -
 
 [root ~]# bin/kafka-consumer-groups.sh --bootstrap-server kafka-0.season.com:9092 \
---group demo \
---execute \
---reset-offsets \
---topic A:1 \
---to-offset 0
+                                       --group demo \
+                                       --execute \
+                                       --reset-offsets \
+                                       --topic A:1 \
+                                       --to-offset 0
 
 GROUP    TOPIC    PARTITION    NEW-OFFSET
 demo     A        1            0

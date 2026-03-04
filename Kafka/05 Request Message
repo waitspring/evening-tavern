@@ -36,7 +36,7 @@ Kafka 软件的消费办法
 使用 Kafka REST 组件能够启动 REST API 服务, 使得用户使用 POST 请求发布消息, 使用 GET 请求订阅消息:
 
     •  Kafka REST 组件在底层依赖模式注册组件 (Kafka Schema Registry)
-    •  Kafka REST 组件
+    •  Kafka REST 组件的底层依赖组件全部由溪流公司提供, 涵盖数据模板, 公共方法, 管理工具等多个软件包
 
 
 
@@ -114,9 +114,9 @@ Kafka Connect 组件的核心文件如下
                                     /etc/kafka/connect-file-source.properties \
                                     /etc/kafka/connect-file-sink.properties
 [root ~]# bin/kafka-console-consumer.sh --bootstrap-server kafka-0.season.com:9092 \
---topic kafka-config \
---group demo \
---from-beginning
+                                        --topic kafka-config \
+                                        --group demo \
+                                        --from-beginning
 
 {"schema":{"type":"string","optional":"false"},"payload":"... ..."}
 
