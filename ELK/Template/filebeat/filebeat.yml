@@ -50,3 +50,9 @@ output.kafka:
     "kafka-2.season.com:9092"
   ]
   topic: foo
+  # security.protocol: SSL
+  # ssl.verification_mode: full
+  # ssl.enabled: true
+  # ssl.certificate_authorities: ["/path/to/file.ca"]
+  # ssl.certificate: /path/to/file.pem
+  # ssl.key: /path/to/file.key
