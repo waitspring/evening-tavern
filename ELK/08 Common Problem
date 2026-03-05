@@ -1,0 +1,54 @@
+  ___                                            , __             _    _                 
+ / (_)                                          /|/  \           | |  | |                
+|      __   _  _  _    _  _  _    __   _  _      |___/ ,_    __  | |  | |  _   _  _  _   
+|     /  \_/ |/ |/ |  / |/ |/ |  /  \_/ |/ |     |    /  |  /  \_|/ \_|/  |/  / |/ |/ |  
+ \___/\__/   |  |  |_/  |  |  |_/\__/   |  |_/   |       |_/\__/  \_/ |__/|__/  |  |  |_/
+                                                                                         
+                                                                                         
+--  This document was created by Xuanming in 2026, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Filebeat 软件异常消耗网络带宽
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Filebeat 软件缺少网络限速能力, 需要使用主机的网卡限速策略, 避免 Filebeat 软件因为日志峰值同业务软件争抢网络带宽
+Filebeat 软件如果遭遇网络限速, 受到目标日志文件滚动归档策略的影响, 业务日志可能无法及时传输到下游管道并导致 ELK 方案出现业务日志缺漏
+
+""""""""" RHEL7 网卡限速策略 (50KB)
+[root ~]# ip -o address list
+1: lo   inet 127.0.0.1/8 scope host lo
+2: eth0 inet 172.16.0.254/24 brd 172.16.0.255 scope global eth0
+[root ~]# tc qdisc  add dev eth0 root handle 1: htb
+[root ~]# tc class  add dev eth0 parent 1:1 classid 1:10 htb rate 50Kbit ceil 50Kbit
+[root ~]# tc filter add dev eth0 parent 1:0 prio 1 protocol ip handle 10 fw flowid 1:10
+[root ~]# iptables -A OUTPUT -t mangle -p tcp -m multiport --dports 9092,9093 -j MARK --set-mark 10
+[root ~]# tc class show dev eth0
+
+    class htb 1:10 root prio 0 rate 50Kbit ceil 50Kbit burst 1600b cburst 1600b
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" RHEL7 网卡限速单元 (50KB)
+[root ~]# vim /usr/lib/systemd/system/filebeat-netusage.service
+[Unit]
+Description=Limit bandwidth usage of Filebeat
+After=network.target
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/usr/bin/sleep 3
+ExecStart=/usr/sbin/tc qdisc  add dev eth0 root handle 1: htb
+ExecStart=/usr/sbin/tc class  add dev eth0 parent 1:1 classid 1:10 htb rate 50Kbit ceil 50Kbit
+ExecStart=/usr/sbin/tc filter add dev eth0 parent 1:0 prio 1 protocol ip handle 10 fw flowid 1:10
+ExecStart=/usr/sbin/iptables -A OUTPUT -t mangle -p tcp -m multiport --dports "9092,9093" -j MARK --set-mark 10
+ExecStop=/usr/sbin/iptables -D OUTPUT -t mangle -p tcp -m multiport --dports "9092,9093" -j MARK --set-mark 10
+ExecStop=/usr/sbin/tc qdisc del dev eth0 root
+[Install]
+WantedBy=multi-user.target
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enable filebeat-netusage.service
+[root ~]# systemctl start filebeat-netusage.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
