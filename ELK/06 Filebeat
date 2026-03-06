@@ -71,6 +71,9 @@ Filebeat 软件的配置文件 /etc/filebeat/filebeat.yml
 #       "kafka-2.season.com:9092"
 #   ]
 #   topic: os                                    设置日志消息的下游队列寄存主题
+#   compression: gzip                            软件向下游 Kafka 发送消息前, 默认使用 GZIP 格式压缩消息
+#   compression_level: 4                         软件向下游 Kafka 发送消息前, 默认设置 GZIP 格式压缩等级为 4 级
+#   bulk_max_size: 2048                          软件向下游 Kafka 发送消息时, 默认每批次发送 2048 条消息
 #   security.protocol: SSL                       使用 SSL 数据加密通信
 #   ssl.verification_mode: full                  使用 SSL 完整验证模式
 #   ssl.enabled: false                           关闭 SSL 数据加密通信
@@ -81,6 +84,7 @@ Filebeat 软件的配置文件 /etc/filebeat/filebeat.yml
 阅读上述配置文件时, 还请注意:
 
     •  Filebeat 软件支持在配置文件中开启 SSL 数据加密通信, 同时要求下游的 Kafka 节点开启 SSL 数据加密通信
+    •  Filebeat 软件默认在配置文件中使用 GZIP (4) 格式压缩消息, 压缩等级取值为 0~9 (高等级消耗 CPU 资源但节约网络带宽)
     •  Filebeat 软件支持在配置文件中使用内置变量
     •  Filebeat 软件官方在配置文件中有定义若干路径相关的内置变量
        ┌─────────────────────────────────────────┬─────────────────────────────────────────────────────────────────────
