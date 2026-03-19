@@ -9,7 +9,7 @@
 [![Software](https://img.shields.io/badge/Git-1.8.3.1-F44D29)](https://github.com/waitspring/evening-tavern/tree/master/Git)
 [![Software](https://img.shields.io/badge/Kafka-3.3.2-242021)](https://github.com/waitspring/evening-tavern/tree/master/Kafka)
 [![Software](https://img.shields.io/badge/NginX-1.20.2-8E989B)](https://github.com/waitspring/evening-tavern/tree/master/NginX)
-[![Software](https://img.shields.io/badge/Redis-6.2.21-FF4438)](https://github.com/waitspring/evening-tavern/tree/master/Redis)
+[![Software](https://img.shields.io/badge/Redis-6.2.20-FF4438)](https://github.com/waitspring/evening-tavern/tree/master/Redis)
 [![Software](https://img.shields.io/badge/ZooKeeper-3.8.2-7E450E)](https://github.com/waitspring/evening-tavern/tree/master/ZooKeeper)
 
 </div>

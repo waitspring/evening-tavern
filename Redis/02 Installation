@@ -1,0 +1,92 @@
+   _                       _   _                           
+  | |                     | | | |          o               
+  | | _  _    , _|_  __,  | | | |  __, _|_     __   _  _   
+_ |/ / |/ |  / \_|  /  |  |/  |/  /  |  |  |  /  \_/ |/ |  
+\_/\/  |  |_/ \/ |_/\_/|_/|__/|__/\_/|_/|_/|_/\__/   |  |_/
+                                                           
+                                                           
+--  This document was created by Xuanming in 2026, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件的编译安装
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件的安装途经有:
+
+    •  使用 YUM 源直接安装
+    •  使用 RPM 包直接安装
+    •  使用源码安装 (优先推荐使用源码安装), 源码的 TGZ 压缩包可以基于 REDIS/ GitHub 社区站点下载
+       *  https://download.redis.io/releases
+       *  https://github.com/redis/redis/releases
+    •  使用源码安装 Redis 软件时, 依次执行源码编译和源码安装两个步骤即可, 无需执行预编译步骤
+
+Redis 软件的源码编译选项有 (make ...)
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Option                               │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ MALLOC=jemalloc                      │    √    │ 设置 Redis 软件使用 Jemalloc 内存调度器
+│ BUILD_TLS=no                         │    √    │ 关闭 Redis 软件的数据加密特性
+│ BUILD_TLS=yes                        │         │ 开启 Redis 软件的数据加密特性
+│ USE_SYSTEMD=no                       │    √    │ 关闭 Redis 软件的服务单元通信
+│ USE_SYSTEMD=yes                      │         │ 开启 Redis 软件的服务单元通信
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+Redis 软件的源码安装选项有 (make install ...)
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Option                               │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ PREFIX=/usr/local                    │    √    │ 复制 Redis 软件的可执行文件到 /usr/local/bin 目录
+│ PREFIX=/path/to/redis                │         │ 复制 Redis 软件的可执行文件到 /path/to/redis/bin 目录
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+""""""""" 准备 Redis 软件的进程用户和用户组, 安装 Redis 软件的前置依赖包
+[root ~]# useradd -r -s /sbin/nologin -M redis
+[root ~]# yum install -y systemd-devel.x86_64 \
+                         openssl-devel.x86_64
+[root ~]# mkdir -p /etc/redis  /var/log/redis /var/redis/{data,run}
+[root ~]# chown -R redis:redis /var/log/redis /var/redis
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 解压 Redis 软件的源码压缩包, 并执行编译安装
+[root ~]# tar -xzf /srv/redis-6.2.20.tar.gz -C /root
+[root ~]# cd /root/redis-6.2.20
+[root redis-6.2.20]# make BUILD_TLS=yes USE_SYSTEMD=yes
+[root redis-6.2.20]# tree /root/redis-6.2.20
+/root/redis-6.2.20
+    │
+    ├──── redis.conf
+    ├──── sentinel.conf
+    ├──── cluster-example.conf
+    ├──── utils
+    │       ├──── redis_init_script
+    │       ├──── redis-sentinel.service
+    │       └──── systemd-redis-server.service
+    └──── src
+            ├──── redis-benchmark
+            ├──── redis-check-aof
+            ├──── redis-check-rdb
+            ├──── redis-cli
+            ├──── redis-sentinel
+            └──── redis-server
+[root ~]# make install
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 构建 Redis 软件的目录结构, 并启动 Redis 服务单元
+[root ~]# cp /root/redis-6.2.20/{redis.conf,sentinel.conf} /etc/redis
+[root ~]# cp /root/redis-6.2.20/utils/systemd-redis-server.service /usr/lib/systemd/system/redis.service
+[root ~]# vim /etc/redis/redis.conf
+[root ~]# vim /usr/lib/systemd/system/redis.service
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enable redis.service
+[root ~]# systemctl start redis.service
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
