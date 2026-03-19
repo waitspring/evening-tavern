@@ -1,0 +1,61 @@
+  ___               _                                                
+ / (_)             | | o                             o               
+|      __   _  _   | |     __,         ,_    __, _|_     __   _  _   
+|     /  \_/ |/ |  |/  |  /  | |   |  /  |  /  |  |  |  /  \_/ |/ |  
+ \___/\__/   |  |_/|__/|_/\_/|/ \_/|_/   |_/\_/|_/|_/|_/\__/   |  |_/
+                   |\       /|                                       
+                   |/       \|                                       
+--  This document was created by Xuanming in 2023, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件的主配置文件
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件的主配置文件为 /path/to/redis.conf
+Redis 软件的主配置项参考  https://redis.com.cn/redis-configuration.html
+
+Redis 软件的主配置文件常用配置项如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ bind 0.0.0.0                         │    √    │ 设置软件的监听地址为 0.0.0.0
+│ bind ADDR                            │         │ 设置软件的监听地址为 ADDR (IPv4/ IPv6/ domain A)
+│ port 6379                            │    √    │ 设置软件的监听端口为 6379
+│ port NUM                             │         │ 设置软件的监听端口为 NUM
+│ maxclients 10000                     │    √    │ 配置软件的连接并发上限为 10000 个客户端连接
+│ maxclients NUM                       │         │ 配置软件的连接并发上限为 NUM   个客户端连接
+│ timeout 0                            │    √    │ 要求软件保持空闲客户端的连接
+│ timeout NUM                          │         │ 要求软件断开空闲客户端的连接 (空闲时间片段预置为 NUM 秒钟)
+│ requirepass                          │    √    │ 关闭软件的连接认证
+│ requirepass PASSWORD                 │         │ 开启软件的连接认证, 使用 PASSWORD 作为认证口令
+│ daemonize no                         │    √    │ 不用服务单元的同时, 使用终端前台启动软件
+│ daemonize yes                        │         │ 不用服务单元的同时, 使用终端后台启动软件
+│ pidfile /var/run/redis.pid           │    √    │ 使用终端后台启动软件的同时, 创建进程文件 /var/run/redis.pid
+│ pidfile /PATH/TO/FILE                │         │ 使用终端后台启动软件的同时, 创建进程文件 /PATH/TO/FILE
+│ maxmemory 0                          │    √    │ 放开软件申请内存的上限阈值
+│ maxmemory SIZE                       │         │ 限制软件申请内存的上限阈值为 SIZE (容量单位)
+│ databases 16                         │    √    │ 要求软件创建 16  个数据库实例 db(0...15)
+│ databases NUM                        │         │ 要求软件创建 NUM 个数据库实例 db(0...NUM-1)
+│ loglevel verbose                     │    √    │ 设置软件的日志输出级别为 verbose
+│ loglevel LEVEL                       │         │ 设置软件的日志输出级别为 LEVEL (debug < verbose < notice < warning)
+│ logfile /dev/stdout                  │    √    │ 设置软件的日志输出文件为标准输出
+│ logfile /PATH/TO/FILE                │         │ 设置软件的日志输出文件为固定文件 (需要借助 Logrotate 工具滚动日志文件)
+│ dir .                                │    √    │ 设置软件的数据目录为进程启动目录
+│ dir /PATH/TO/DIR                     │         │ 设置软件的数据目录为 /PATH/TO/DIR
+│ dbfilename dump.rdb                  │    √    │ 设置软件的 RDB 数据文件为 /PATH/TO/DIR/dump.rdb
+│ dbfilename FILE                      │         │ 设置软件的 RDB 数据文件为 /PATH/TO/DIR/FILE
+│ rdbcompression yes                   │    √    │ 开启软件的 RDB 数据文件压缩特性, 使用 LZF 算法压缩持久化数据文件
+│ rdbcompression no                    │         │ 关闭软件的 RDB 数据文件压缩特性, 节约 CPU 资源但增加存储开销
+│ save 900 1                           │    √    │ 要求每间隔 900 秒钟, 软件把内存中寄存的键值对写入 RDB 数据文件持久存储
+│ save SEC NUM                         │         │ 要求每间隔 SEC 秒钟, 软件把内存中寄存的键值对写入 RDB 数据文件持久存储
+│ appendonly no                        │    √    │ 关闭软件的 AOF 数据持久存储特性
+│ appendonly yes                       │         │ 开启软件的 AOF 数据持久存储特性
+│ appendfilename appendonly.aof        │    √    │ 设置软件的 AOF 数据文件为 /PATH/TO/DIR/appendonly.aof
+│ appendfilename FILE                  │         │ 设置软件的 AOF 数据文件为 /PATH/TO/DIR/FILE
+│ appendfsync everysec                 │    √    │ 要求每间隔 1 秒钟, 软件批量写入期间发生的键值对命令到 AOF 数据文件 (均衡机制)
+│ appendfsync always                   │         │ 要求每执行 1 条键值对命令, 软件写入键值对命令到 AOF 数据文件 (高开销高安全)
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+
+
