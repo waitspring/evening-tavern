@@ -23,38 +23,64 @@ Redis 软件的主配置文件常用配置项如下
 │ bind ADDR                            │         │ 设置软件的监听地址为 ADDR (IPv4/ IPv6/ domain A)
 │ port 6379                            │    √    │ 设置软件的监听端口为 6379
 │ port NUM                             │         │ 设置软件的监听端口为 NUM
-│ maxclients 10000                     │    √    │ 配置软件的连接并发上限为 10000 个客户端连接
-│ maxclients NUM                       │         │ 配置软件的连接并发上限为 NUM   个客户端连接
 │ timeout 0                            │    √    │ 要求软件保持空闲客户端的连接
 │ timeout NUM                          │         │ 要求软件断开空闲客户端的连接 (空闲时间片段预置为 NUM 秒钟)
+│ tcp-backlog 511                      │    √    │ 设置 TCP 连接请求的等待队列容量为 511 宽度
+│ tcp-backlog NUM                      │         │ 设置 TCP 连接请求的等待队列容量为 NUM 宽度 (NUM > somaxconn)
+│ tcp-keepalive 300                    │    √    │ 设置 TCP 心跳检测的消息间隔时间为 300 秒钟
+│ tcp-keepalive NUM                    │         │ 设置 TCP 心跳检测的消息间隔时间为 NUM 秒钟 (NUM = 0 关闭心跳检测)
 │ requirepass                          │    √    │ 关闭软件的连接认证
 │ requirepass PASSWORD                 │         │ 开启软件的连接认证, 使用 PASSWORD 作为认证口令
-│ daemonize no                         │    √    │ 不用服务单元的同时, 使用终端前台启动软件
-│ daemonize yes                        │         │ 不用服务单元的同时, 使用终端后台启动软件
-│ pidfile /var/run/redis.pid           │    √    │ 使用终端后台启动软件的同时, 创建进程文件 /var/run/redis.pid
-│ pidfile /PATH/TO/FILE                │         │ 使用终端后台启动软件的同时, 创建进程文件 /PATH/TO/FILE
 │ maxmemory 0                          │    √    │ 放开软件申请内存的上限阈值
 │ maxmemory SIZE                       │         │ 限制软件申请内存的上限阈值为 SIZE (容量单位)
-│ databases 16                         │    √    │ 要求软件创建 16  个数据库实例 db(0...15)
-│ databases NUM                        │         │ 要求软件创建 NUM 个数据库实例 db(0...NUM-1)
-│ loglevel verbose                     │    √    │ 设置软件的日志输出级别为 verbose
-│ loglevel LEVEL                       │         │ 设置软件的日志输出级别为 LEVEL (debug < verbose < notice < warning)
-│ logfile /dev/stdout                  │    √    │ 设置软件的日志输出文件为标准输出
-│ logfile /PATH/TO/FILE                │         │ 设置软件的日志输出文件为固定文件 (需要借助 Logrotate 工具滚动日志文件)
-│ dir .                                │    √    │ 设置软件的数据目录为进程启动目录
-│ dir /PATH/TO/DIR                     │         │ 设置软件的数据目录为 /PATH/TO/DIR
-│ dbfilename dump.rdb                  │    √    │ 设置软件的 RDB 数据文件为 /PATH/TO/DIR/dump.rdb
-│ dbfilename FILE                      │         │ 设置软件的 RDB 数据文件为 /PATH/TO/DIR/FILE
-│ rdbcompression yes                   │    √    │ 开启软件的 RDB 数据文件压缩特性, 使用 LZF 算法压缩持久化数据文件
-│ rdbcompression no                    │         │ 关闭软件的 RDB 数据文件压缩特性, 节约 CPU 资源但增加存储开销
+│ maxmemory-policy noeviction          │    √    │ 要求软件遭遇内存爆满时使用 noeviction 只读策略
+│ maxmemory-policy MODE                │         │ 要求软件遭遇内存爆满时使用 MODE 淘汰策略:
+│                                      │         │     * allkeys-lru    使用 LRU 算法淘汰遇冷键值对 (近期较少被读写的键值对)
+│                                      │         │     * allkeys-lrm    使用 LRM 算法淘汰遇冷键值对 (近期较少被修改的键值对)
+│                                      │         │     * allkeys-lfu    使用 LFU 算法淘汰遇冷键值对 (近期较少被读取的键值对)
+│                                      │         │     * allkeys-random 随机淘汰键值对
+│ maxclients 10000                     │    √    │ 设置软件的连接并发上限为 10000 个客户端连接
+│ maxclients NUM                       │         │ 设置软件的连接并发上限为 NUM   个客户端连接
 │ save 900 1                           │    √    │ 要求每间隔 900 秒钟, 软件把内存中寄存的键值对写入 RDB 数据文件持久存储
 │ save SEC NUM                         │         │ 要求每间隔 SEC 秒钟, 软件把内存中寄存的键值对写入 RDB 数据文件持久存储
-│ appendonly no                        │    √    │ 关闭软件的 AOF 数据持久存储特性
+│ dbfilename dump.rdb                  │    √    │ 设置软件的 RDB 数据文件为 /PATH/TO/DIR/dump.rdb
+│ dbfilename FILE                      │         │ 设置软件的 RDB 数据文件为 /PATH/TO/DIR/FILE
+│ stop-writes-on-bgsave-error yes      │    √    │ 开启软件的数据一致特性, RDB 数据文件持久存储失败, 软件不再接受键值对的写操作
+│ stop-writes-on-bgsave-error no       │         │ 关闭软件的数据一致特性, RDB 数据文件持久存储失败, 软件仍然接受键值对的写操作
+│ rdbcompression yes                   │    √    │ 开启软件的数据压缩特性, 使用 LZF 算法压缩 RDB 数据文件
+│ rdbcompression no                    │         │ 关闭软件的数据压缩特性, 节约 CPU 资源但增加存储开销
+│ rdbchecksum yes                      │    √    │ 开启软件的文件校验特性, 使用 CRC64 算法校验 RDB 数据文件的完整性
+│ rdbchecksum no                       │         │ 关闭软件的文件校验特性, 节约 CPU 资源但无法检查 RDB 数据文件的损坏情况
 │ appendonly yes                       │         │ 开启软件的 AOF 数据持久存储特性
+│ appendonly no                        │    √    │ 关闭软件的 AOF 数据持久存储特性
 │ appendfilename appendonly.aof        │    √    │ 设置软件的 AOF 数据文件为 /PATH/TO/DIR/appendonly.aof
 │ appendfilename FILE                  │         │ 设置软件的 AOF 数据文件为 /PATH/TO/DIR/FILE
 │ appendfsync everysec                 │    √    │ 要求每间隔 1 秒钟, 软件批量写入期间发生的键值对命令到 AOF 数据文件 (均衡机制)
 │ appendfsync always                   │         │ 要求每执行 1 条键值对命令, 软件写入键值对命令到 AOF 数据文件 (高开销高安全)
+│ no-appendfsync-on-rewrite yes        │         │ 要求软件避免 AOF 数据文件争用性能, 可能导致缺失数据
+│ no-appendfsync-on-rewrite no         │    √    │ 要求软件避免 AOF 数据文件缺失数据, 可能引起服务卡顿
+│ auto-aof-rewrite-percentage 100      │    √    │ 要求软件在 AOF 数据文件持续增长 100% 时重写并压缩 AOF 数据文件
+│ auto-aof-rewrite-percentage NUM      │         │ 要求软件在 AOF 数据文件持续增长 NUM% 时重写并压缩 AOF 数据文件
+│ auto-aof-rewrite-min-size 64mb       │    √    │ 要求软件在 AOF 数据文件持续增长 64MB 时重写并压缩 AOF 数据文件
+│ auto-aof-rewrite-min-size SIZE       │         │ 要求软件在 AOF 数据文件持续增长 SIZE 时重写并压缩 AOF 数据文件
+│ aof-load-truncated yes               │    √    │ 软件检查出 AOF 数据文件末尾存在数据损坏时, 自动删除数据损坏部分并启动
+│ aof-load-truncated no                │         │ 软件检查出 AOF 数据文件末尾存在数据损坏时, 拒绝启动
+│ aof-use-rdb-preamble yes             │    √    │ 开启软件的 AOF/ RDB 混合存储特性, 显著提高软件启动时的数据读取效率
+│ aof-use-rdb-preamble no              │         │ 关闭软件的 AOF/ RDB 混合存储特性, 软件重写并压缩 AOF 数据文件时不抢计算资源
+│ daemonize no                         │    √    │ 不用服务单元的同时, 使用终端前台启动软件
+│ daemonize yes                        │         │ 不用服务单元的同时, 使用终端后台启动软件
+│ pidfile /var/run/redis.pid           │    √    │ 使用终端后台启动软件的同时, 创建进程文件 /var/run/redis.pid
+│ pidfile /PATH/TO/FILE                │         │ 使用终端后台启动软件的同时, 创建进程文件 /PATH/TO/FILE
+│ dir .                                │    √    │ 设置软件的数据目录为进程启动目录
+│ dir /PATH/TO/DIR                     │         │ 设置软件的数据目录为 /PATH/TO/DIR
+│ logfile /dev/stdout                  │    √    │ 设置软件的日志输出文件为标准输出
+│ logfile /PATH/TO/FILE                │         │ 设置软件的日志输出文件为固定文件 (需要借助 Logrotate 工具滚动日志文件)
+│ loglevel verbose                     │    √    │ 设置软件的日志输出级别为 verbose
+│ loglevel LEVEL                       │         │ 设置软件的日志输出级别为 LEVEL (debug < verbose < notice < warning)
+│ databases 16                         │    √    │ 要求软件创建 16  个数据库实例 db(0...15)
+│ databases NUM                        │         │ 要求软件创建 NUM 个数据库实例 db(0...NUM-1)
+│ supervised no                        │    √    │ 要求软件自行管理进程状态
+│ supervised systemd                   │         │ 要求软件向根守护进程上报进程状态
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 
