@@ -10,6 +10,143 @@ _ |/ / |/ |  / \_|  /  |  |/  |/  /  |  |  |  /  \_/ |/ |
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件的主机配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件受主机的内核参数的影响, 这些内核参数登记在下述配置文件:
+
+    •  资源限制文件 /etc/security/limits.conf
+    •  资源限制文件 /etc/security/limits.d/20-nproc.conf (优先级高于 /etc/security/limits.conf 资源限制文件)
+    •  内核参数文件 /etc/sysctl.conf
+    •  启动参数文件 /etc/default/grub (永久关闭透明大页的启动参数 transparent_hugepage=never)
+
+资源限制文件 /etc/security/limits.conf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*  -  nproc   65535
+*  -  nofile  65535
+*  -  core    unlimited
+*  -  fsize   unlimited
+*  -  rss     unlimited
+*  -  stack   unlimited
+*  -  memlock unlimited
+*  -  as      unlimited
+
+内核参数文件 /etc/sysctl.conf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+net.core.somaxconn = 65535
+net.core.netdev_max_backlog = 65535
+net.ipv4.tcp_max_syn_backlog = 65535
+net.ipv4.tcp_fin_timeout = 10
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_keepalive_time = 300
+vm.overcommit_memory = 1
+vm.swappiness = 1
+vm.zone_reclaim_mode = 0
+fs.file-max = 65535
+
+启动参数文件 /etc/default/grub
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GRUB_CMDLINE_LINUX="... transparent_hugepage=never"
+
+""""""""" 演示资源调优的基本步骤
+[root ~]# cat > /etc/security/limits.conf << EOF
+*  -  nproc   65535
+*  -  nofile  65535
+*  -  core    unlimited
+*  -  fsize   unlimited
+*  -  rss     unlimited
+*  -  stack   unlimited
+*  -  memlock unlimited
+*  -  as      unlimited
+EOF
+[root ~]# ulimit -a
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 演示内核调优的基本步骤
+[root ~]# cat > /etc/sysctl.conf << EOF
+net.core.somaxconn = 65535
+net.core.netdev_max_backlog = 65535
+net.ipv4.tcp_max_syn_backlog = 65535
+net.ipv4.tcp_fin_timeout = 10
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_keepalive_time = 300
+vm.overcommit_memory = 1
+vm.swappiness = 1
+vm.zone_reclaim_mode = 0
+fs.file-max = 65535
+EOF
+[root ~]# sysctl -p
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 演示启动调优的基本步骤
+[root ~]# sed -i -r '/GRUB_CMDLINE_LINUX/s/(.+)="(.+)"/\1="\2 transparent_hugepage=never"/g' /etc/default/grub
+[root ~]# grub2-mkconfig -o /boot/grub2/grub.cfg
+[root ~]# reboot
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件的部署模式
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件的部署模式从易到难有:
+
+    0. 单点部署 (使用一个读写业务节点)
+    1. 主从部署 (使用一个读写业务节点 + 若干只读业务节点)
+    2. 哨兵部署 (使用一个读写业务节点 + 若干只读业务节点 + 若干哨兵管理节点)
+    3. 集群部署 (使用若干读写业务节点 + 若干只读业务节点)
+
+    单点部署 (使用一个读写业务节点)
+    -----------------------------------------------------------------
+    ┌──────────┐
+    │ Client 0 ├───────┐
+    └──────────┘       │
+    ┌──────────┐       │        ┌──────────┐
+    │ Client 1 ├───────┼───────▶︎│ Master 0 │
+    └──────────┘       │        └──────────┘
+    ┌──────────┐       │
+    │ Client 2 ├───────┘
+    └──────────┘
+
+    主从部署 (使用一个读写业务节点 + 若干只读业务节点)
+    -----------------------------------------------------------------
+    ┌──────────┐                                            ┌──────────┐
+    │ Client 0 ├───────┐                            ┌───────┤ Slaver 0 │
+    └──────────┘       │                            │       └──────────┘
+    ┌──────────┐       │        ┌──────────┐        │
+    │ Client 1 ├───────┼───────▶︎│ Master 0 │◀︎───────┤
+    └──────────┘       │        └──────────┘        │
+    ┌──────────┐       │                            │       ┌──────────┐
+    │ Client 2 ├───────┘                            └───────┤ Slaver 1 │
+    └──────────┘                                            └──────────┘
+
+    哨兵部署 (使用一个读写业务节点 + 若干只读业务节点 + 若干哨兵管理节点)
+    -----------------------------------------------------------------
+                           ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+    ┌──────────┐           ┊                                ┌──────────┐    ┊                ┌────────────┐
+    │ Client 0 ├───────┐   ┊                        ┌───────┤ Slaver 0 │    ┊        ┌───────┤ Sentinel 0 │
+    └──────────┘       │   ┊                        │       └──────────┘    ┊        │       └────────────┘
+    ┌──────────┐       │   ┊    ┌──────────┐        │                       ┊        │       ┌────────────┐
+    │ Client 1 ├───────┼───┊───▶︎│ Master 0 │◀︎───────┤                       ┊◀︎───────┼───────┤ Sentinel 1 │
+    └──────────┘       │   ┊    └──────────┘        │                       ┊        │       └────────────┘
+    ┌──────────┐       │   ┊                        │       ┌──────────┐    ┊        │       ┌────────────┐
+    │ Client 2 ├───────┘   ┊                        └───────┤ Slaver 1 │    ┊        └───────┤ Sentinel 2 │
+    └──────────┘           ┊                                └──────────┘    ┊                └────────────┘
+                           └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+
+    集群部署 (使用若干读写业务节点 + 若干只读业务节点)
+    -----------------------------------------------------------------
+    ┌──────────┐                ┌──────────┐                ┌──────────┐
+    │ Client 0 ├───────┬───────▶︎│ Master 0 │◀︎───────────────┤ Slaver 0 │
+    └──────────┘       │        └──────────┘                └──────────┘
+    ┌──────────┐       │        ┌──────────┐                ┌──────────┐
+    │ Client 1 ├───────┼───────▶︎│ Master 1 │◀︎───────────────┤ Slaver 1 │
+    └──────────┘       │        └──────────┘                └──────────┘
+    ┌──────────┐       │        ┌──────────┐                ┌──────────┐
+    │ Client 1 ├───────┴───────▶︎│ Master 2 │◀︎───────────────┤ Slaver 2 │
+    └──────────┘                └──────────┘                └──────────┘
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Redis 软件的编译安装
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Redis 软件的安装途经有:
@@ -40,15 +177,18 @@ Redis 软件的源码安装选项有 (make install ...)
 │ PREFIX=/path/to/redis                │         │ 复制 Redis 软件的可执行文件到 /path/to/redis/bin 目录
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
-""""""""" 准备 Redis 软件的进程用户和用户组, 安装 Redis 软件的前置依赖包
+""""""""" 准备 Redis 软件的用户, 安装前置依赖包
 [root ~]# useradd -r -s /sbin/nologin -M redis
 [root ~]# yum install -y systemd-devel.x86_64 \
                          openssl-devel.x86_64
-[root ~]# mkdir -p /etc/redis  /var/log/redis /var/redis/{data,run}
-[root ~]# chown -R redis:redis /var/log/redis /var/redis
+[root ~]# mkdir -p /etc/redis/conf.d  \
+                   /var/log/redis \
+                   /var/redis/run \
+                   /var/redis/data/{standalone,sentinel,cluster}
+[root ~]# chown -R redis:redis /etc/redis /var/log/redis /var/redis
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-""""""""" 解压 Redis 软件的源码压缩包, 并执行编译安装
+""""""""" 解压 Redis 软件的源码压缩包, 执行编译安装
 [root ~]# tar -xzf /srv/redis-6.2.20.tar.gz -C /root
 [root ~]# cd /root/redis-6.2.20
 [root redis-6.2.20]# make BUILD_TLS=yes USE_SYSTEMD=yes
@@ -61,7 +201,7 @@ Redis 软件的源码安装选项有 (make install ...)
     ├──── utils
     │       ├──── redis_init_script
     │       ├──── redis-sentinel.service
-    │       └──── systemd-redis-server.service
+    │       └──── systemd-redis_server.service
     └──── src
             ├──── redis-benchmark
             ├──── redis-check-aof
@@ -72,21 +212,22 @@ Redis 软件的源码安装选项有 (make install ...)
 [root ~]# make install
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-""""""""" 构建 Redis 软件的目录结构, 并启动 Redis 服务单元
-[root ~]# cp /root/redis-6.2.20/{redis.conf,sentinel.conf} /etc/redis
-[root ~]# cp /root/redis-6.2.20/utils/systemd-redis-server.service /usr/lib/systemd/system/redis.service
-[root ~]# vim /etc/redis/redis.conf
+""""""""" 准备 Redis 软件的配置文件, 启动服务单元
+[root ~]# sudo -u redis vim /etc/redis/redis.conf
+[root ~]# sudo -u redis vim /etc/redis/conf.d/standalone.conf
 [root ~]# vim /usr/lib/systemd/system/redis.service
 [root ~]# systemctl daemon-reload
 [root ~]# systemctl enable redis.service
 [root ~]# systemctl start redis.service
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+""""""""" 准备 Redis 软件的哨兵文件, 启动哨兵单元
+[root ~]# sudo -u redis vim /etc/redis/conf.d/sentinel.conf
+[root ~]# vim /usr/lib/systemd/system/redis-sentinel.service
+[root ~]# systemctl daemon-reload
+[root ~]# systemctl enable redis-sentinel.service
+[root ~]# systemctl start redis-sentinel.service
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
