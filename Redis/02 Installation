@@ -119,7 +119,7 @@ Redis 软件的源码安装选项有 (make install ...)
 """"""""" 安装前置依赖包, 准备用户和目录结构
 [root ~]# yum install -y systemd-devel.x86_64 openssl-devel.x86_64
 [root ~]# useradd -r -s /sbin/nologin -M redis
-[root ~]# mkdir -p /etc/redis/conf.d /var/log/redis /var/redis/run /var/redis/data/{standalone,cluster}
+[root ~]# mkdir -p /etc/redis/conf.d /var/log/redis /var/redis/run /var/redis/data/{standalone,sentinel,cluster}
 [root ~]# chown -R redis:redis /etc/redis /var/log/redis /var/redis
 --------------------------------------------------------------------------------------------------------------------- ✻
 
