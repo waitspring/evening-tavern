@@ -1,0 +1,223 @@
+  ___               _                                                
+ / (_)             | | o                             o               
+|      __   _  _   | |     __,         ,_    __, _|_     __   _  _   
+|     /  \_/ |/ |  |/  |  /  | |   |  /  |  /  |  |  |  /  \_/ |/ |  
+ \___/\__/   |  |_/|__/|_/\_/|/ \_/|_/   |_/\_/|_/|_/|_/\__/   |  |_/
+                   |\       /|                                       
+                   |/       \|                                       
+--  This document was created by Xuanming in 2023, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+通用配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+通用配置文件为 /etc/redis/redis.conf
+通用配置文件可以参考社区文档站点 https://redis.com.cn/redis-configuration.html
+
+基础配置文件常用配置项如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ bind 0.0.0.0                         │    √    │ 设置软件的监听地址为 0.0.0.0
+│ bind ADDR                            │         │ 设置软件的监听地址为 ADDR (IPv4/ IPv6/ domain A)
+│ timeout 0                            │    √    │ 要求软件保持空闲客户端的连接
+│ timeout NUM                          │         │ 要求软件断开空闲客户端的连接 (空闲时间片段预置为 NUM 秒钟)
+│ tcp-backlog 511                      │    √    │ 设置 TCP 连接请求的等待队列容量为 511 宽度
+│ tcp-backlog NUM                      │         │ 设置 TCP 连接请求的等待队列容量为 NUM 宽度 (NUM > somaxconn)
+│ tcp-keepalive 300                    │    √    │ 设置 TCP 心跳检测的消息间隔时间为 300 秒钟
+│ tcp-keepalive NUM                    │         │ 设置 TCP 心跳检测的消息间隔时间为 NUM 秒钟 (NUM = 0 关闭心跳检测)
+│ maxmemory 0                          │    √    │ 放开软件申请内存的上限阈值
+│ maxmemory SIZE                       │         │ 限制软件申请内存的上限阈值为 SIZE (容量单位)
+│ maxmemory-policy noeviction          │    √    │ 要求软件遭遇内存爆满时使用 noeviction 只读策略
+│ maxmemory-policy MODE                │         │ 要求软件遭遇内存爆满时使用 MODE 淘汰策略:
+│                                      │         │     * allkeys-lru    使用 LRU 算法淘汰遇冷键值对 (近期较少被读写的键值对)
+│                                      │         │     * allkeys-lrm    使用 LRM 算法淘汰遇冷键值对 (近期较少被修改的键值对)
+│                                      │         │     * allkeys-lfu    使用 LFU 算法淘汰遇冷键值对 (近期较少被读取的键值对)
+│                                      │         │     * allkeys-random 随机淘汰键值对
+│ maxclients 10000                     │    √    │ 设置软件的连接并发上限为 10000 个客户端连接
+│ maxclients NUM                       │         │ 设置软件的连接并发上限为 NUM   个客户端连接
+│ save 900 1                           │    √    │ 要求每间隔 900 秒钟, 软件把内存中寄存的键值对写入 RDB 数据文件持久存储
+│ save SEC NUM                         │         │ 要求每间隔 SEC 秒钟, 软件把内存中寄存的键值对写入 RDB 数据文件持久存储
+│ dbfilename dump.rdb                  │    √    │ 设置软件的 RDB 数据文件为 ${dir}/dump.rdb
+│ dbfilename FILE                      │         │ 设置软件的 RDB 数据文件为 ${dir}/FILE
+│ stop-writes-on-bgsave-error yes      │    √    │ 开启软件的数据一致特性, RDB 数据文件持久存储失败, 软件不再接受键值对的写操作
+│ stop-writes-on-bgsave-error no       │         │ 关闭软件的数据一致特性, RDB 数据文件持久存储失败, 软件仍然接受键值对的写操作
+│ rdbcompression yes                   │    √    │ 开启软件的数据压缩特性, 使用 LZF 算法压缩 RDB 数据文件
+│ rdbcompression no                    │         │ 关闭软件的数据压缩特性, 节约 CPU 资源但增加存储开销
+│ rdbchecksum yes                      │    √    │ 开启软件的文件校验特性, 使用 CRC64 算法校验 RDB 数据文件的完整性
+│ rdbchecksum no                       │         │ 关闭软件的文件校验特性, 节约 CPU 资源但无法检查 RDB 数据文件的损坏情况
+│ appendonly yes                       │         │ 开启软件的 AOF 数据持久存储特性
+│ appendonly no                        │    √    │ 关闭软件的 AOF 数据持久存储特性
+│ appendfilename appendonly.aof        │    √    │ 设置软件的 AOF 数据文件为 ${dir}/appendonly.aof
+│ appendfilename FILE                  │         │ 设置软件的 AOF 数据文件为 ${dir}/FILE
+│ appendfsync everysec                 │    √    │ 要求每间隔 1 秒钟, 软件批量写入期间发生的键值对命令到 AOF 数据文件 (均衡机制)
+│ appendfsync always                   │         │ 要求每执行 1 条键值对命令, 软件写入键值对命令到 AOF 数据文件 (高开销高安全)
+│ no-appendfsync-on-rewrite yes        │         │ 要求软件避免 AOF 数据文件争用性能, 可能导致缺失数据
+│ no-appendfsync-on-rewrite no         │    √    │ 要求软件避免 AOF 数据文件缺失数据, 可能引起服务卡顿
+│ auto-aof-rewrite-percentage 100      │    √    │ 要求软件在 AOF 数据文件持续增长 100% 时重写并压缩 AOF 数据文件
+│ auto-aof-rewrite-percentage NUM      │         │ 要求软件在 AOF 数据文件持续增长 NUM% 时重写并压缩 AOF 数据文件
+│ auto-aof-rewrite-min-size 64mb       │    √    │ 要求软件在 AOF 数据文件持续增长 64MB 时重写并压缩 AOF 数据文件
+│ auto-aof-rewrite-min-size SIZE       │         │ 要求软件在 AOF 数据文件持续增长 SIZE 时重写并压缩 AOF 数据文件
+│ aof-load-truncated yes               │    √    │ 软件检查出 AOF 数据文件末尾存在数据损坏时, 自动删除数据损坏部分并启动
+│ aof-load-truncated no                │         │ 软件检查出 AOF 数据文件末尾存在数据损坏时, 拒绝启动
+│ aof-use-rdb-preamble yes             │    √    │ 开启软件的 AOF/ RDB 混合存储特性, 显著提高软件启动时的数据读取效率
+│ aof-use-rdb-preamble no              │         │ 关闭软件的 AOF/ RDB 混合存储特性, 软件重写并压缩 AOF 数据文件时不抢计算资源
+│ daemonize no                         │    √    │ 使用终端前台启动软件
+│ daemonize yes                        │         │ 使用终端后台启动软件
+│ dir .                                │    √    │ 设置软件的数据目录为进程启动目录
+│ dir /PATH/TO/DIR                     │         │ 设置软件的数据目录为 /PATH/TO/DIR
+│ logfile /dev/stdout                  │    √    │ 设置软件的日志输出文件为标准输出
+│ logfile /PATH/TO/FILE                │         │ 设置软件的日志输出文件为固定文件 (需要借助 Logrotate 工具滚动日志文件)
+│ loglevel verbose                     │    √    │ 设置软件的日志输出级别为 verbose
+│ loglevel LEVEL                       │         │ 设置软件的日志输出级别为 LEVEL (debug < verbose < notice < warning)
+│ databases 16                         │    √    │ 要求软件创建 16  个数据库实例 db(0...15)
+│ databases NUM                        │         │ 要求软件创建 NUM 个数据库实例 db(0...NUM-1)
+│ io-threads 1                         │    √    │ 要求软件开启单线程工作模式
+│ io-threads NUM                       │         │ 要求软件开启多线程工作模式 (建议值为 CPU-1 && 小于等于数值 7)
+│ io-threads-do-reads no               │    √    │ 禁止软件使用读写线程读取网络请求
+│ io-threads-do-reads yes              │         │ 允许软件使用读写线程读取网络请求
+│ supervised no                        │    √    │ 要求软件自行管理进程状态
+│ supervised systemd                   │         │ 要求软件向根守护进程上报进程状态
+│ include /PATH/TO/FILE                │         │ 加载 /PATH/TO/FILE 文件内的配置块与配置项
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+阅读上述表格时, 还请注意:
+
+    •  源码使用宏参数 CONFIG_FDSET_INCR 预留有 32 个文件句柄, 应当确保 maxclients + 32 求和值小于等于 nofile 资源限制值
+    •  要求软件向根守护进程上报进程状态 (supervised systemd) 的同时, 务必要求软件使用终端前台启动软件 (daemonize no)
+    •  多线程工作模式由一个主线程 (Main thread) 和若干读写线程 (I/O thread) 组成, 其配合分工由 io-threads-do-reads 配置项控制
+
+                                                 ┌─────────────────────────┬─────────────────────────┐
+                                                 │ io-threads-do-reads no  │ io-threads-do-reads yes │
+       ┌─────────────────────────────────────────┼─────────────────────────┼─────────────────────────┤
+       │ Accept request and parse protocol       │       Main thread       │       I/O  thread       │
+       │ Operate Key-Value in memory             │       Main thread       │       Main thread       │
+       │ Return result                           │       I/O  thread       │       I/O  thread       │
+       └─────────────────────────────────────────┴─────────────────────────┴─────────────────────────┘
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+单点及主从配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+单点配置文件为 /etc/redis/conf.d/standalone.conf
+单点配置文件可以参考社区文档站点 https://redis.com.cn/redis-configuration.html
+
+单点配置文件常用配置项如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ include /PATH/TO/FILE                │         │ 单点服务加载 /PATH/TO/FILE 文件寄存的通用配置
+│ port 6379                            │    √    │ 单点服务使用 6379 端口
+│ port NUM                             │         │ 单点服务使用 NUM  端口
+│ requirepass                          │    √    │ 单点服务关闭连接认证
+│ requirepass PASSWORD                 │         │ 单点服务开启连接认证, 使用 PASSWORD 作为认证口令
+│ dir .                                │    √    │ 单点服务的数据目录为进程启动目录
+│ dir /PATH/TO/DIR                     │         │ 单点服务的数据目录为 /PATH/TO/DIR
+│ dbfilename dump.rdb                  │    √    │ 单点服务的 RDB 数据文件为 ${dir}/dump.rdb
+│ dbfilename FILE                      │         │ 单点服务的 RDB 数据文件为 ${dir}/FILE
+│ appendfilename appendonly.aof        │    √    │ 单点服务的 AOF 数据文件为 ${dir}/appendonly.aof
+│ appendfilename FILE                  │         │ 单点服务的 AOF 数据文件为 ${dir}/FILE
+│ pidfile /var/run/redis.pid           │    √    │ 单点服务使用进程文件 /var/run/redis.pid
+│ pidfile /PATH/TO/FILE                │         │ 单点服务使用进程文件 /PATH/TO/FILE
+│ logfile /dev/stdout                  │    √    │ 单点服务的日志输出文件为标准输出
+│ logfile /PATH/TO/FILE                │         │ 单点服务的日志输出文件为固定文件
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+单点配置文件等价于主节点配置文件, 从节点配置文件还需要在单点配置文件的基础上添加下述配置项:
+
+    [ slaveof ADDR PORT   ]  **  设置从节点的主从同步对象为 ADDR:PORT
+    [ masterauth PASSWORD ]  **  设置从节点的认证口令为 PASSWORD
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+哨兵配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+哨兵配置文件为 /etc/redis/conf.d/sentinel.conf
+哨兵配置文件可以参考社区文档站点 https://redis.com.cn/topics/sentinel.html
+
+哨兵配置文件常用配置项如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ include /PATH/TO/FILE                │         │ 哨兵服务加载 /PATH/TO/FILE 文件寄存的通用配置
+│ port 26379                           │    √    │ 哨兵服务使用 26739 端口
+│ port NUM                             │         │ 哨兵服务使用 NUM 端口
+│ dir .                                │    √    │ 哨兵服务的数据目录为进程启动目录
+│ dir /PATH/TO/DIR                     │         │ 哨兵服务的数据目录为 /PATH/TO/DIR
+│ sentinel ...                         │         │ 哨兵服务的工作机制
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+阅读上述表格时, 还请注意:
+
+    sentinel monitor MASTER ADDR PORT QUORUM
+    ─────────────────────────────────────────────
+    哨兵集群的监控对象
+
+        ( MASTER ) 设置服务对象的通信名称, 需要在上下文中复用
+        ( ADDR   ) 设置主节点的通信地址
+        ( PORT   ) 设置主节点的通信端口
+        ( QUORUM ) 设置主节点的选举票数 (使用 Raft 协议选举主节点: QUORUM = SENTINEL/2 + 1)
+
+    sentinel auth-pass MASTER PASSWORD
+    ─────────────────────────────────────────────
+    哨兵集群的监控对象的认证口令为 PASSWORD
+
+    sentinel down-after-milliseconds MASTER NUM
+    ─────────────────────────────────────────────
+    哨兵集群使用 PingTong 命令检查主节点心跳, 若持续 NUM 毫秒无响应, 哨兵集群判断主节点失联并重写选举主节点
+
+    sentinel failover-timeout MASTER NUM
+    ─────────────────────────────────────────────
+    哨兵集群实现主节点故障转移期间, 各环节的超时时间为 NUM 毫秒
+
+    sentinel parallel-syncs MASTER NUM
+    ─────────────────────────────────────────────
+    哨兵集群判断主节点失联并重写选举主节点, 从节点需要变更数据同步对象, 每批次仅允许 NUM 个从节点发起数据同步请求
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+集群配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+集群配置文件为 /etc/redis/conf.d/cluster.conf
+集群配置文件可以参考社区文档站点 https://redis.com.cn/topics/cluster-tutorial.html
+
+集群配置文件常用配置项如下
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Configuration                        │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ include /PATH/TO/FILE                │         │ 集群服务加载 /PATH/TO/FILE 文件寄存的通用配置
+│ cluster-enabled yes                  │         │ 使用集群模式提供服务
+│ cluster-enabled no                   │    √    │ 禁用集群模式提供服务
+│ dir .                                │    √    │ 集群服务的数据目录为进程启动目录
+│ dir /PATH/TO/DIR                     │         │ 集群服务的数据目录为 /PATH/TO/DIR
+│ cluster-config-file nodes.conf       │    √    │ 集群服务的元数据配置文件为 ${dir}/nodes.conf
+│ cluster-config-file FILE             │         │ 集群服务的元数据配置文件为 ${dir}/FILE
+│ cluster-require-full-coverage yes    │    √    │ 集群服务必须完全覆盖哈希插槽, 否则集群进入失败状态
+│ cluster-require-full-coverage no     │         │ 集群服务允许遗漏部分哈希插槽, 但禁止访问遗漏的哈希插槽
+│ cluster-allow-reads-when-down yes    │         │ 集群进入失败状态, 仍然提供数据的读服务
+│ cluster-allow-reads-when-down no     │    √    │ 集群进入失败状态, 不再提供数据读写服务
+│ cluster-replica-no-failover yes      │         │ 集群服务禁用主从故障转移
+│ cluster-replica-no-failover no       │    √    │ 集群服务启用主从故障转移
+│ cluster-node-timeout 15000           │    √    │ 集群服务的心跳检测超时阈值设置为 15000 毫秒
+│ cluster-node-timeout NUM             │         │ 集群服务的心跳检测超时阈值设置为 NUM   毫秒
+│ cluster-slave-validity-factor 10     │    √    │ 集群服务用于主从故障转移的数据时效性系数设置为 10
+│ cluster-slave-validity-factor NUM    │         │ 集群服务用于主从故障转移的数据时效性系数设置为 NUM
+│ cluster-allow-replica-migration yes  │    √    │ 集群服务开启从节点漂移特性
+│ cluster-allow-replica-migration no   │         │ 集群服务关闭从节点漂移特性
+│ cluster-migration-barrier 1          │    √    │ 集群服务触发从节点漂移的阈值标准设置为 COUNT(M0) >= COUNT(M1) + 1
+│ cluster-migration-barrier NUM        │         │ 集群服务用于从节点漂移的阈值标准设置为 COUNT(M0) >= COUNT(M1) + NUM
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+阅读上述表格时, 还请注意:
+
+    •  
+    •
+    •
+    •
+
+
+
