@@ -142,11 +142,14 @@
 ┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
 │ Configuration                        │ Default │ Comment
 ├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
-│ include /PATH/TO/FILE                │         │ 哨兵服务加载 /PATH/TO/FILE 文件寄存的通用配置
 │ port 26379                           │    √    │ 哨兵服务使用 26739 端口
 │ port NUM                             │         │ 哨兵服务使用 NUM 端口
-│ dir .                                │    √    │ 哨兵服务的数据目录为进程启动目录
-│ dir /PATH/TO/DIR                     │         │ 哨兵服务的数据目录为 /PATH/TO/DIR
+│ pidfile /var/run/redis-sentinel.pid  │    √    │ 单点服务使用进程文件 /var/run/redis-sentinel.pid
+│ pidfile /PATH/TO/FILE                │         │ 单点服务使用进程文件 /PATH/TO/FILE
+│ logfile /dev/stdout                  │    √    │ 单点服务的日志输出文件为标准输出
+│ logfile /PATH/TO/FILE                │         │ 单点服务的日志输出文件为固定文件
+│ supervised no                        │    √    │ 要求软件自行管理进程状态
+│ supervised systemd                   │         │ 要求软件向根守护进程上报进程状态
 │ sentinel ...                         │         │ 哨兵服务的工作机制
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
@@ -194,6 +197,14 @@
 │ cluster-enabled no                   │    √    │ 禁用集群模式提供服务
 │ dir .                                │    √    │ 集群服务的数据目录为进程启动目录
 │ dir /PATH/TO/DIR                     │         │ 集群服务的数据目录为 /PATH/TO/DIR
+│ dbfilename dump.rdb                  │    √    │ 集群服务的 RDB 数据文件为 ${dir}/dump.rdb
+│ dbfilename FILE                      │         │ 集群服务的 RDB 数据文件为 ${dir}/FILE
+│ appendfilename appendonly.aof        │    √    │ 集群服务的 AOF 数据文件为 ${dir}/appendonly.aof
+│ appendfilename FILE                  │         │ 集群服务的 AOF 数据文件为 ${dir}/FILE
+│ pidfile /var/run/redis.pid           │    √    │ 集群服务使用进程文件 /var/run/redis.pid
+│ pidfile /PATH/TO/FILE                │         │ 集群服务使用进程文件 /PATH/TO/FILE
+│ logfile /dev/stdout                  │    √    │ 集群服务的日志输出文件为标准输出
+│ logfile /PATH/TO/FILE                │         │ 集群服务的日志输出文件为固定文件
 │ cluster-config-file nodes.conf       │    √    │ 集群服务的元数据配置文件为 ${dir}/nodes.conf
 │ cluster-config-file FILE             │         │ 集群服务的元数据配置文件为 ${dir}/FILE
 │ cluster-require-full-coverage yes    │    √    │ 集群服务必须完全覆盖哈希插槽, 否则集群进入失败状态

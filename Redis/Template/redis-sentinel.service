@@ -1,5 +1,5 @@
 [Unit]
-Description = Redis Service of Standalone
+Description = Redis Service of Sentinel
 Documentation = https://redis.io/documentation
 Wants = network-online.target
 After = network-online.target
@@ -7,7 +7,7 @@ After = network-online.target
 Type = notify
 NotifyAccess = all
 TimeoutSec = 0
-ExecStart = /usr/local/bin/redis-server /etc/redis/conf.d/standalone.conf
+ExecStart = /usr/local/bin/redis-sentinel /etc/redis/conf.d/sentinel.conf
 ExecReload = /usr/bin/kill -s HUP $MAINPID
 ExecStop = /usr/bin/kill -s TERM $MAINPID
 LimitNOFILE = 65535
