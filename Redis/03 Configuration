@@ -197,6 +197,10 @@
 │ Configuration                        │ Default │ Comment
 ├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
 │ include /PATH/TO/FILE                │         │ 集群服务加载 /PATH/TO/FILE 文件寄存的通用配置
+│ port 6379                            │    √    │ 集群服务使用 6379 端口
+│ port NUM                             │         │ 集群服务使用 NUM  端口
+│ requirepass                          │    √    │ 集群服务关闭连接认证
+│ requirepass PASSWORD                 │         │ 集群服务开启连接认证, 使用 PASSWORD 作为认证口令
 │ cluster-enabled yes                  │         │ 使用集群模式提供服务
 │ cluster-enabled no                   │    √    │ 禁用集群模式提供服务
 │ dir .                                │    √    │ 集群服务的数据目录为进程启动目录
@@ -205,34 +209,32 @@
 │ dbfilename FILE                      │         │ 集群服务的 RDB 数据文件为 ${dir}/FILE
 │ appendfilename appendonly.aof        │    √    │ 集群服务的 AOF 数据文件为 ${dir}/appendonly.aof
 │ appendfilename FILE                  │         │ 集群服务的 AOF 数据文件为 ${dir}/FILE
+│ cluster-config-file nodes.conf       │    √    │ 集群服务的元数据配置文件为 ${dir}/nodes.conf
+│ cluster-config-file FILE             │         │ 集群服务的元数据配置文件为 ${dir}/FILE
 │ pidfile /var/run/redis.pid           │    √    │ 集群服务使用进程文件 /var/run/redis.pid
 │ pidfile /PATH/TO/FILE                │         │ 集群服务使用进程文件 /PATH/TO/FILE
 │ logfile /dev/stdout                  │    √    │ 集群服务的日志输出文件为标准输出
 │ logfile /PATH/TO/FILE                │         │ 集群服务的日志输出文件为固定文件
-│ cluster-config-file nodes.conf       │    √    │ 集群服务的元数据配置文件为 ${dir}/nodes.conf
-│ cluster-config-file FILE             │         │ 集群服务的元数据配置文件为 ${dir}/FILE
+│ cluster-node-timeout 15000           │    √    │ 集群服务的心跳检测超时阈值设置为 15000 毫秒
+│ cluster-node-timeout NUM             │         │ 集群服务的心跳检测超时阈值设置为 NUM   毫秒
 │ cluster-require-full-coverage yes    │    √    │ 集群服务必须完全覆盖哈希插槽, 否则集群进入失败状态
 │ cluster-require-full-coverage no     │         │ 集群服务允许遗漏部分哈希插槽, 但禁止访问遗漏的哈希插槽
 │ cluster-allow-reads-when-down yes    │         │ 集群进入失败状态, 仍然提供数据的读服务
 │ cluster-allow-reads-when-down no     │    √    │ 集群进入失败状态, 不再提供数据读写服务
 │ cluster-replica-no-failover yes      │         │ 集群服务禁用主从故障转移
 │ cluster-replica-no-failover no       │    √    │ 集群服务启用主从故障转移
-│ cluster-node-timeout 15000           │    √    │ 集群服务的心跳检测超时阈值设置为 15000 毫秒
-│ cluster-node-timeout NUM             │         │ 集群服务的心跳检测超时阈值设置为 NUM   毫秒
 │ cluster-slave-validity-factor 10     │    √    │ 集群服务用于主从故障转移的数据时效性系数设置为 10
-│ cluster-slave-validity-factor NUM    │         │ 集群服务用于主从故障转移的数据时效性系数设置为 NUM
+│ cluster-slave-validity-factor NUM    │         │ 集群服务用于主从故障转移的数据时效性系数设置为 NUM (0: 关闭特性)
 │ cluster-allow-replica-migration yes  │    √    │ 集群服务开启从节点漂移特性
 │ cluster-allow-replica-migration no   │         │ 集群服务关闭从节点漂移特性
 │ cluster-migration-barrier 1          │    √    │ 集群服务触发从节点漂移的阈值标准设置为 COUNT(M0) >= COUNT(M1) + 1
 │ cluster-migration-barrier NUM        │         │ 集群服务用于从节点漂移的阈值标准设置为 COUNT(M0) >= COUNT(M1) + NUM
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
-阅读上述表格时, 还请注意:
+集群配置文件内, 部分配置项存在上下文依赖:
 
-    •  
-    •
-    •
-    •
+           cluster-replica-no-failover  no  ▶︎  cluster-slave-validity-factor
+       cluster-allow-replica-migration yes  ▶︎  cluster-migration-barrier
 
 
 
