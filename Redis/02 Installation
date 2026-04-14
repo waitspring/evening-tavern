@@ -1,0 +1,182 @@
+   _                       _   _                           
+  | |                     | | | |          o               
+  | | _  _    , _|_  __,  | | | |  __, _|_     __   _  _   
+_ |/ / |/ |  / \_|  /  |  |/  |/  /  |  |  |  /  \_/ |/ |  
+\_/\/  |  |_/ \/ |_/\_/|_/|__/|__/\_/|_/|_/|_/\__/   |  |_/
+                                                           
+                                                           
+--  This document was created by Xuanming in 2026, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件的主机配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件受主机的内核参数的影响, 这些内核参数登记在下述配置文件:
+
+    •  资源限制文件 /etc/security/limits.conf
+    •  资源限制文件 /etc/security/limits.d/20-nproc.conf (优先级高于 /etc/security/limits.conf 资源限制文件)
+    •  内核参数文件 /etc/sysctl.conf
+    •  启动参数文件 /etc/default/grub (永久关闭透明大页的启动参数 transparent_hugepage=never)
+
+资源限制文件 /etc/security/limits.conf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*  -  nproc   65535
+*  -  nofile  65535
+*  -  core    unlimited
+*  -  fsize   unlimited
+*  -  rss     unlimited
+*  -  stack   unlimited
+*  -  memlock unlimited
+*  -  as      unlimited
+
+内核参数文件 /etc/sysctl.conf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+net.core.somaxconn = 65535
+net.core.netdev_max_backlog = 65535
+net.ipv4.tcp_max_syn_backlog = 65535
+net.ipv4.tcp_fin_timeout = 10
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_keepalive_time = 300
+vm.overcommit_memory = 1
+vm.swappiness = 1
+vm.zone_reclaim_mode = 0
+fs.file-max = 65535
+
+启动参数文件 /etc/default/grub
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GRUB_CMDLINE_LINUX="... transparent_hugepage=never"
+
+""""""""" 演示资源调优的基本步骤
+[root ~]# cat > /etc/security/limits.conf << EOF
+*  -  nproc   65535
+*  -  nofile  65535
+*  -  core    unlimited
+*  -  fsize   unlimited
+*  -  rss     unlimited
+*  -  stack   unlimited
+*  -  memlock unlimited
+*  -  as      unlimited
+EOF
+[root ~]# ulimit -a
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 演示内核调优的基本步骤
+[root ~]# cat > /etc/sysctl.conf << EOF
+net.core.somaxconn = 65535
+net.core.netdev_max_backlog = 65535
+net.ipv4.tcp_max_syn_backlog = 65535
+net.ipv4.tcp_fin_timeout = 10
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_keepalive_time = 300
+vm.overcommit_memory = 1
+vm.swappiness = 1
+vm.zone_reclaim_mode = 0
+fs.file-max = 65535
+EOF
+[root ~]# sysctl -p
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 演示启动调优的基本步骤
+[root ~]# sed -i -r '/GRUB_CMDLINE_LINUX/s/(.+)="(.+)"/\1="\2 transparent_hugepage=never"/g' /etc/default/grub
+[root ~]# grub2-mkconfig -o /boot/grub2/grub.cfg
+[root ~]# reboot
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件的编译安装
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件的安装途经有:
+
+    •  使用 YUM 源直接安装
+    •  使用 RPM 包直接安装
+    •  使用源码安装 (优先推荐使用源码安装), 源码的 TGZ 压缩包可以基于 REDIS/ GitHub 社区站点下载
+       *  https://download.redis.io/releases
+       *  https://github.com/redis/redis/releases
+    •  使用源码安装 Redis 软件时, 依次执行源码编译和源码安装两个步骤即可, 无需执行预编译步骤
+
+Redis 软件的源码编译选项有 (make ...)
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Option                               │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ MALLOC=jemalloc                      │    √    │ 设置 Redis 软件使用 Jemalloc 内存调度器
+│ BUILD_TLS=no                         │    √    │ 关闭 Redis 软件的数据加密特性
+│ BUILD_TLS=yes                        │         │ 开启 Redis 软件的数据加密特性
+│ USE_SYSTEMD=no                       │    √    │ 关闭 Redis 软件的服务单元通信
+│ USE_SYSTEMD=yes                      │         │ 开启 Redis 软件的服务单元通信
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+Redis 软件的源码安装选项有 (make install ...)
+┌──────────────────────────────────────┬─────────┬─────────────────────────────────────────────────────────────────────
+│ Option                               │ Default │ Comment
+├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
+│ PREFIX=/usr/local                    │    √    │ 复制 Redis 软件的可执行文件到 /usr/local/bin 目录
+│ PREFIX=/path/to/redis                │         │ 复制 Redis 软件的可执行文件到 /path/to/redis/bin 目录
+└──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
+
+""""""""" 安装前置依赖包, 准备用户和目录结构
+[root ~]# yum install -y systemd-devel.x86_64 openssl-devel.x86_64
+[root ~]# useradd -r -s /sbin/nologin -M redis
+[root ~]# mkdir -p /etc/redis/conf.d /var/log/redis /var/redis/run /var/redis/data/{standalone,sentinel,cluster}
+[root ~]# chown -R redis:redis /etc/redis /var/log/redis /var/redis
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 解压软件源码压缩包, 编译安装软件
+[root ~]# tar -xzf /srv/redis-6.2.20.tar.gz -C /root
+[root ~]# cd /root/redis-6.2.20
+[root redis-6.2.20]# make BUILD_TLS=yes USE_SYSTEMD=yes
+[root redis-6.2.20]# tree /root/redis-6.2.20
+/root/redis-6.2.20
+    │
+    ├──── redis.conf
+    ├──── sentinel.conf
+    ├──── cluster-example.conf
+    ├──── utils
+    │       ├──── redis_init_script
+    │       ├──── redis-sentinel.service
+    │       └──── systemd-redis_server.service
+    └──── src
+            ├──── redis-benchmark
+            ├──── redis-check-aof
+            ├──── redis-check-rdb
+            ├──── redis-cli
+            ├──── redis-sentinel
+            └──── redis-server
+[root ~]# make install
+[root ~]# sudo -u redis /usr/local/bin/redis-server -v
+
+    Redis Server v=6.2.20 sha=00000000:0 malloc=jemalloc-5.1.0 bits=64 build=d7d297779a390f27
+
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+Redis 软件若使用源码编译安装, 可以得到下述文件
+┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
+│ Path                                           │ F/D │ Comment
+├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
+│ /usr/local/bin/redis-benchmark                 │  F  │ 软件的性能压测工具, 能够连接 Redis 服务并模拟大规模并发读写
+│ /usr/local/bin/redis-check-aof                 │  L  │ 软件的 AOF 数据文件检测工具
+│ /usr/local/bin/redis-check-rdb                 │  L  │ 软件的 RDB 数据文件检测工具
+│ /usr/local/bin/redis-cli                       │  F  │ 软件的操作连接工具
+│ /usr/local/bin/redis-sentinel                  │  L  │ 软件的哨兵管理工具
+│ /usr/local/bin/redis-server                    │  F  │ 软件的服务管理工具
+│ /etc/redis/redis.conf                          │  F  │ 软件的通用配置文件
+│ /etc/redis/conf.d/standalone.conf              │  F  │ 软件的单点配置文件
+│ /etc/redis/conf.d/sentinel.conf                │  F  │ 软件的哨兵配置文件
+│ /etc/redis/conf.d/cluster.conf                 │  F  │ 软件的集群配置文件
+│ /var/redis/run/standalone.pid                  │  F  │ 软件使用单点模式启动时的进程文件
+│ /var/redis/run/sentinel.pid                    │  F  │ 软件使用哨兵模式启动时的进程文件
+│ /var/redis/run/cluster.pid                     │  F  │ 软件使用集群模式启动时的进程文件
+│ /var/redis/data/standalone                     │  D  │ 软件单点模式使用的数据目录
+│ /var/redis/data/cluster                        │  D  │ 软件集群模式使用的数据目录
+│ /var/log/redis/standalone.log                  │  F  │ 软件的单点日志文件
+│ /var/log/redis/sentinel.log                    │  F  │ 软件的哨兵日志文件
+│ /var/log/redis/cluster.log                     │  F  │ 软件的集群日志文件
+│ /usr/lib/systemd/system/redis-standalone.se... │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件 (单点模式)
+│ /usr/lib/systemd/system/redis-sentinel.service │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件 (哨兵模式)
+│ /usr/lib/systemd/system/redis-cluster.service  │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件 (集群模式)
+└────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
+
+
+
