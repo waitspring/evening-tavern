@@ -169,6 +169,7 @@ Redis 软件若使用源码编译安装, 可以得到下述文件
 │ /var/redis/run/sentinel.pid                    │  F  │ 软件使用哨兵模式启动时的进程文件
 │ /var/redis/run/cluster.pid                     │  F  │ 软件使用集群模式启动时的进程文件
 │ /var/redis/data/standalone                     │  D  │ 软件单点模式使用的数据目录
+│ /var/redis/data/sentinel                       │  D  │ 软件哨兵模式使用的数据目录
 │ /var/redis/data/cluster                        │  D  │ 软件集群模式使用的数据目录
 │ /var/log/redis/standalone.log                  │  F  │ 软件的单点日志文件
 │ /var/log/redis/sentinel.log                    │  F  │ 软件的哨兵日志文件

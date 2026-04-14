@@ -5,7 +5,7 @@
  \___/\__/   |  |_/|__/|_/\_/|/ \_/|_/   |_/\_/|_/|_/|_/\__/   |  |_/
                    |\       /|                                       
                    |/       \|                                       
---  This document was created by Xuanming in 2023, thanks for your reading
+--  This document was created by Xuanming in 2026, thanks for your reading
 
 
 
@@ -63,8 +63,8 @@
 │ aof-load-truncated no                │         │ 软件检查出 AOF 数据文件末尾存在数据损坏时, 拒绝启动
 │ aof-use-rdb-preamble yes             │    √    │ 开启软件的 AOF/ RDB 混合存储特性, 显著提高软件启动时的数据读取效率
 │ aof-use-rdb-preamble no              │         │ 关闭软件的 AOF/ RDB 混合存储特性, 软件重写并压缩 AOF 数据文件时不抢计算资源
-│ daemonize no                         │    √    │ 使用终端前台启动软件
 │ daemonize yes                        │         │ 使用终端后台启动软件
+│ daemonize no                         │    √    │ 使用终端前台启动软件
 │ dir .                                │    √    │ 设置软件的数据目录为进程启动目录
 │ dir /PATH/TO/DIR                     │         │ 设置软件的数据目录为 /PATH/TO/DIR
 │ logfile /dev/stdout                  │    √    │ 设置软件的日志输出文件为标准输出
@@ -75,11 +75,13 @@
 │ databases NUM                        │         │ 要求软件创建 NUM 个数据库实例 db(0...NUM-1)
 │ io-threads 1                         │    √    │ 要求软件开启单线程工作模式
 │ io-threads NUM                       │         │ 要求软件开启多线程工作模式 (建议值为 CPU-1 && 小于等于数值 7)
-│ io-threads-do-reads no               │    √    │ 禁止软件使用读写线程读取网络请求
 │ io-threads-do-reads yes              │         │ 允许软件使用读写线程读取网络请求
-│ supervised no                        │    √    │ 要求软件自行管理进程状态
+│ io-threads-do-reads no               │    √    │ 禁止软件使用读写线程读取网络请求
 │ supervised systemd                   │         │ 要求软件向根守护进程上报进程状态
-│ include /PATH/TO/FILE                │         │ 加载 /PATH/TO/FILE 文件内的配置块与配置项
+│ supervised no                        │    √    │ 要求软件自行管理进程状态
+│ tls-ca-cert-file /PATH/TO/CRT        │         │ CA 机构颁发的权威证书文件
+│ tls-cert-file /PATH/TO/PEM           │         │ CA 机构颁发的 SSL 公钥证书文件
+│ tls-key-file /PATH/TO/KEY            │         │ CA 机构颁发的 SSL 私钥证书文件
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 阅读上述表格时, 还请注意:
@@ -111,8 +113,11 @@
 │ include /PATH/TO/FILE                │         │ 单点服务加载 /PATH/TO/FILE 文件寄存的通用配置
 │ port 6379                            │    √    │ 单点服务使用 6379 端口
 │ port NUM                             │         │ 单点服务使用 NUM  端口
+│ tls-port NUM                         │         │ 单点服务使用 NUM  端口并使用数据加密通信
 │ requirepass                          │    √    │ 单点服务关闭连接认证
 │ requirepass PASSWORD                 │         │ 单点服务开启连接认证, 使用 PASSWORD 作为认证口令
+│ tls-auth-clients yes                 │    √    │ 单点服务使用 SSL 证书校验客户端连接
+│ tls-auth-clients no                  │         │ 单点服务禁用 SSL 证书校验客户端连接
 │ dir .                                │    √    │ 单点服务的数据目录为进程启动目录
 │ dir /PATH/TO/DIR                     │         │ 单点服务的数据目录为 /PATH/TO/DIR
 │ dbfilename dump.rdb                  │    √    │ 单点服务的 RDB 数据文件为 ${dir}/dump.rdb
@@ -129,6 +134,8 @@
 
     [ slaveof ADDR PORT   ]  **  设置从节点的主从同步对象为 ADDR:PORT
     [ masterauth PASSWORD ]  **  设置从节点的认证口令为 PASSWORD
+    [ tls-replication yes ]  **  要求从节点使用 SSL 证书建立主从加密连接
+    [ tls-replication no  ]  **  要求从节点不用 SSL 证书建立主从明文连接
 
 
 
@@ -144,6 +151,7 @@
 ├──────────────────────────────────────┼─────────┼─────────────────────────────────────────────────────────────────────
 │ port 26379                           │    √    │ 哨兵服务使用 26739 端口
 │ port NUM                             │         │ 哨兵服务使用 NUM 端口
+│ tls-port NUM                         │         │ 哨兵服务使用 NUM 端口并使用数据加密通信
 │ requirepass                          │    √    │ 哨兵服务关闭连接认证
 │ requirepass PASSWORD                 │         │ 哨兵服务开启连接认证, 使用 PASSWORD 作为认证口令
 │ dir .                                │    √    │ 哨兵服务的数据目录为进程启动目录
@@ -155,6 +163,13 @@
 │ supervised no                        │    √    │ 哨兵服务自行管理进程状态
 │ supervised systemd                   │         │ 哨兵服务向根守护进程上报进程状态
 │ sentinel ...                         │         │ 哨兵服务的工作机制
+│ tls-ca-cert-file /PATH/TO/CRT        │         │ CA 机构颁发的权威证书文件
+│ tls-cert-file /PATH/TO/PEM           │         │ CA 机构颁发的 SSL 公钥证书文件
+│ tls-key-file /PATH/TO/KEY            │         │ CA 机构颁发的 SSL 私钥证书文件
+│ tls-auth-clients yes                 │    √    │ 哨兵服务使用 SSL 证书校验客户端连接
+│ tls-auth-clients no                  │         │ 哨兵服务禁用 SSL 证书校验客户端连接
+│ tls-replication yes                  │         │ 哨兵节点使用 SSL 证书建立业务加密连接
+│ tls-replication no                   │    √    │ 哨兵节点不用 SSL 证书建立业务加密连接
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 阅读上述表格时, 还请注意:
@@ -199,6 +214,7 @@
 │ include /PATH/TO/FILE                │         │ 集群服务加载 /PATH/TO/FILE 文件寄存的通用配置
 │ port 6379                            │    √    │ 集群服务使用 6379 端口
 │ port NUM                             │         │ 集群服务使用 NUM  端口
+│ tls-port NUM                         │         │ 集群服务使用 NUM  端口并使用数据加密通信
 │ requirepass                          │    √    │ 集群服务关闭连接认证
 │ requirepass PASSWORD                 │         │ 集群服务开启连接认证, 使用 PASSWORD 作为认证口令
 │ cluster-enabled yes                  │         │ 使用集群模式提供服务
@@ -229,6 +245,10 @@
 │ cluster-allow-replica-migration no   │         │ 集群服务关闭从节点漂移特性
 │ cluster-migration-barrier 1          │    √    │ 集群服务触发从节点漂移的阈值标准设置为 COUNT(M0) >= COUNT(M1) + 1
 │ cluster-migration-barrier NUM        │         │ 集群服务用于从节点漂移的阈值标准设置为 COUNT(M0) >= COUNT(M1) + NUM
+│ tls-auth-clients yes                 │    √    │ 集群服务使用 SSL 证书校验客户端连接
+│ tls-auth-clients no                  │         │ 集群服务不用 SSL 证书校验客户端连接
+│ tls-cluster yes                      │         │ 集群服务开启 SSL 证书加密通信模式
+│ tls-cluster no                       │    √    │ 集群服务关闭 SSL 证书加密通信模式
 └──────────────────────────────────────┴─────────┴─────────────────────────────────────────────────────────────────────
 
 集群配置文件内, 部分配置项存在上下文依赖:
