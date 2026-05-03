@@ -79,6 +79,12 @@
 │ io-threads-do-reads no               │    √    │ 禁止软件使用读写线程读取网络请求
 │ supervised systemd                   │         │ 要求软件向根守护进程上报进程状态
 │ supervised no                        │    √    │ 要求软件自行管理进程状态
+│ repl-disable-tcp-nodelay yes         │         │ 要求软件关闭 TCP_NODELAY 特性 (数据同步较快且带宽开销较大)
+│ repl-disable-tcp-nodelay no          │    √    │ 要求软件开启 TCP_NODELAY 特性 (数据同步较慢且带宽开销较小)
+│ repl-timeout 60                      │    √    │ 设置软件主从数据同步的时间上限为 60  秒钟
+│ repl-timeout NUM                     │         │ 设置软件主从数据同步的时间上限为 NUM 秒钟
+│ repl-backlog-size 1mb                │    √    │ 设置软件积压缓冲区的数据容量为 1mb
+│ repl-backlog-size SIZE               │         │ 设置软件积压缓冲区的数据容量为 SIZE (容量单位)
 │ tls-ca-cert-file /PATH/TO/CRT        │         │ CA 机构颁发的权威证书文件
 │ tls-cert-file /PATH/TO/PEM           │         │ CA 机构颁发的 SSL 公钥证书文件
 │ tls-key-file /PATH/TO/KEY            │         │ CA 机构颁发的 SSL 私钥证书文件
@@ -132,10 +138,12 @@
 
 单点配置文件等价于主节点配置文件, 从节点配置文件还需要在单点配置文件的基础上添加下述配置项:
 
-    [ slaveof ADDR PORT   ]  **  设置从节点的主从同步对象为 ADDR:PORT
-    [ masterauth PASSWORD ]  **  设置从节点的认证口令为 PASSWORD
-    [ tls-replication yes ]  **  要求从节点使用 SSL 证书建立主从加密连接
-    [ tls-replication no  ]  **  要求从节点不用 SSL 证书建立主从明文连接
+    [ slaveof ADDR PORT     ]  **  设置从节点的主从同步对象为 ADDR:PORT
+    [ masterauth PASSWORD   ]  **  设置从节点的认证口令为 PASSWORD
+    [ tls-replication yes   ]  **  要求从节点使用 SSL 证书建立主从加密连接
+    [ tls-replication no    ]  **  要求从节点不用 SSL 证书建立主从明文连接 ( √ )
+    [ slaveof-read-only yes ]  **  要求从节点开启只读服务模式 ( √ )
+    [ slaveof-read-only no  ]  **  要求从节点关闭只读服务模式
 
 
 
