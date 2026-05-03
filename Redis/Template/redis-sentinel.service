@@ -12,6 +12,7 @@ ExecReload = /usr/bin/kill -s HUP $MAINPID
 ExecStop = /usr/bin/kill -s TERM $MAINPID
 LimitNOFILE = 65535
 LimitNPROC = 65535
+OOMScoreAdjust = -99
 User=redis
 Group=redis
 [Install]
