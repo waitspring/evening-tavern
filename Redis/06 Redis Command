@@ -1,0 +1,200 @@
+ , __                       ___                                                
+/|/  \        |  o         / (_)                                            |  
+ |___/  _   __|      ,    |      __   _  _  _    _  _  _    __,   _  _    __|  
+ | \   |/  /  |  |  / \_  |     /  \_/ |/ |/ |  / |/ |/ |  /  |  / |/ |  /  |  
+ |  \_/|__/\_/|_/|_/ \/    \___/\__/   |  |  |_/  |  |  |_/\_/|_/  |  |_/\_/|_/
+                                                                               
+                                                                               
+--  This document was created by Xuanming in 2026, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6379 Command I
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+用户使用 redis-cli 命令能够使用用户前台创建一个不断执行命令的 Redis 软件终端, 其常用的终端命令有
+::  help COMMAND                                 查阅 COMMAND 命令的帮助手册
+::  ping                                         检查 Redis 软件服务的网络连接是否正常
+::  shutdown                                     关闭 Redis 软件服务
+::  select IDX                                   切换 Redis 软件当前实例为 IDX 编号的实例 (IDX 编号的默认取值范围为 0 ~ 15)
+::  config set PARAM VALUE                       设置 Redis 软件 PARAM 配置项的值为 VALUE
+::  config get PARAM                             查询 Redis 软件 PARAM 配置项的值
+::  dbsize                                       统计 Redis 软件当前实例内键值对的数量
+::  flushdb                                      擦除 Redis 软件当前实例的键值对
+::  flushall                                     擦除 Redis 软件全部实例的键值对
+::  bgsave                                       要求 Redis 软件触发 RDB 持久化存储工作流程
+::  lastsave                                     查询 Redis 软件上次 RDB 持久化存储工作流程的触发时间点 (Unix 时间戳格式)
+::  bgrewriteaof                                 要求 Redis 软件重写 AOF 数据文件
+::  replicaof HOST PORT                          要求 Redis 软件当前实例成为 HOST:PORT 实例的从节点
+::  replicaof no one                             要求 Redis 软件当前实例成为主节点
+
+""""""""" 演示 redis-cli 软件终端的基本用法
+[root ~]# redis-cli -h redis.season.com --tls --insecure
+> bgsave
+> lastsave
+> bgrewriteaof
+> info persistence
+> config get dir
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6379 Command II
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+info [SECTION]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+info 终端命令默认查询 Redis 软件的全量统计数据, 搭配 SECTION 参数能够查询 Redis 软件的主题统计数据
+info 终端命令可选搭配下述数据章节
+::  server                                       查询 Redis 软件的服务端统计数据 (version/ pid/ mode/ port/ uptime/ ...)
+::  clients                                      查询 Redis 软件的客户端统计数据 (max_cli/ conn_cli/ blocked_cli/ ...)
+::  memory                                       查询 Redis 软件的内存统计数据
+::  stats                                        查询 Redis 软件的综合统计数据
+::  persistence                                  查询 Redis 软件的 RDB/ AOF 持久化存储统计数据
+::  replication                                  查询 Redis 软件的主从统计数据 (role/ failover/ offset/ backlog/ ...)
+::  cpu                                          查询 Redis 软件的 CPU 统计数据
+::  modules                                      查询 Redis 软件的模块统计数据
+::  errorstats                                   查询 Redis 软件的错误统计数据
+::  cluster                                      查询 Redis 软件的集群统计数据
+::  keyspace                                     查询 Redis 软件的键值统计数据
+
+""""""""" 演示 info 终端命令的基本用法
+[root ~]# redis-cli -h redis.season.com --tls --insecure
+> info keyspace
+db0: keys=80, expires=31, avg_ttl=1432431        | 总计 80 个键值对, 其中 31 个键值对设置有过期时间, 平均 1432431 毫秒过期
+> info persistence
+rdb_bgsave_in_progress: 0                        | 软件未在执行 RDB 持久化存储工作流程
+rdb_changes_since_last_save: 371                 | 软件上次触发 RDB 持久化存储工作流程以来已有 371 个写操作
+rdb_last_save_time: 1778489989                   | 软件上次触发 RDB 持久化存储工作流程的 Unix 时间戳为 1778489989
+rdb_last_bgsave_status: ok                       | 软件上次触发 RDB 持久化存储工作流程成功
+rdb_last_bgsave_time_sec: 0                      | 软件上次触发 RDB 持久化存储工作流程花费 0 秒钟
+rdb_last_cow_size: 667648                        | 软件上次触发 RDB 持久化存储工作流程时内存大页尺寸为 667648 字节
+aof_enabled: 1                                   | 软件已经开启 AOF 持久化存储工作流程
+aof_rewrite_in_progress: 0                       | 软件未在重写 AOF 数据文件
+aof_last_rewrite_time_sec: 0                     | 软件上次重写 AOF 数据文件花费 0 秒钟
+aof_last_bgrewrite_status: ok                    | 软件上次重写 AOF 数据文件成功
+aof_last_write_status: ok                        | 软件上次写入 AOF 数据文件成功
+aof_last_cow_size: 671744                        | 软件上次重写 AOF 数据文件时内存大页尺寸为 671744 字节
+aof_base_size: 181011                            | 软件上次重写 AOF 数据文件时 AOF 数据文件的尺寸为 181011 字节
+aof_current_size: 32966326                       | 软件当前持有 AOF 数据文件的尺寸为 32966326 字节
+aof_buffer_length: 0                             | 软件当前持有 AOF 内存缓冲区的尺寸为 0 字节
+aof_rewrite_buffer_length: 0                     | 软件当前持有 AOF 重写缓冲区的尺寸为 0 字节
+aof_pending_bio_fsync: 0                         | 软件当前正有 0 个 fsync 任务等待执行
+aof_delayed_fsync: 0                             | 软件当前正有 0 个 fsync 任务延迟执行 (判断 AOF 追加阻塞的金标准)
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 演示 info 终端命令的基本用法
+[root ~]# redis-cli -h slave.redis.season.com --tls --insecure
+> info replication
+role: slave
+master_host: master.redis.season.com
+master_port: 6379
+master_link_status: up                           <────────────────────────────────────────────────────────────────────┐
+master_last_io_seconds_ago: 0                    <────────────────────────────────────────────────────────────────────┘
+master_sync_in_progress: 0
+master_failover_state: no-failover
+master_replid: 0c21f85f26b5b83581cee5d1ab8dbcdc0f1c73af
+master_replid2: 0000000000000000000000000000000000000000
+master_repl_offset: 39030171818                  <────────────────────────────────────────────────────────────────────┐
+second_repl_offset: -1                                                                                                │
+slave_repl_offset: 39030171818                   <────────────────────────────────────────────────────────────────────┤
+slave_read_repl_offset: 39030171818              <────────────────────────────────────────────────────────────────────┤
+slave_priority: 100                                                                                                   │
+slave_read_only: 1                                                                                                    │
+connected_slaves: 0                                                                                                   │
+repl_backlog_active: 1                                                                                                │
+repl_backlog_size: 214958080                     <─────────────────────────────┐                                      │
+repl_backlog_first_byte_offset: 38815213739      <─────────────────────────────│──────────────────────────────────────┘
+repl_backlog_histlen: 214958080                  <─────────────────────────────┘
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+阅读上述命令时, 还请注意:
+
+    •  master_link_status = up && master_last_io_seconds_ago = 0          >>>> 表明连接正常
+    •  master_link_status = up && master_last_io_seconds_ago > 10         >>>> 考虑连接假死
+    •  master_repl_offset = slave_repl_offset                             >>>> 表明主从数据同步正常
+    •  master_repl_offset > slave_repl_offset                             >>>> 考虑主从数据同步积压
+    •  slave_read_repl_offset = slave_repl_offset                         >>>> 表明从节点性能正常
+    •  slave_read_repl_offset < slave_repl_offset                         >>>> 考虑从节点遭遇 CPU 以及磁盘性能瓶颈
+    •  repl_backlog_first_byte_offset ≤ slave_repl_offset                 >>>> 考虑主从断线重连触发增量同步
+    •  repl_backlog_first_byte_offset > slave_repl_offset                 >>>> 考虑主从断线重连触发全量同步
+    •  repl_backlog_size = repl_backlog_histlen                           >>>> 表明从节点积压复制缓冲区已被写满
+
+slowlog { get [NUM] | len | reset }
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+slowlog 终端命令能够管理 Redis 软件的慢查询
+slowlog 终端命令必须搭配下述具体动作
+::  get [NUM]                                    查阅 Redis 软件慢查询队列内前 NUM 条慢查询信息
+::  len                                          统计 Redis 软件慢查询队列内慢查询的数量
+::  reset                                        擦除 Redis 软件慢查询队列
+
+使用 slowlog 终端命令时, 还请注意:
+
+    •  慢查询使用配置项 slowlog-log-slower-than 界定
+           *  slowlog-log-slower-than < 0: 关闭慢查询特性
+           *  slowlog-log-slower-than ≥ 0: 开启慢查询特性, 并且记录执行时间大于 slowlog-log-slower-than 配置项的命令为慢查询
+    •  慢查询队列宽度使用配置项 slowlog-max-len 设置 (默认 128 个单位宽度)
+    •  慢查询队列寄存 Redis 软件服务的全部慢查询数据, 无法按照实例隔离慢查询数据
+
+""""""""" 演示 slowlog 终端命令的基本用法
+[root ~]# redis-cli -h redis.season.com --tls --insecure
+> slowlog len
+(integer) 10
+> slowlog get 3
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+26379 Command
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+用户使用 redis-cli 命令能够使用用户前台创建一个不断执行命令的 Redis 哨兵终端, 其常用的哨兵命令有
+::  sentinel help                                查询 Redis 哨兵命令的帮助信息
+::  sentinel myid                                查询 Redis 哨兵节点的身份编号
+::  sentinel config set PARAM VALUE              设置 PARAM 配置项的值为 VALUE
+::  sentinel config get PARAM                    查询 PARAM 配置项的值
+::  sentinel flushconfig                         要求 Redis 哨兵强制刷新配置文件 (持久保存哨兵终端的配置项变更结果)
+::  sentinel masters                             列出 Redis 哨兵管理的集群列表
+::  sentinel ckquorum MASTER                     诊断 MASTER 集群主节点是否具备故障转移条件
+::  sentinel failover MASTER                     要求 MASTER 集群主节点立刻执行故障转移
+::  sentinel get-master-addr-by-name MASTER      查询 MASTER 集群主节点的地址端口数据
+::  sentinel info-cache MASTER                   查询 MASTER 集群主节点的全量统计数据
+::  sentinel replicas MASTER                     查询 MASTER 集群主节点的主从同步数据
+::  sentinel master MASTER                       查询 MASTER 集群主节点的哨兵统计数据
+::  sentinel sentinels MASTER                    查询 MASTER 集群主节点的哨兵集群数据
+::  sentinel set MASTER PARAM VALUE              设置 MASTER 集群主节点的 PARAM 配置项的值为 VALUE (等价 $(config set ...))
+
+""""""""" 演示 redis-cli 哨兵终端的基本用法
+[root ~]# redis-cli -h redis-sentinel.season.com -p 36379 --tls --insecure
+> sentinel masters
+1) 1) "name"
+   2) "season"                                   <────────────────────────────────────────────────────────────────────┐
+   3) ... ...                                                                                                         │
+> sentinel master season                         <────────────────────────────────────────────────────────────────────┤
+> sentinel replicas season                       <────────────────────────────────────────────────────────────────────┤
+> sentinel ckquorum season                       <────────────────────────────────────────────────────────────────────┘
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+info [SECTION]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+info 终端命令默认查询 Redis 哨兵的全量统计数据, 搭配 SECTION 参数能够查询 Redis 哨兵的主题统计数据
+info 终端命令可选搭配下述数据章节
+::  server                                       查询 Redis 哨兵的服务端统计数据 (version/ pid/ mode/ port/ uptime/ ...)
+::  clients                                      查询 Redis 哨兵的客户端统计数据 (max_cli/ conn_cli/ blocked_cli/ ...)
+::  cpu                                          查询 Redis 哨兵的 CPU 统计数据
+::  stats                                        查询 Redis 哨兵的综合统计数据
+::  sentinel                                     查询 Redis 哨兵的工作统计数据
+
+""""""""" 演示 slowlog 终端命令的基本用法
+[root ~]# redis-cli -h redis-sentinel.season.com -p 36379 --tls --insecure
+> info sentinel
+sentinel_masters: 1
+sentinel_tilt: 0
+sentinel_running_scripts: 0
+sentinel_scripts_queue_length: 0
+sentinel_simulate_failure_flags: 0
+master0:name=season,status=ok,address=redis.season.com:6379,slaves=2,sentinels=3
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+

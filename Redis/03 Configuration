@@ -63,6 +63,16 @@
 │ aof-load-truncated no                │         │ 软件检查出 AOF 数据文件末尾存在数据损坏时, 拒绝启动
 │ aof-use-rdb-preamble yes             │    √    │ 开启软件的 AOF/ RDB 混合存储特性, 显著提高软件启动时的数据读取效率
 │ aof-use-rdb-preamble no              │         │ 关闭软件的 AOF/ RDB 混合存储特性, 软件重写并压缩 AOF 数据文件时不抢计算资源
+│ repl-disable-tcp-nodelay yes         │         │ 要求软件关闭 TCP_NODELAY 特性 (数据同步较快且带宽开销较大)
+│ repl-disable-tcp-nodelay no          │    √    │ 要求软件开启 TCP_NODELAY 特性 (数据同步较慢且带宽开销较小)
+│ repl-timeout 60                      │    √    │ 设置软件主从数据同步的时间上限为 60  秒钟
+│ repl-timeout NUM                     │         │ 设置软件主从数据同步的时间上限为 NUM 秒钟
+│ repl-backlog-size 1mb                │    √    │ 设置软件积压缓冲区的数据容量为 1mb
+│ repl-backlog-size SIZE               │         │ 设置软件积压缓冲区的数据容量为 SIZE (容量单位)
+│ slowlog-log-slower-than 10000        │    √    │ 设置软件慢查询的标准判断阈值为 10000 微秒 (10 毫秒)
+│ slowlog-log-slower-than NUM          │         │ 设置软件慢查询的标准判断阈值为 NUM 微秒
+│ slowlog-max-len 128                  │    √    │ 设置软件慢查询的日志队列长度为 128 宽度
+│ slowlog-max-len NUM                  │         │ 设置软件慢查询的日志队列长度为 NUM 宽度
 │ daemonize yes                        │         │ 使用终端后台启动软件
 │ daemonize no                         │    √    │ 使用终端前台启动软件
 │ dir .                                │    √    │ 设置软件的数据目录为进程启动目录
@@ -79,12 +89,6 @@
 │ io-threads-do-reads no               │    √    │ 禁止软件使用读写线程读取网络请求
 │ supervised systemd                   │         │ 要求软件向根守护进程上报进程状态
 │ supervised no                        │    √    │ 要求软件自行管理进程状态
-│ repl-disable-tcp-nodelay yes         │         │ 要求软件关闭 TCP_NODELAY 特性 (数据同步较快且带宽开销较大)
-│ repl-disable-tcp-nodelay no          │    √    │ 要求软件开启 TCP_NODELAY 特性 (数据同步较慢且带宽开销较小)
-│ repl-timeout 60                      │    √    │ 设置软件主从数据同步的时间上限为 60  秒钟
-│ repl-timeout NUM                     │         │ 设置软件主从数据同步的时间上限为 NUM 秒钟
-│ repl-backlog-size 1mb                │    √    │ 设置软件积压缓冲区的数据容量为 1mb
-│ repl-backlog-size SIZE               │         │ 设置软件积压缓冲区的数据容量为 SIZE (容量单位)
 │ tls-ca-cert-file /PATH/TO/CRT        │         │ CA 机构颁发的权威证书文件
 │ tls-cert-file /PATH/TO/PEM           │         │ CA 机构颁发的 SSL 公钥证书文件
 │ tls-key-file /PATH/TO/KEY            │         │ CA 机构颁发的 SSL 私钥证书文件
@@ -160,6 +164,8 @@
 │ port 26379                           │    √    │ 哨兵服务使用 26739 端口
 │ port NUM                             │         │ 哨兵服务使用 NUM 端口
 │ tls-port NUM                         │         │ 哨兵服务使用 NUM 端口并使用数据加密通信
+│ bind 0.0.0.0                         │    √    │ 哨兵服务的监听地址为 0.0.0.0
+│ bind ADDR                            │         │ 哨兵服务的监听地址为 ADDR (IPv4/ IPv6/ domain A)
 │ requirepass                          │    √    │ 哨兵服务关闭连接认证
 │ requirepass PASSWORD                 │         │ 哨兵服务开启连接认证, 使用 PASSWORD 作为认证口令
 │ dir .                                │    √    │ 哨兵服务的数据目录为进程启动目录
@@ -187,7 +193,7 @@
     哨兵集群的监控对象
 
         ( MASTER ) 设置服务对象的通信名称, 需要在上下文中复用
-        ( ADDR   ) 设置主节点的通信地址
+        ( ADDR   ) 设置主节点的通信地址, 若主节点使用域名作为通信地址, 需要哨兵集群开启域名解析特性
         ( PORT   ) 设置主节点的通信端口
         ( QUORUM ) 设置主节点的选举票数 (使用 Raft 协议选举主节点: QUORUM = SENTINEL/2 + 1)
 
@@ -206,6 +212,16 @@
     sentinel parallel-syncs MASTER NUM
     ─────────────────────────────────────────────
     哨兵集群判断主节点失联并重写选举主节点, 从节点需要变更数据同步对象, 每批次仅允许 NUM 个从节点发起数据同步请求
+
+    sentinel resolve-hostnames  { yes | no (√) }
+    sentinel announce-hostnames { yes | no (√) }
+    ─────────────────────────────────────────────
+    哨兵集群开启 (yes)/ 关闭 (no) 域名解析特性
+
+    port && port <> tls-port
+    ─────────────────────────────────────────────
+    port 配置项务必存在
+    tls-port 配置项在启用时, 不得等于 port 并由此避免端口冲突
 
 
 

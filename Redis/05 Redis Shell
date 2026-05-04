@@ -1,0 +1,119 @@
+ , __                           _          _   _  
+/|/  \        |  o          () | |        | | | | 
+ |___/  _   __|      ,      /\ | |     _  | | | | 
+ | \   |/  /  |  |  / \_   /  \|/ \   |/  |/  |/  
+ |  \_/|__/\_/|_/|_/ \/   /(__/|   |_/|__/|__/|__/
+                                                  
+                                                  
+--  This document was created by Xuanming in 2026, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis Cli
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/path/to/redis-cli [option...]
+/path/to/redis-cli [option...] [command]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/path/to/redis-cli 命令是 Redis 软件的操作连接工具, 默认能够使用用户前台创建一个不断执行命令的 Redis 软件终端
+/path/to/redis-cli 命令常用的可选选项有
+::  -h HOSTNAME                    ( 127.0.0.1 ) 服务端的连接地址
+::  -p PORT                             ( 6379 ) 服务端的连接端口
+::  -n NUM                                 ( 0 ) 服务端的实例编号
+::  -a PASSWORD                                  服务端的认证口令
+::  -c                                           服务端为集群模式, 规避用户会话出现 -ASK -MOVED 请求异常
+::            --tls                              要求工具创建 SSL 安全连接, 需要配合 --insecure/ --cacert 选项使用
+::            --insecure                         要求工具不用 CA 文件校验服务端身份
+::            --cacert=/PATH/TO/CA               要求工具使用 CA 文件校验服务端身份
+::  -x                                           要求工具读取标准输入拼接为命令的一部分, 需要配合管道符号使用
+::  -r NUM                                 ( 1 ) 服务端重复执行 NUM 次命令
+::  -i NUM                                 ( 0 ) 服务端重复执行 NUM 次命令的同时, 设置轮询间隔为 NUM 秒钟
+::            --slave                            要求工具模拟 Redis 从节点
+::            --csv                              要求工具使用 CSV 表格的数据格式输出命令的执行结果
+::            --rdb=/PATH/TO/FILE.RDB            要求工具复制 RDB 数据文件为 /PATH/TO/FILE.RDB 备份文件
+::            --latency                          要求工具持续检测服务端的网络质量
+::            --latency-history                  要求工具持续检测服务端的网络质量, 检测结果按照 15 秒钟分段计算
+::            --latency-dist                     要求工具持续检测服务端的网络质量, 检测结果整理为数据图表
+::            --stat                             要求工具持续呈报服务端的统计数据
+::            --bigkeys                          要求工具统计键值对的数据元素情况, 呈报数据统计结果
+::            --memkeys                          要求工具统计键值对的内存消耗情况, 呈报数据统计结果
+::            --hotkeys                          要求工具统计键值对的读取访问情况, 呈报数据统计结果, 需要配合 LFU 算法使用
+::            --no-raw                           要求工具展示二进制格式的原始数据
+
+""""""""" 演示操作连接工具的基本用法
+[root ~]# redis-cli -h redis.season.com --tls --insecure -r 2 -i 10 ping
+PONG
+PONG
+[root ~]# redis-cli -h redis.season.com --tls --insecure --latency
+min: 0, max: 1, avg: 0.14 (1000 samples)
+^C
+[root ~]# redis-cli -h redis.season.com --tls --insecure --stat
+    keys      mem       clients        blocked   requests  connections
+       1      4.32M           1              0   438 (+0)            7
+       1      4.32M           1              0   439 (+1)            7
+       1      4.32M           1              0   440 (+1)            7
+^C
+[root ~]# redis-cli -h redis-sentinel.season.com -p 36379 --tls --insecure info sentinel
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis Svr
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/path/to/redis-server [option...] [/path/to/conf]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/path/to/redis-server 命令是 Redis 软件的服务管理工具, 默认使用内置参数启动软件单点服务
+/path/to/redis-server 命令用 /path/to/conf 参数能够指定配置文件, 命令行选项亦能够重载配置文件给予服务端的配置项
+/path/to/redis-server 命令常用的可选选项有
+::            --test-memory=NUM                  要求工具检测服务能否维持 NUM MB 尺寸的内存资源 (需要一定检测耗时)
+::            --sentinel                         要求工具启动软件哨兵服务
+::  -h        --help                             查阅工具帮助信息
+::  -v        --version                          查阅工具版本信息
+
+""""""""" 演示服务管理工具的基本用法
+[root ~]# redis-server --test-memory 2048 /etc/redis/conf.d/standalone.conf
+Please keep the test running several minutes per GB of memory.
+
+Your memory passed this test.
+Please if you are still in doubt use this following two tools:
+
+    (1) memtest86: http://www.memtest86.com/
+    (2) memtester: http://pyropus.ca/software/memtester/
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+/path/to/redis-benchmark [option...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/path/to/redis-benchmark 命令是 Redis 软件的性能压测工具, 
+/path/to/redis-benchmark 命令常用的可选选项有
+::  -h HOSTNAME                    ( 127.0.0.1 ) 服务端的连接地址
+::  -p PORT                             ( 6379 ) 服务端的连接端口
+::            --dbnum NUM                  ( 0 ) 服务端的实例编号
+::  -a PASSWORD                                  服务端的认证口令
+::            --cluster                          服务端为集群模式, 规避用户会话出现 -ASK -MOVED 请求异常
+::            --tls                              要求工具创建 SSL 安全连接, 需要配合 --insecure/ --cacert 选项使用
+::            --insecure                         要求工具不用 CA 文件校验服务端身份
+::            --cacert=/PATH/TO/CA               要求工具使用 CA 文件校验服务端身份
+::            --csv                              要求工具使用 CSV 表格的数据格式输出命令的执行结果
+::            --enable-tracking                  要求工具开始压测前, 发送 TRACKING 信号给到客户端会话避免业务阻塞
+::            --threads NUM                      要求工具执行压测时, 使用 NUM 个并发线程
+::  -c NUM                                ( 50 ) 要求工具执行压测时, 使用 NUM 个并发的模拟客户端
+::  -n NUM                            ( 100000 ) 要求工具执行压测时, 测试 NUM 个模拟请求 (按照模拟客户端数量大致均分)
+::  -r NUM                                 ( 3 ) 要求工具执行压测时, 使用 NUM 个随机数据
+::  -k {0 | 1}                             ( 1 ) 要求工具执行压测时, 使用 0: reconnect; 1: keepalive 网络特性
+::  -t COMMAND...                                要求工具执行压测时, 使用 COMMAND... 命令
+::  -q                                           要求工具执行压测时, 使用静默工作模式
+::            --help                             查阅工具帮助信息
+::            --version                          查阅工具版本信息
+
+""""""""" 演示性能压测工具的基本用法
+[root ~]# redis-benchmark -h redis.season.com --tls --insecure --enable-tracking --threads 3 -r 10000
+Summary:
+    throughput summary: 71581.96 requests per second
+    latency summary (msec):
+        avg      min      p50      p95      p99      max
+      0.572    0.080    0.351    1.639    6.711   70.335
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
