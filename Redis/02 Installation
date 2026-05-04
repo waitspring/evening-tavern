@@ -144,8 +144,8 @@ Redis 软件的源码安装选项有 (make install ...)
             ├──── redis-cli
             ├──── redis-sentinel
             └──── redis-server
-[root ~]# make install
-[root ~]# sudo -u redis /usr/local/bin/redis-server -v
+[root redis-6.2.20]# make install
+[root redis-6.2.20]# sudo -u redis /usr/local/bin/redis-server -v
 
     Redis Server v=6.2.20 sha=00000000:0 malloc=jemalloc-5.1.0 bits=64 build=d7d297779a390f27
 

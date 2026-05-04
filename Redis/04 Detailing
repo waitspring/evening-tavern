@@ -90,9 +90,9 @@ Redis 软件主从复制数据的工作流程如下:
     (8) 从节点发送 psync ${repl-id} ${repl-offset} 命令到主节点, 发起较长耗时的 RDB 数据文件增量同步直至完成
     (9) 从节点读取 RDB 数据文件, 主从节点间的 TCP 长连接进入命令级的持续复制阶段, 主节点实时把自身已执行的写命令持续发送到从节点
 
-    Redis 软件每次启动都会动态获取一个 40 位宽度的十六进制字符串作为运行编号,
-    Redis 软件触发 RDB 持久化存储工作流程时, 会把运行编号 (repl-id) 以及数据偏移量 (repl-offset) 写入 RDB 文件,
-    Redis 软件每次重启, 都会读取 RDB 文件内备份的运行编号 (repl-id) 以及数据偏移量 (repl-offset) 信息, 从而实现 PSYNC2 机制,
+    Redis 软件每次启动都会动态获取一个 40 位宽度的十六进制字符串作为运行编号
+    Redis 软件触发 RDB 持久化存储工作流程时, 会把运行编号 (repl-id) 以及数据偏移量 (repl-offset) 写入 RDB 文件
+    Redis 软件每次重启, 都会读取 RDB 文件内备份的运行编号 (repl-id) 以及数据偏移量 (repl-offset) 信息, 从而实现 PSYNC2 机制
     Redis 软件内的 PSYNC2 机制拥有两种答复机制: 使用 +FULLRESYNC 触发数据全量复制, 使用 +CONTINUE 触发数据增量复制    
 
 
