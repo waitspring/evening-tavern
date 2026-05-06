@@ -169,6 +169,7 @@ Redis 软件若使用源码编译安装, 可以得到下述文件
 │ /var/redis/run/sentinel.pid                    │  F  │ 软件使用哨兵模式启动时的进程文件
 │ /var/redis/run/cluster.pid                     │  F  │ 软件使用集群模式启动时的进程文件
 │ /var/redis/data/standalone                     │  D  │ 软件单点模式使用的数据目录
+│ /var/redis/data/sentinel                       │  D  │ 软件哨兵模式使用的数据目录
 │ /var/redis/data/cluster                        │  D  │ 软件集群模式使用的数据目录
 │ /var/log/redis/standalone.log                  │  F  │ 软件的单点日志文件
 │ /var/log/redis/sentinel.log                    │  F  │ 软件的哨兵日志文件
@@ -177,6 +178,34 @@ Redis 软件若使用源码编译安装, 可以得到下述文件
 │ /usr/lib/systemd/system/redis-sentinel.service │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件 (哨兵模式)
 │ /usr/lib/systemd/system/redis-cluster.service  │  F  │ 软件的 Systemd (RHEL7) 风格的服务单元管理文件 (集群模式)
 └────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件的三方模块
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Redis 软件的三方模块使用动态链接库 (.so 文件) 开发, 可以热插拔到 Redis 服务实例
+Redis 软件的三方模块参照 https://redis.io/docs/latest/develop/reference/modules
+
+
+    •  Disque                                    [                           https://github.com/antirez/disque-module ]
+    •  ReDe                                      [                                  https://github.com/TamarLabs/Rede ]
+    •  RediSearch                                [                           https://github.com/RediSearch/RediSearch ]
+    •  RedisGraph                                [                           https://github.com/RedisGraph/RedisGraph ]
+    •  RedisBloom                                [                           https://github.com/RedisBloom/RedisBloom ]
+    •  RedisGears                                [                           https://github.com/RedisGears/RedisGears ]
+    •  RedisJSON                                 [                             https://github.com/RedisJSON/RedisJSON ]
+    •  RedisTimeSeries                           [                 https://github.com/RedisTimeSeries/RedisTimeSeries ]
+    •  RedisAI                                   [            https://github.com/RedisAI/redis-inference-optimization ]
+    •  rediSQL                                   [                             https://github.com/RedBeardLab/rediSQL ]
+    •  redis-cell                                [                              https://github.com/brandur/redis-cell ]
+    •  redis-roaring                             [                         https://github.com/aviggiano/redis-roaring ]
+    •  redis-cuckoofilter                        [                  https://github.com/kristoff-it/redis-cuckoofilter ]
+    •  redis-tdigest                             [                            https://github.com/usmanm/redis-tdigest ]
+    •  redex                                     [                          https://github.com/RedisLabsModules/redex ]
+    •  sessiongate                               [                             https://github.com/f0rmiga/sessiongate ]
+    •  neural-redis                              [                            https://github.com/antirez/neural-redis ]
+    •  cthulhu                                   [                                 https://github.com/sklivvz/cthulhu ]
 
 
 
