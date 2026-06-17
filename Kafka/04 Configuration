@@ -177,36 +177,35 @@ Kafka 软件配置 SSL 证书需要使用如下要素:
     •  /path/to/file.ca                          CA 机构颁发的权威证书文件
     •  /path/to/file.pem                         CA 机构颁发的 SSL 公钥证书文件
     •  /path/to/file.key                         CA 机构颁发的 SSL 私钥证书文件
-    •  (A ∈ ca_domain) ∧ (PTR ∈ ca_domain)       CA 机构颁发的权威证书文件的认证域能够覆盖 Kafka 节点的 A/ PTR 域名解析记录
+    •  (A ∈ ca_domain) ∧ (PTR ∈ ca_domain)       CA 机构颁发的权威证书文件的认证域能够覆盖 A/ PTR 域名解析记录
 
 """"""""" 使用 openssl 工具为 Kafka 软件创建密钥库文件
 [root ~]# openssl pkcs12 -export \
-                         -name kafka-0.season.com \
-                         -certfile /path/to/file.ca \
+                         -name kafka \
                          -in /path/to/file.pem \
                          -inkey /path/to/file.key \
                          -out /etc/kafka/kafka.keystore.p12 \
-                         -password season_4U
+                         -password pass:season_4U
 [root ~]# keytool -list -keystore /etc/kafka/kafka.keystore.p12 -storepass season_4U
 Keystore type: PKCS12
 Keystore provider: SUN
 
-    Private key entry kafka-0.season.com
+    Private key entry kafka
     Certificate fingerprint (SHA1): 5C:16:54:F4:E2:06:05:99:C4:77:C8:C0:74:20:25:92:0F:51:79:90
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 使用 keytool 工具为 Kafka 软件创建信任库文件
 [root ~]# keytool -import \
                   -trustcacerts \
-                  -alias ca@kafka-0.season.com \
-                  -file /path/to/file.ca \
+                  -alias ca@kafka \
+                  -file /path/to/file.cer \
                   -keystore /etc/kafka/kafka.truststore.jks \
                   -storepass season_4U
 [root ~]# keytool -list -keystore /etc/kafka/kafka.truststore.jks -storepass season_4U
 Keystore type: JKS
 Keystore provider: SUN
 
-    Trusted cert entry ca@kafka-0.season.com
+    Trusted cert entry ca
     Certificate fingerprint (SHA1): DF:3C:24:F9:BF:D6:66:76:1B:26:80:73:FE:06:D1:CC:8D:4F:82:A4
 --------------------------------------------------------------------------------------------------------------------- ✻
 

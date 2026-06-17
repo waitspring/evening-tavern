@@ -148,3 +148,78 @@ ZOOMAIN="-Djava.rmi.server.hostname=172.16.0.100
 
 
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZooKeeper 软件的 SSL 配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZooKeeper 软件的 SSL 配置需要使用如下要素:
+
+    •  /path/to/file.ca                          CA 机构颁发的权威证书文件
+    •  /path/to/file.pem                         CA 机构颁发的 SSL 公钥证书文件
+    •  /path/to/file.key                         CA 机构颁发的 SSL 私钥证书文件
+    •  (A ∈ ca_domain) ∧ (PTR ∈ ca_domain)       CA 机构颁发的权威证书文件的认证域能够覆盖 A/ PTR 域名解析记录
+
+""""""""" 使用 openssl 工具为 ZooKeeper 软件创建密钥库文件
+[root ~]# openssl pkcs12 -export \
+                         -name zookeeper \
+                         -in /path/to/file.pem \
+                         -inkey /path/to/file.key \
+                         -out /etc/zookeeper/zookeeper.keystore.p12 \
+                         -password pass:season_4U
+[root ~]# keytool -list -keystore /etc/zookeeper/zookeeper.keystore.p12 -storepass season_4U
+Keystore type: PKCS12
+Keystore provider: SUN
+
+    Private key entry zookeeper
+    Certificate fingerprint (SHA1): 5C:16:54:F4:E2:06:05:99:C4:77:C8:C0:74:20:25:92:0F:51:79:90
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 使用 keytool 工具为 ZooKeeper 软件创建信任库文件
+[root ~]# keytool -import \
+                  -trustcacerts \
+                  -alias ca@zookeeper \
+                  -file /path/to/file.cer \
+                  -keystore /etc/zookeeper/zookeeper.truststore.jks \
+                  -storepass season_4U
+[root ~]# keytool -list -keystore /etc/zookeeper/zookeeper.truststore.jks -storepass season_4U
+Keystore type: JKS
+Keystore provider: SUN
+
+    Trusted cert entry ca@zookeeper
+    Certificate fingerprint (SHA1): DF:3C:24:F9:BF:D6:66:76:1B:26:80:73:FE:06:D1:CC:8D:4F:82:A4
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 维护实用工具内的 SSL 配置项
+[root ~]# vim /usr/local/zookeeper/bin/zkServer.sh
+export SERVER_JVMFLAGS="
+-Dzookeeper.serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory
+-Dzookeeper.ssl.keyStore.location=/etc/zookeeper/zookeeper.keystore.p12
+-Dzookeeper.ssl.keyStore.type=PKCS12
+-Dzookeeper.ssl.keyStore.password=season_4U
+-Dzookeeper.ssl.trustStore.location=/etc/zookeeper/zookeeper.truststore.jks
+-Dzookeeper.ssl.trustStore.type=JKS
+-Dzookeeper.ssl.trustStore.password=season_4U"
+
+[root ~]# sudo -u zookeeper cp /usr/local/zookeeper/bin/zkCli.sh /usr/local/zookeeper/bin/zkCli-ssl.sh
+[root ~]# vim /usr/local/zookeeper/bin/zkCli-ssl.sh
+export CLIENT_JVMFLAGS="
+-Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty
+-Dzookeeper.client.secure=true
+-Dzookeeper.ssl.keyStore.location=/etc/zookeeper/zookeeper.keystore.p12
+-Dzookeeper.ssl.keyStore.type=PKCS12
+-Dzookeeper.ssl.keyStore.password=season_4U
+-Dzookeeper.ssl.trustStore.location=/etc/zookeeper/zookeeper.truststore.jks
+-Dzookeeper.ssl.trustStore.type=JKS
+-Dzookeeper.ssl.trustStore.password=season_4U"
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 维护配置文件内的 SSL 配置项并重启服务单元
+[root ~]# vim /etc/zookeeper/zoo.cfg
+secureClientPort=2281
+
+[root ~]# systemctl restart zookeeper.service
+[root ~]# /usr/local/zookeeper/bin/zkCli.sh -server zookeeper-0.season.com:2181 ls -R /zookeeper
+[root ~]# /usr/local/zookeeper/bin/zkCli-ssl.sh -server zookeeper-0.season.com:2281 ls -R /zookeeper
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
