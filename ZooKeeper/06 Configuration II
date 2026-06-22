@@ -1,0 +1,188 @@
+  ___               _                                                     _    _ 
+ / (_)             | | o                             o                   | |  | |
+|      __   _  _   | |     __,         ,_    __, _|_     __   _  _       | |  | |
+|     /  \_/ |/ |  |/  |  /  | |   |  /  |  /  |  |  |  /  \_/ |/ |    _ |/ _ |/ 
+ \___/\__/   |  |_/|__/|_/\_/|/ \_/|_/   |_/\_/|_/|_/|_/\__/   |  |_/  \_/\/\_/\/
+                   |\       /|                                                   
+                   |/       \|                                                   
+--  This document was created by Xuanming in 2023, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZooKeeper 软件的 SSL 配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZooKeeper 软件的 SSL 配置需要使用如下要素:
+
+    •  /path/to/file.cer                         CA 机构颁发的权威证书文件
+    •  /path/to/file.pem                         CA 机构颁发的 SSL 公钥证书文件
+    •  /path/to/file.key                         CA 机构颁发的 SSL 私钥证书文件
+    •  (A ∈ ca_domain) ∧ (PTR ∈ ca_domain)       CA 机构颁发的权威证书文件的认证域能够覆盖 A/ PTR 域名解析记录
+
+""""""""" 使用 openssl 工具为 ZooKeeper 软件创建密钥库文件
+[root ~]# openssl pkcs12 -export \
+                         -name zookeeper \
+                         -in /path/to/file.pem \
+                         -inkey /path/to/file.key \
+                         -out /etc/zookeeper/zookeeper.keystore.p12 \
+                         -password pass:season_4U
+[root ~]# keytool -list -keystore /etc/zookeeper/zookeeper.keystore.p12 -storepass season_4U
+Keystore type: PKCS12
+Keystore provider: SUN
+
+    Private key entry zookeeper
+    Certificate fingerprint (SHA1): 5C:16:54:F4:E2:06:05:99:C4:77:C8:C0:74:20:25:92:0F:51:79:90
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 使用 keytool 工具为 ZooKeeper 软件创建信任库文件
+[root ~]# keytool -import \
+                  -trustcacerts \
+                  -alias ca@zookeeper \
+                  -file /path/to/file.cer \
+                  -keystore /etc/zookeeper/zookeeper.truststore.jks \
+                  -storepass season_4U
+[root ~]# keytool -list -keystore /etc/zookeeper/zookeeper.truststore.jks -storepass season_4U
+Keystore type: JKS
+Keystore provider: SUN
+
+    Trusted cert entry ca@zookeeper
+    Certificate fingerprint (SHA1): DF:3C:24:F9:BF:D6:66:76:1B:26:80:73:FE:06:D1:CC:8D:4F:82:A4
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 维护实用工具内的 SSL 配置项
+[root ~]# vim /usr/local/zookeeper/bin/zkServer.sh (30)
+... ...
+... ...
+export SERVER_JVMFLAGS="
+-Dzookeeper.serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory
+-Dzookeeper.ssl.keyStore.location=/etc/zookeeper/zookeeper.keystore.p12
+-Dzookeeper.ssl.keyStore.type=PKCS12
+-Dzookeeper.ssl.keyStore.password=season_4U
+-Dzookeeper.ssl.trustStore.location=/etc/zookeeper/zookeeper.truststore.jks
+-Dzookeeper.ssl.trustStore.type=JKS
+-Dzookeeper.ssl.trustStore.password=season_4U"
+... ...
+... ...
+[root ~]# sudo -u zookeeper cp /usr/local/zookeeper/bin/zkCli.sh /usr/local/zookeeper/bin/zkCli-ssl.sh
+[root ~]# vim /usr/local/zookeeper/bin/zkCli-ssl.sh (33)
+... ...
+... ...
+export CLIENT_JVMFLAGS="
+-Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty
+-Dzookeeper.client.secure=true
+-Dzookeeper.ssl.keyStore.location=/etc/zookeeper/zookeeper.keystore.p12
+-Dzookeeper.ssl.keyStore.type=PKCS12
+-Dzookeeper.ssl.keyStore.password=season_4U
+-Dzookeeper.ssl.trustStore.location=/etc/zookeeper/zookeeper.truststore.jks
+-Dzookeeper.ssl.trustStore.type=JKS
+-Dzookeeper.ssl.trustStore.password=season_4U"
+... ...
+... ...
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 维护配置文件内的 SSL 配置项并重启服务单元
+[root ~]# vim /etc/zookeeper/zoo.cfg
+secureClientPort=2281
+[root ~]# systemctl restart zookeeper.service
+[root ~]# /usr/local/zookeeper/bin/zkCli.sh -server zookeeper-0.season.com:2181 ls -R /zookeeper
+[root ~]# /usr/local/zookeeper/bin/zkCli-ssl.sh -server zookeeper-0.season.com:2281 ls -R /zookeeper
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZooKeeper 软件的 SASL 配置
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZooKeeper 软件的 SASL 配置需要使用如下要素:
+
+    •  /etc/zookeeper/zoo.cfg                    维护主配置文件内 SASL 的参数配置项
+    •  /etc/zookeeper/jaas-server.conf           ZooKeeper 服务端使用的 SASL 数据库文件, 登记用于安全认证的用户密码
+    •  /etc/zookeeper/jaas-client.conf           ZooKeeper 客户端使用的 SASL 数据库文件, 登记用于安全认证的普通用户
+    •  /etc/zookeeper/jaas-super.conf            ZooKeeper 客户端使用的 SASL 数据库文件, 登记用于安全认证的超管用户
+
+    /etc/zookeeper/zoo.cfg
+    -----------------------------------------------------------------
+    # 服务端使用 SASLAuthenticationProvider 类对象验证用户身份
+    authProvider.0=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
+    # 服务端开启 SASL 特性
+    requireClientAuthScheme=sasl
+    # 服务端在整个用户会话的生命周期内, 逐条命令验证用户身份
+    sessionRequireClientSASLAuth=true
+
+    /etc/zookeeper/jaas-server.conf
+    -----------------------------------------------------------------
+    Server {
+        org.apache.zookeeper.server.auth.DigestLoginModule required
+        user_super="season_4U"                   ◀─────────────────────────────┐
+        user_demo="demo_4U";                     ◀───────────────────────────────────────┐
+    };                                                                         │         │
+                                                                               │         │
+    /etc/zookeeper/jaas-client.conf                                            │         │
+    -----------------------------------------------------------------          │         │
+    Client {                                                                   │         │
+        org.apache.zookeeper.server.auth.DigestLoginModule required            │         │
+        username="demo"                          ◀───────────────────────────────────────┤
+        password="demo_4U";                      ◀───────────────────────────────────────┘
+    };                                                                         │
+                                                                               │
+    /etc/zookeeper/jaas-super.conf                                             │
+    -----------------------------------------------------------------          │
+    Client {                                                                   │
+        org.apache.zookeeper.server.auth.DigestLoginModule required            │
+        username="season"                        ◀─────────────────────────────┤
+        password="season_4U";                    ◀─────────────────────────────┘
+    };
+
+阅读上述文件时, 还请注意:
+
+    •  authProvider.0 配置项中数值编号应当等于实例的 ID 编号
+    •  user_super="season_4U" 配置项表示: 认证口令为 season_4U 的用户为软件超管用户
+    •  user_demo="demo_4U" 配置项表示: 用户 demo 的认证口令为 demo_4U
+    •  单个 JVM 进程仅允许加载单个客户端配置 (单个客户端使用的 SASL 数据库文件仅维护单个 Client 数据块)
+
+""""""""" 维护主配置文件内 SASL 的参数配置项
+[root ~]# vim /etc/zookeeper/zoo.cfg
+... ...
+... ...
+requireClientAuthScheme=sasl
+authProvider.0=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
+sessionRequireClientSASLAuth=true
+... ...
+... ...
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 维护服务端使用的 SASL 数据库文件
+[root ~]# vim /etc/zookeeper/jaas-server.conf
+Server {
+    org.apache.zookeeper.server.auth.DigestLoginModule required
+    user_super="super_4U"
+    user_demo="demo_4U";
+};
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 维护客户端使用的 SASL 数据库文件
+[root ~]# vim /etc/zookeeper/jaas-client.conf
+Client {
+    org.apache.zookeeper.server.auth.DigestLoginModule required
+    username="demo"
+    password="demo_4U";
+};
+[root ~]# vim /etc/zookeeper/jaas-super.conf
+Client {
+    org.apache.zookeeper.server.auth.DigestLoginModule required
+    username="season"
+    password="season_4U";
+};
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 维护实用工具内的 SASL 配置项
+[root ~]# vim /usr/local/zookeeper/bin/zkServer.sh (30)
+export JVMFLAGS="-Djava.security.auth.login.config=/etc/zookeeper/jaas-server.conf ${JVMFLAGS}"
+[root ~]# vim /usr/local/zookeeper/bin/zkClient.sh (30)
+export JVMFLAGS="-Djava.security.auth.login.config=/etc/zookeeper/jaas-client.conf ${JVMFLAGS}"
+[root ~]# systemctl restart zookeeper.service
+[root ~]# /usr/local/zookeeper/bin/zkCli.sh ls -R /zookeeper
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
