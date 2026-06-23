@@ -196,6 +196,7 @@ Keystore provider: SUN
 
 """"""""" 使用 keytool 工具为 Kafka 软件创建信任库文件
 [root ~]# keytool -import \
+                  -nopromt \
                   -trustcacerts \
                   -alias ca@kafka \
                   -file /path/to/file.cer \

@@ -145,6 +145,7 @@ ZOOMAIN="-Djava.rmi.server.hostname=172.16.0.100
          org.apache.zookeeper.server.quorum.QuorumPeerMain" (53)
 ... ...
 ... ...
+[root ~]# systemctl restart zookeeper.service
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
