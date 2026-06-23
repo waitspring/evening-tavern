@@ -36,6 +36,7 @@ Keystore provider: SUN
 
 """"""""" 使用 keytool 工具为 ZooKeeper 软件创建信任库文件
 [root ~]# keytool -import \
+                  -noprompt \
                   -trustcacerts \
                   -alias ca@zookeeper \
                   -file /path/to/file.cer \
@@ -50,7 +51,7 @@ Keystore provider: SUN
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 维护实用工具内的 SSL 配置项
-[root ~]# vim /usr/local/zookeeper/bin/zkServer.sh (30)
+[root ~]# vim /usr/local/zookeeper/bin/zkServer.sh (36)
 ... ...
 ... ...
 export SERVER_JVMFLAGS="
@@ -64,7 +65,7 @@ export SERVER_JVMFLAGS="
 ... ...
 ... ...
 [root ~]# sudo -u zookeeper cp /usr/local/zookeeper/bin/zkCli.sh /usr/local/zookeeper/bin/zkCli-ssl.sh
-[root ~]# vim /usr/local/zookeeper/bin/zkCli-ssl.sh (33)
+[root ~]# vim /usr/local/zookeeper/bin/zkCli-ssl.sh (39)
 ... ...
 ... ...
 export CLIENT_JVMFLAGS="
@@ -102,7 +103,7 @@ ZooKeeper 软件的 SASL 配置需要使用如下要素:
 
     /etc/zookeeper/zoo.cfg
     -----------------------------------------------------------------
-    # 服务端使用 SASLAuthenticationProvider 类对象验证用户身份
+    # 服务端使用 SASLAuthenticationProvider 类对象验证用户身份, 0 值等于软件节点的 ID 编号
     authProvider.0=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
     # 服务端开启 SASL 特性
     requireClientAuthScheme=sasl
@@ -113,32 +114,36 @@ ZooKeeper 软件的 SASL 配置需要使用如下要素:
     -----------------------------------------------------------------
     Server {
         org.apache.zookeeper.server.auth.DigestLoginModule required
-        user_super="season_4U"                   ◀─────────────────────────────┐
-        user_demo="demo_4U";                     ◀───────────────────────────────────────┐
+        user_super="spring_4U"                   ◀───────────────────────────────────────┐
+        user_spring="spring_4U"                  ◀───────────────────────────────────────┤
+        user_summer="summer_4U"                  ◀─────────────────────────────┐         │
+        user_autumn="autumn_4U"                                                │         │
+        user_winter="winter_4U";                                               │         │
     };                                                                         │         │
                                                                                │         │
-    /etc/zookeeper/jaas-client.conf                                            │         │
+    /etc/zookeeper/jaas-super.conf                                             │         │
     -----------------------------------------------------------------          │         │
     Client {                                                                   │         │
         org.apache.zookeeper.server.auth.DigestLoginModule required            │         │
-        username="demo"                          ◀───────────────────────────────────────┤
-        password="demo_4U";                      ◀───────────────────────────────────────┘
-    };                                                                         │
+        username="spring"                        ◀─────────────────────────────│─────────┤
+        password="spring_4U";                    ◀─────────────────────────────│─────────┘
+    }                                                                          │
                                                                                │
-    /etc/zookeeper/jaas-super.conf                                             │
+    /etc/zookeeper/jaas-client.conf                                            │
     -----------------------------------------------------------------          │
     Client {                                                                   │
         org.apache.zookeeper.server.auth.DigestLoginModule required            │
-        username="season"                        ◀─────────────────────────────┤
-        password="season_4U";                    ◀─────────────────────────────┘
-    };
+        username="summer"                        ◀─────────────────────────────┤
+        password="summer_4U";                    ◀─────────────────────────────┘
+    }
 
 阅读上述文件时, 还请注意:
 
-    •  authProvider.0 配置项中数值编号应当等于实例的 ID 编号
-    •  user_super="season_4U" 配置项表示: 认证口令为 season_4U 的用户为软件超管用户
-    •  user_demo="demo_4U" 配置项表示: 用户 demo 的认证口令为 demo_4U
-    •  单个 JVM 进程仅允许加载单个客户端配置 (单个客户端使用的 SASL 数据库文件仅维护单个 Client 数据块)
+    •  org.apache.zookeeper.server.auth.DigestLoginModule required 固定配置项
+    •  user_super="spring_4U"  固定配置项: 认证口令等于 spring_4U 的用户标记为软件管理员
+    •  user_spring="spring_4U" 可选配置项: 存在一个用户 spring 且认证口令为 spring_4U
+    •  user_summer="summer_4U" 可选配置项: 存在一个用户 summer 且认证口令为 summer_4U
+    •  单个 JVM 进程仅允许加载单个 Client 数据块
 
 """"""""" 维护主配置文件内 SASL 的参数配置项
 [root ~]# vim /etc/zookeeper/zoo.cfg
@@ -156,6 +161,7 @@ sessionRequireClientSASLAuth=true
 Server {
     org.apache.zookeeper.server.auth.DigestLoginModule required
     user_super="super_4U"
+    user_admin="super_4U"
     user_demo="demo_4U";
 };
 --------------------------------------------------------------------------------------------------------------------- ✻
@@ -170,15 +176,15 @@ Client {
 [root ~]# vim /etc/zookeeper/jaas-super.conf
 Client {
     org.apache.zookeeper.server.auth.DigestLoginModule required
-    username="season"
-    password="season_4U";
+    username="admin"
+    password="super_4U";
 };
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 维护实用工具内的 SASL 配置项
-[root ~]# vim /usr/local/zookeeper/bin/zkServer.sh (30)
+[root ~]# vim /usr/local/zookeeper/bin/zkServer.sh (36)
 export JVMFLAGS="-Djava.security.auth.login.config=/etc/zookeeper/jaas-server.conf ${JVMFLAGS}"
-[root ~]# vim /usr/local/zookeeper/bin/zkClient.sh (30)
+[root ~]# vim /usr/local/zookeeper/bin/zkCli.sh (39)
 export JVMFLAGS="-Djava.security.auth.login.config=/etc/zookeeper/jaas-client.conf ${JVMFLAGS}"
 [root ~]# systemctl restart zookeeper.service
 [root ~]# /usr/local/zookeeper/bin/zkCli.sh ls -R /zookeeper
