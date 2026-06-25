@@ -61,7 +61,8 @@ export SERVER_JVMFLAGS="
 -Dzookeeper.ssl.keyStore.password=season_4U
 -Dzookeeper.ssl.trustStore.location=/etc/zookeeper/zookeeper.truststore.jks
 -Dzookeeper.ssl.trustStore.type=JKS
--Dzookeeper.ssl.trustStore.password=season_4U"
+-Dzookeeper.ssl.trustStore.password=season_4U
+-Dzookeeper.ssl.clientAuth=none"
 ... ...
 ... ...
 [root ~]# sudo -u zookeeper cp /usr/local/zookeeper/bin/zkCli.sh /usr/local/zookeeper/bin/zkCli-ssl.sh
@@ -114,35 +115,35 @@ ZooKeeper 软件的 SASL 配置需要使用如下要素:
     -----------------------------------------------------------------
     Server {
         org.apache.zookeeper.server.auth.DigestLoginModule required
-        user_super="spring_4U"                   ◀───────────────────────────────────────┐
-        user_spring="spring_4U"                  ◀───────────────────────────────────────┤
-        user_summer="summer_4U"                  ◀─────────────────────────────┐         │
-        user_autumn="autumn_4U"                                                │         │
-        user_winter="winter_4U";                                               │         │
+        user_super="super_4U"                    ◀───────────────────────────────────────┐
+        user_admin="super_4U"                    ◀───────────────────────────────────────┤
+        user_kafka="kafka_4U"                    ◀─────────────────────────────┐         │
+        user_dubbo="dubbo_4U";                                                 │         │
     };                                                                         │         │
                                                                                │         │
     /etc/zookeeper/jaas-super.conf                                             │         │
     -----------------------------------------------------------------          │         │
     Client {                                                                   │         │
         org.apache.zookeeper.server.auth.DigestLoginModule required            │         │
-        username="spring"                        ◀─────────────────────────────│─────────┤
-        password="spring_4U";                    ◀─────────────────────────────│─────────┘
-    }                                                                          │
+        username="admin"                         ◀─────────────────────────────│─────────┤
+        password="super_4U";                     ◀─────────────────────────────│─────────┘
+    };                                                                         │
                                                                                │
     /etc/zookeeper/jaas-client.conf                                            │
     -----------------------------------------------------------------          │
     Client {                                                                   │
         org.apache.zookeeper.server.auth.DigestLoginModule required            │
-        username="summer"                        ◀─────────────────────────────┤
-        password="summer_4U";                    ◀─────────────────────────────┘
-    }
+        username="kafka"                         ◀─────────────────────────────┤
+        password="kafka_4U";                     ◀─────────────────────────────┘
+    };
 
 阅读上述文件时, 还请注意:
 
     •  org.apache.zookeeper.server.auth.DigestLoginModule required 固定配置项
-    •  user_super="spring_4U"  固定配置项: 认证口令等于 spring_4U 的用户标记为软件管理员
-    •  user_spring="spring_4U" 可选配置项: 存在一个用户 spring 且认证口令为 spring_4U
-    •  user_summer="summer_4U" 可选配置项: 存在一个用户 summer 且认证口令为 summer_4U
+    •  user_super="super_4U" 固定配置项: 认证口令等于 super_4U 的用户标记为软件管理员
+    •  user_admin="super_4U" 必要配置项: 存在一个用户 admin 且认证口令为 super_4U (标记 admin 用户为软件管理员)
+    •  user_kafka="kafka_4U" 可选配置项: 存在一个用户 kafka 且认证口令为 kafka_4U
+    •  user_dubbo="dubbo_4U" 可选配置项: 存在一个用户 dubbo 且认证口令为 dubbo_4U
     •  单个 JVM 进程仅允许加载单个 Client 数据块
 
 """"""""" 维护主配置文件内 SASL 的参数配置项
@@ -162,17 +163,11 @@ Server {
     org.apache.zookeeper.server.auth.DigestLoginModule required
     user_super="super_4U"
     user_admin="super_4U"
-    user_demo="demo_4U";
+    user_kafka="kafka_4U";
 };
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 维护客户端使用的 SASL 数据库文件
-[root ~]# vim /etc/zookeeper/jaas-client.conf
-Client {
-    org.apache.zookeeper.server.auth.DigestLoginModule required
-    username="demo"
-    password="demo_4U";
-};
 [root ~]# vim /etc/zookeeper/jaas-super.conf
 Client {
     org.apache.zookeeper.server.auth.DigestLoginModule required
