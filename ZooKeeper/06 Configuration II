@@ -19,6 +19,22 @@ ZooKeeper 软件的 SSL 配置需要使用如下要素:
     •  /path/to/file.key                         CA 机构颁发的 SSL 私钥证书文件
     •  (A ∈ ca_domain) ∧ (PTR ∈ ca_domain)       CA 机构颁发的权威证书文件的认证域能够覆盖 A/ PTR 域名解析记录
 
+ZooKeeper 软件的 SSL 配置需要使用如下配置项
+┌────────────────────────────────────────────────┬─────────┬───────────────────────────────────────────────────────────
+│ Configuration                                  │ Default │ Comment
+├────────────────────────────────────────────────┼─────────┼───────────────────────────────────────────────────────────
+│ secureClientPort=NUM                           │         │ 设置软件使用 SSL 证书加密 NUM 端口, 允许 SSL 连接
+│ serverCnxnFactory=FACTORY                      │         │ 静态值 org.apache.zookeeper.server.NettyServerCnxnFactory
+│ ssl.keyStore.location=/PATH/TO/P12             │         │ 设置软件使用密钥库文件 /PATH/TO/P12
+│ ssl.keyStore.password=PASSWORD                 │         │ 设置软件使用密钥库口令 PASSWORD
+│ ssl.keyStore.type=PKCS12                       │         │ 设置软件密钥库数据类型 PKCS12
+│ ssl.trustStore.location=/PATH/TO/JKS           │         │ 设置软件使用信任库文件 /PATH/TO/JKS
+│ ssl.trustStore.password=PASSWORD               │         │ 设置软件使用信任库口令 PASSWORD
+│ ssl.trustStore.type=JKS                        │         │ 设置软件信任库数据类型 JKS
+│ ssl.clientAuth=need                            │    √    │ 上游服务端双向验证下游客户端的 SSL 证书
+│ ssl.clientAuth=none                            │         │ 下游客户端单向验证上游服务端的 SSL 证书
+└────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
+
 """"""""" 使用 openssl 工具为 ZooKeeper 软件创建密钥库文件
 [root ~]# openssl pkcs12 -export \
                          -name zookeeper \
@@ -51,33 +67,13 @@ Keystore provider: SUN
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 """"""""" 维护实用工具内的 SSL 配置项
-[root ~]# vim /usr/local/zookeeper/bin/zkServer.sh (36)
-... ...
-... ...
-export SERVER_JVMFLAGS="
--Dzookeeper.serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory
--Dzookeeper.ssl.keyStore.location=/etc/zookeeper/zookeeper.keystore.p12
--Dzookeeper.ssl.keyStore.type=PKCS12
--Dzookeeper.ssl.keyStore.password=season_4U
--Dzookeeper.ssl.trustStore.location=/etc/zookeeper/zookeeper.truststore.jks
--Dzookeeper.ssl.trustStore.type=JKS
--Dzookeeper.ssl.trustStore.password=season_4U
--Dzookeeper.ssl.clientAuth=none"
-... ...
-... ...
 [root ~]# sudo -u zookeeper cp /usr/local/zookeeper/bin/zkCli.sh /usr/local/zookeeper/bin/zkCli-ssl.sh
 [root ~]# vim /usr/local/zookeeper/bin/zkCli-ssl.sh (39)
 ... ...
 ... ...
 export CLIENT_JVMFLAGS="
 -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty
--Dzookeeper.client.secure=true
--Dzookeeper.ssl.keyStore.location=/etc/zookeeper/zookeeper.keystore.p12
--Dzookeeper.ssl.keyStore.type=PKCS12
--Dzookeeper.ssl.keyStore.password=season_4U
--Dzookeeper.ssl.trustStore.location=/etc/zookeeper/zookeeper.truststore.jks
--Dzookeeper.ssl.trustStore.type=JKS
--Dzookeeper.ssl.trustStore.password=season_4U"
+-Dzookeeper.client.secure=true"
 ... ...
 ... ...
 --------------------------------------------------------------------------------------------------------------------- ✻
@@ -85,6 +81,14 @@ export CLIENT_JVMFLAGS="
 """"""""" 维护配置文件内的 SSL 配置项并重启服务单元
 [root ~]# vim /etc/zookeeper/zoo.cfg
 secureClientPort=2281
+serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory
+ssl.keyStore.location=/etc/zookeeper/zookeeper.keystore.p12
+ssl.keyStore.password=season_4U
+ssl.keyStore.type=PKCS12
+ssl.trustStore.location=/etc/zookeeper/zookeeper.truststore.jks
+ssl.trustStore.password=season_4U
+ssl.trustStore.type=JKS
+ssl.clientAuth=none
 [root ~]# systemctl restart zookeeper.service
 [root ~]# /usr/local/zookeeper/bin/zkCli.sh -server zookeeper-0.season.com:2181 ls -R /zookeeper
 [root ~]# /usr/local/zookeeper/bin/zkCli-ssl.sh -server zookeeper-0.season.com:2281 ls -R /zookeeper

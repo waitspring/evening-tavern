@@ -21,7 +21,6 @@ ZooKeeper 软件的主配置文件常用配置项如下
 │ Configuration                                  │ Default │ Comment
 ├────────────────────────────────────────────────┼─────────┼───────────────────────────────────────────────────────────
 │ clientPort=NUM                                 │         │ 基本配置项, 设置软件监听 NUM 端口用于接受业务客户端的请求
-│ secureClientPort=NUM                           │         │ 可选配置项, 设置软件使用 SSL 证书加密 NUM 端口, 允许 SSL 连接
 │ dataDir=/PATH/TO/DIR                           │         │ 基本配置项, 设置软件的数据存储目录为 /PATH/TO/DIR
 │ tickTime=3000                                  │    √    │ 基本配置项, 设置软件的每个时间单元为 3000 毫秒
 │ tickTime=NUM                                   │         │ 基本配置项, 设置软件的每个时间单元为 NUM 毫秒

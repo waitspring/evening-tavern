@@ -19,12 +19,8 @@
 ... ...
 ... ...
 zookeeper.connect=zookeeper-0.season.com:2281,zookeeper-1.season.com:2281,zookeeper-2.season.com:2281/kafka
-zookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty
 zookeeper.ssl.client.enable=true
-zookeeper.ssl.truststore.location=/etc/kafka/kafka.truststore.jks
-zookeeper.ssl.truststore.password=season_4U
-zookeeper.ssl.truststore.type=JKS
-zookeeper.set.acl=true
+zookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty
 ... ...
 ... ...
 [root ~]# systemctl restart kafka.service
@@ -45,8 +41,20 @@ zookeeper.set.acl=true
         password="kafka_4U";
     };
 
-""""""""" 维护 Kafka 软件使用的 SASL 客户端文件
-[root ~]# vim /etc/zookeeper/jaas-super.conf
+上游 ZooKeeper 软件开启 SASL 认证, 建议下游 Kafka 软件服务注册时启用 ACL 特性:
+
+    /etc/kafka/server.properties
+    -----------------------------------------------------------------
+    zookeeper.set.acl=true
+
+""""""""" 维护 Kafka 软件使用的主配置文件和 SASL 客户端文件
+[root ~]# vim /etc/kafka/server.properties
+... ...
+... ...
+zookeeper.set.acl=true
+... ...
+... ...
+[root ~]# vim /etc/kafka/jaas-client.conf
 Client {
     org.apache.kafka.common.security.plain.PlainLoginModule required
     username="kafka"
@@ -57,9 +65,11 @@ Client {
 """"""""" 维护实用工具内的 SASL 配置项
 [root ~]# vim /usr/local/kafka/bin/kafka-server-start.sh (45)
 ... ...
+... ...
 export JMX_PORT=9094
 export KAFKA_OPTS="-Djava.security.auth.login.config=/etc/kafka/jaas-client.conf ${KAFKA_OPTS}"
 exec $base_dir/kafka-run-class.sh $EXTRA_ARGS kafka.kafka "$@"
+... ...
 ... ...
 [root ~]# systemctl restart kafka-service
 [root ~]# /usr/local/kafka/bin/kafka-cluster.sh cluster-id --bootstrap-server kafka-0.season.com:9092

@@ -117,6 +117,11 @@ Kafka 软件的主配置文件常用配置项如下
 │ unclean.leader.election.enable=true            │         │ 节点允许 ISR 以外的同步副本参与读写副本选举 (容易产生脏数据)
 │ zookeeper.connect=null                         │    √    │ 节点不注册 ZooKeeper 节点, 节点不能正常启动服务
 │ zookeeper.connect=...,ADDR:PORT/PATH/TO/NAME   │         │ 节点注册到 ADDR:PORT 节点, 并使用 /PATH/TO/NAME 路径
+│ zookeeper.ssl.client.enable=false              │    √    │ 节点禁用 SSL 加密注册连接
+│ zookeeper.ssl.client.enable=true               │         │ 节点使用 SSL 加密注册连接
+│ zookeeper.clientCnxnSocket=...                 │         │ 静态值 org.apache.zookeeper.ClientCnxnSocketNetty
+│ zookeeper.set.acl=false                        │    √    │ 节点禁用 ACL 操作注册中心的数据节点
+│ zookeeper.set.acl=true                         │         │ 节点使用 ACL 操作注册中心的数据节点
 └────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
 
 阅读上述表格时, 还请注意:
