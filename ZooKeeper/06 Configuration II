@@ -103,8 +103,6 @@ ZooKeeper 软件的 SASL 配置需要使用如下要素:
 
     •  /etc/zookeeper/zoo.cfg                    维护主配置文件内 SASL 的参数配置项
     •  /etc/zookeeper/jaas-server.conf           ZooKeeper 服务端使用的 SASL 数据库文件, 登记用于安全认证的用户密码
-    •  /etc/zookeeper/jaas-client.conf           ZooKeeper 客户端使用的 SASL 数据库文件, 登记用于安全认证的普通用户
-    •  /etc/zookeeper/jaas-super.conf            ZooKeeper 客户端使用的 SASL 数据库文件, 登记用于安全认证的超管用户
 
     /etc/zookeeper/zoo.cfg
     -----------------------------------------------------------------
@@ -119,36 +117,8 @@ ZooKeeper 软件的 SASL 配置需要使用如下要素:
     -----------------------------------------------------------------
     Server {
         org.apache.zookeeper.server.auth.DigestLoginModule required
-        user_super="super_4U"                    ◀───────────────────────────────────────┐
-        user_admin="super_4U"                    ◀───────────────────────────────────────┤
-        user_kafka="kafka_4U"                    ◀─────────────────────────────┐         │
-        user_dubbo="dubbo_4U";                                                 │         │
-    };                                                                         │         │
-                                                                               │         │
-    /etc/zookeeper/jaas-super.conf                                             │         │
-    -----------------------------------------------------------------          │         │
-    Client {                                                                   │         │
-        org.apache.zookeeper.server.auth.DigestLoginModule required            │         │
-        username="admin"                         ◀─────────────────────────────│─────────┤
-        password="super_4U";                     ◀─────────────────────────────│─────────┘
-    };                                                                         │
-                                                                               │
-    /etc/zookeeper/jaas-client.conf                                            │
-    -----------------------------------------------------------------          │
-    Client {                                                                   │
-        org.apache.zookeeper.server.auth.DigestLoginModule required            │
-        username="kafka"                         ◀─────────────────────────────┤
-        password="kafka_4U";                     ◀─────────────────────────────┘
+        user_kafka="kafka_4U";
     };
-
-阅读上述文件时, 还请注意:
-
-    •  org.apache.zookeeper.server.auth.DigestLoginModule required 固定配置项
-    •  user_super="super_4U" 固定配置项: 认证口令等于 super_4U 的用户标记为软件管理员
-    •  user_admin="super_4U" 必要配置项: 存在一个用户 admin 且认证口令为 super_4U (标记 admin 用户为软件管理员)
-    •  user_kafka="kafka_4U" 可选配置项: 存在一个用户 kafka 且认证口令为 kafka_4U
-    •  user_dubbo="dubbo_4U" 可选配置项: 存在一个用户 dubbo 且认证口令为 dubbo_4U
-    •  单个 JVM 进程仅允许加载单个 Client 数据块
 
 """"""""" 维护主配置文件内 SASL 的参数配置项
 [root ~]# vim /etc/zookeeper/zoo.cfg
@@ -165,28 +135,8 @@ sessionRequireClientSASLAuth=true
 [root ~]# vim /etc/zookeeper/jaas-server.conf
 Server {
     org.apache.zookeeper.server.auth.DigestLoginModule required
-    user_super="super_4U"
-    user_admin="super_4U"
     user_kafka="kafka_4U";
 };
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 维护客户端使用的 SASL 数据库文件
-[root ~]# vim /etc/zookeeper/jaas-super.conf
-Client {
-    org.apache.zookeeper.server.auth.DigestLoginModule required
-    username="admin"
-    password="super_4U";
-};
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 维护实用工具内的 SASL 配置项
-[root ~]# vim /usr/local/zookeeper/bin/zkServer.sh (36)
-export JVMFLAGS="-Djava.security.auth.login.config=/etc/zookeeper/jaas-server.conf ${JVMFLAGS}"
-[root ~]# vim /usr/local/zookeeper/bin/zkCli.sh (39)
-export JVMFLAGS="-Djava.security.auth.login.config=/etc/zookeeper/jaas-client.conf ${JVMFLAGS}"
-[root ~]# systemctl restart zookeeper.service
-[root ~]# /usr/local/zookeeper/bin/zkCli.sh ls -R /zookeeper
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
