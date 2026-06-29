@@ -10,69 +10,100 @@
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-上游 ZooKeeper 软件使用 SSL 证书
+Kafka 软件配置 SSL 证书
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-上游 ZooKeeper 软件使用 SSL 证书, 要求下游 Kafka 软件服务注册时开启 SSL 特性
+Kafka 软件配置 SSL 证书需要使用如下要素:
 
-""""""""" 维护主配置文件内服务注册使用的 SSL 配置项
+    •  /path/to/file.cer                         CA 机构颁发的权威证书文件
+    •  /path/to/file.pem                         CA 机构颁发的 SSL 公钥证书文件
+    •  /path/to/file.key                         CA 机构颁发的 SSL 私钥证书文件
+    •  (A ∈ ca_domain) ∧ (PTR ∈ ca_domain)       CA 机构颁发的权威证书文件的认证域能够覆盖 A/ PTR 域名解析记录
+
+""""""""" 使用 openssl 工具为 Kafka 软件创建密钥库文件
+[root ~]# openssl pkcs12 -export \
+                         -name kafka \
+                         -in /path/to/file.pem \
+                         -inkey /path/to/file.key \
+                         -out /etc/kafka/kafka.keystore.p12 \
+                         -password pass:season_4U
+[root ~]# keytool -list -keystore /etc/kafka/kafka.keystore.p12 -storepass season_4U
+Keystore type: PKCS12
+Keystore provider: SUN
+
+    Private key entry kafka
+    Certificate fingerprint (SHA1): 5C:16:54:F4:E2:06:05:99:C4:77:C8:C0:74:20:25:92:0F:51:79:90
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 使用 keytool 工具为 Kafka 软件创建信任库文件
+[root ~]# keytool -import \
+                  -noprompt \
+                  -trustcacerts \
+                  -alias ca@kafka \
+                  -file /path/to/file.cer \
+                  -keystore /etc/kafka/kafka.truststore.jks \
+                  -storepass season_4U
+[root ~]# keytool -list -keystore /etc/kafka/kafka.truststore.jks -storepass season_4U
+Keystore type: JKS
+Keystore provider: SUN
+
+    Trusted cert entry ca
+    Certificate fingerprint (SHA1): DF:3C:24:F9:BF:D6:66:76:1B:26:80:73:FE:06:D1:CC:8D:4F:82:A4
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+""""""""" 维护主配置文件内的 SSL 配置项
 [root ~]# vim /etc/kafka/server.properties
 ... ...
-... ...
-zookeeper.connect=zookeeper-0.season.com:2281,zookeeper-1.season.com:2281,zookeeper-2.season.com:2281/kafka
-zookeeper.ssl.client.enable=true
-zookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty
-... ...
-... ...
+advertised.listeners=PLAINTEXT://kafka-0.season.com:9092,SSL://kafka-0.season.com:9093
+listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093
+listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SSL:SSL
+inter.broker.listener.name=PLAINTEXT
+ssl.keystore.location=/path/to/kafka.keystore.p12
+ssl.keystore.password=season_4U
+ssl.keystore.type=PKCS12
+ssl.truststore.location=/path/to/kafka.truststore.jks
+ssl.truststore.password=season_4U
+ssl.truststore.type=JKS
+ssl.enabled.protocols=TLSv1.2
+ssl.endpoint.identification.algorithm=HTTPS
 [root ~]# systemctl restart kafka.service
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-上游 ZooKeeper 软件开启 SASL 认证
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-上游 ZooKeeper 软件开启 SASL 认证, 需要下游 Kafka 软件服务注册时附带用户口令:
-
-    /etc/kafka/jaas-client.conf
-    -----------------------------------------------------------------
-    Client {
-        org.apache.kafka.common.security.plain.PlainLoginModule required
-        username="kafka"
-        password="kafka_4U";
-    };
-
-上游 ZooKeeper 软件开启 SASL 认证, 建议下游 Kafka 软件服务注册时启用 ACL 特性:
-
-    /etc/kafka/server.properties
-    -----------------------------------------------------------------
-    zookeeper.set.acl=true
-
-""""""""" 维护 Kafka 软件使用的主配置文件和 SASL 客户端文件
-[root ~]# vim /etc/kafka/server.properties
+""""""""" 维护 KRaft 主配置文件内的 SSL 配置项
+[root ~]# vim /etc/kafka/kraft/server.properties
 ... ...
-... ...
-zookeeper.set.acl=true
-... ...
-... ...
-[root ~]# vim /etc/kafka/jaas-client.conf
-Client {
-    org.apache.kafka.common.security.plain.PlainLoginModule required
-    username="kafka"
-    password="kafka_4U";
-};
+advertised.listeners=PLAINTEXT://kafka-0.season.com:9092,SSL://kafka-0.season.com:9093
+listeners=CONTROLLER://0.0.0.0:9091,PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093
+listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SSL:SSL
+inter.broker.listener.name=PLAINTEXT
+ssl.keystore.location=/path/to/kafka.keystore.p12
+ssl.keystore.password=season_4U
+ssl.keystore.type=PKCS12
+ssl.truststore.location=/path/to/kafka.truststore.jks
+ssl.truststore.password=season_4U
+ssl.truststore.type=JKS
+ssl.enabled.protocols=TLSv1.2
+ssl.endpoint.identification.algorithm=HTTPS
+[root ~]# systemctl restart kafka-kraft.service
 --------------------------------------------------------------------------------------------------------------------- ✻
 
-""""""""" 维护实用工具内的 SASL 配置项
-[root ~]# vim /usr/local/kafka/bin/kafka-server-start.sh (45)
-... ...
-... ...
-export JMX_PORT=9094
-export KAFKA_OPTS="-Djava.security.auth.login.config=/etc/kafka/jaas-client.conf ${KAFKA_OPTS}"
-exec $base_dir/kafka-run-class.sh $EXTRA_ARGS kafka.kafka "$@"
-... ...
-... ...
-[root ~]# systemctl restart kafka-service
-[root ~]# /usr/local/kafka/bin/kafka-cluster.sh cluster-id --bootstrap-server kafka-0.season.com:9092
+""""""""" 维护认证表单并测试 SSL 连接
+[root ~]# vim /etc/kafka/kafka-client-ssl.properties
+security.protocol=SSL
+ssl.keystore.location=/path/to/kafka.keystore.p12
+ssl.keystore.password=season_4U
+ssl.truststore.location=/path/to/kafka.truststore.jks
+ssl.truststore.password=season_4U
+[root ~]# bin/kafka-topics.sh --describe \
+                              --bootstrap-server kafka-0.season.com:9092 \
+                              --command-config /etc/kafka/kafka-client-ssl.properties
+[root ~]# bin/kafka-console-consumer.sh --bootstrap-server kafka-0.season.com:9092 \
+                                        --topic A \
+                                        --group demo \
+                                        --from-beginning \
+                                        --property print.timestamp=true \
+                                        --property print.key=true \
+                                        --property print.headers=true \
+                                        --consumer.config /etc/kafka/kafka-client-ssl.properties
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
