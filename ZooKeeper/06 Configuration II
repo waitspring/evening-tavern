@@ -101,42 +101,72 @@ ZooKeeper 软件的 SASL 配置
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ZooKeeper 软件的 SASL 配置需要使用如下要素:
 
-    •  /etc/zookeeper/zoo.cfg                    维护主配置文件内 SASL 的参数配置项
-    •  /etc/zookeeper/jaas-server.conf           ZooKeeper 服务端使用的 SASL 数据库文件, 登记用于安全认证的用户密码
+    •  /etc/zookeeper/zoo.cfg                    SASL 参数配置项
+    •  /etc/zookeeper/jaas.conf                  SASL 数据库文件
+    •  /usr/local/zookeeper/bin/zkEnv.sh         SASL 内存加载项
 
     /etc/zookeeper/zoo.cfg
     -----------------------------------------------------------------
-    # 服务端使用 SASLAuthenticationProvider 类对象验证用户身份, 0 值等于软件节点的 ID 编号
+    # 使用 SASLAuthenticationProvider 类对象验证用户身份, 0 值等于软件节点的 ID 编号
     authProvider.0=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
-    # 服务端开启 SASL 特性
+    # 开启 SASL 特性
     requireClientAuthScheme=sasl
-    # 服务端在整个用户会话的生命周期内, 逐条命令验证用户身份
+    # 要求 SASL 逐条命令验证用户身份
     sessionRequireClientSASLAuth=true
+    # 配置 SASL 管理员
+    superUser=admin                              ◀────────────────────────────────────────────────┐
+                                                                                                  │
+    /etc/zookeeper/jaas.conf                     ◀────────────────────────────────────────────────────────────────────┐
+    -----------------------------------------------------------------                             │                   │
+    Server {                                                                                      │                   │
+        org.apache.zookeeper.server.auth.DigestLoginModule required                               │                   │
+        user_admin="admin_4U"                    ◀────────────────────────────────────────────────┤                   │
+        user_kafka="kafka_4U"                                                                     │                   │
+        user_hbase="hbase_4U";                                                                    │                   │
+    };                                                                                            │                   │
+    Client {                                                                                      │                   │
+        org.apache.zookeeper.server.auth.DigestLoginModule required                               │                   │
+        username="admin"                         ◀────────────────────────────────────────────────┤                   │
+        password="admin_4U";                     ◀────────────────────────────────────────────────┘                   │
+    };                                                                                                                │
+                                                                                                                      │
+    /usr/local/zookeeper/bin/zkEnv.sh                                                                                 │
+    -----------------------------------------------------------------                                                 │
+    export JVMFLAGS="-Djava.security.auth.login.config=/etc/zookeeper/jaas.conf ${JVMFLAGS}"       ◀──────────────────┘
 
-    /etc/zookeeper/jaas-server.conf
-    -----------------------------------------------------------------
-    Server {
-        org.apache.zookeeper.server.auth.DigestLoginModule required
-        user_kafka="kafka_4U";
-    };
+ZooKeeper 软件的 SASL 配置需要联动三个文件才能实现管理员权限:
 
-""""""""" 维护主配置文件内 SASL 的参数配置项
+    (1)  使用 /etc/zookeeper/zoo.cfg            配置文件登记 superUser 配置项指定管理员的用户名称
+    (2)  使用 /etc/zookeeper/jaas.conf          配置文件登记 SASL 用户列表
+    (3)  使用 /usr/local/zookeeper/bin/zkEnv.sh 工具文件登记 /etc/zookeeper/jaas.conf 配置文件路径
+
+""""""""" 构建 SASL 认证方案
 [root ~]# vim /etc/zookeeper/zoo.cfg
 ... ...
 ... ...
 requireClientAuthScheme=sasl
 authProvider.0=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
 sessionRequireClientSASLAuth=true
+superUser=admin
 ... ...
 ... ...
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 维护服务端使用的 SASL 数据库文件
-[root ~]# vim /etc/zookeeper/jaas-server.conf
+[root ~]# vim /etc/zookeeper/jaas.conf
 Server {
     org.apache.zookeeper.server.auth.DigestLoginModule required
-    user_kafka="kafka_4U";
+    user_admin="admin_4U"
+    user_kafka="kafka_4U"
+    user_hbase="hbase_4U";
 };
+Client {
+    org.apache.zookeeper.server.auth.DigestLoginModule required
+    username="admin"
+    password="admin_4U";
+}
+[root ~]# cat >> /usr/local/zookeeper/bin/zkEnv.sh << EOF
+export JVMFLAGS="-Djava.security.auth.login.config=/etc/zookeeper/jaas.conf \${JVMFLAGS}"
+EOF
+[root ~]# systemctl restart zookeeper.service
+[root ~]# /usr/local/zookeeper/bin/zkCli.sh -server zookeeper-0.season.com:2181 ls -R /zookeeper
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
