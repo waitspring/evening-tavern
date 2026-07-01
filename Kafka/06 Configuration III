@@ -53,8 +53,8 @@ Keystore provider: SUN
 """"""""" 维护主配置文件内的 SSL 配置项
 [root ~]# vim /etc/kafka/server.properties
 ... ...
-advertised.listeners=PLAINTEXT://kafka-0.season.com:9092,SSL://kafka-0.season.com:9093
-listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093
+advertised.listeners=PLAINTEXT://kafka-0.season.com:9092,SSL://kafka-0.season.com:9192
+listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9192
 listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SSL:SSL
 inter.broker.listener.name=PLAINTEXT
 ssl.keystore.location=/path/to/kafka.keystore.p12
@@ -71,8 +71,8 @@ ssl.endpoint.identification.algorithm=HTTPS
 """"""""" 维护 KRaft 主配置文件内的 SSL 配置项
 [root ~]# vim /etc/kafka/kraft/server.properties
 ... ...
-advertised.listeners=PLAINTEXT://kafka-0.season.com:9092,SSL://kafka-0.season.com:9093
-listeners=CONTROLLER://0.0.0.0:9091,PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093
+advertised.listeners=PLAINTEXT://kafka-0.season.com:9092,SSL://kafka-0.season.com:9192
+listeners=CONTROLLER://0.0.0.0:9091,PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9192
 listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SSL:SSL
 inter.broker.listener.name=PLAINTEXT
 ssl.keystore.location=/path/to/kafka.keystore.p12
