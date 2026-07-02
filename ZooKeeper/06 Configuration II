@@ -90,8 +90,8 @@ ssl.trustStore.password=season_4U
 ssl.trustStore.type=JKS
 ssl.clientAuth=none
 [root ~]# systemctl restart zookeeper.service
-[root ~]# /usr/local/zookeeper/bin/zkCli.sh -server zookeeper-0.season.com:2181 ls -R /zookeeper
-[root ~]# /usr/local/zookeeper/bin/zkCli-ssl.sh -server zookeeper-0.season.com:2281 ls -R /zookeeper
+[root ~]# /usr/local/zookeeper/bin/zkCli.sh -server zookeeper.season.com:2181 ls -R /zookeeper
+[root ~]# /usr/local/zookeeper/bin/zkCli-ssl.sh -server zookeeper.season.com:2281 ls -R /zookeeper
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
@@ -166,7 +166,7 @@ Client {
 export JVMFLAGS="-Djava.security.auth.login.config=/etc/zookeeper/jaas.conf \${JVMFLAGS}"
 EOF
 [root ~]# systemctl restart zookeeper.service
-[root ~]# /usr/local/zookeeper/bin/zkCli.sh -server zookeeper-0.season.com:2181 ls -R /zookeeper
+[root ~]# /usr/local/zookeeper/bin/zkCli.sh -server zookeeper.season.com:2181 ls -R /zookeeper
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
