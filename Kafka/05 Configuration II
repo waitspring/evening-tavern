@@ -128,7 +128,7 @@ Kafka 软件配置 SASL 认证需要使用如下要素:
     listeners=SASL_PLAINTEXT://0.0.0.0:9092,SASL_SSL://0.0.0.0:9192
     security.inter.broker.protocol=SASL_PLAINTEXT
     # Kafka 集群交换用户认证信息时能够使用的通信协议有 PLAIN (明文), SCRAM-SHA-256 (256 位盐值), SCRAM-SHA-512 (512 位盐值)
-    sasl.enabled.mechanism=PLAIN,SCRAM-SHA-256,SCRAM-SHA-512
+    sasl.enabled.mechanisms=PLAIN,SCRAM-SHA-256,SCRAM-SHA-512
     # Kafka 集群内部使用明文协议交换用户认证信息
     sasl.mechanism.inter.broker.protocol=PLAIN
     # Kafka 集群指定管理员用户列表
@@ -167,7 +167,7 @@ Kafka 软件配置 SASL 认证需要使用如下要素:
 advertised.listeners=SASL_PLAINTEXT://kafka.season.com:9092,SASL_SSL://kafka.season.com:9192
 listeners=SASL_PLAINTEXT://0.0.0.0:9092,SASL_SSL://0.0.0.0:9192
 security.inter.broker.protocol=SASL_PLAINTEXT
-sasl.enabled.mechanism=PLAIN,SCRAM-SHA-256,SCRAM-SHA-512
+sasl.enabled.mechanisms=PLAIN,SCRAM-SHA-256,SCRAM-SHA-512
 sasl.mechanism.inter.broker.protocol=PLAIN
 super.users=User:admin
 ... ...
