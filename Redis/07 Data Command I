@@ -1,10 +1,10 @@
-  ____                       ___                                                
- (|   \                     / (_)                                            |  
-  |    | __, _|_  __,      |      __   _  _  _    _  _  _    __,   _  _    __|  
- _|    |/  |  |  /  |      |     /  \_/ |/ |/ |  / |/ |/ |  /  |  / |/ |  /  |  
-(/\___/ \_/|_/|_/\_/|_/     \___/\__/   |  |  |_/  |  |  |_/\_/|_/  |  |_/\_/|_/
-                                                                                
-                                                                                
+  ____                       ___                                                       _ 
+ (|   \                     / (_)                                            |        | |
+  |    | __, _|_  __,      |      __   _  _  _    _  _  _    __,   _  _    __|        | |
+ _|    |/  |  |  /  |      |     /  \_/ |/ |/ |  / |/ |/ |  /  |  / |/ |  /  |      _ |/ 
+(/\___/ \_/|_/|_/\_/|_/     \___/\__/   |  |  |_/  |  |  |_/\_/|_/  |  |_/\_/|_/    \_/\/
+                                                                                         
+                                                                                         
 --  This document was created by Xuanming in 2026, thanks for your reading
 
 
@@ -20,7 +20,7 @@ Redis 软件能够缓存字符串键值对, 字符串键值对的值具有容量
     │ cpx string       │ foo: "<?xml ..." │      复杂字符串: XML/ JSON/ YAML/ ...
     │ int              │ foo: "0"         │      整数
     │ float            │ foo: "0.1"       │      浮点数
-    │ bits             │ foo: "011001..." │      二进制数据: 图片/ 音频/ 视频/ 压缩包/ ...
+    │ bit              │ foo: "011001..." │      二进制数据: 图片/ 音频/ 视频/ 压缩包/ ...
     └──────────────────┴──────────────────┘
 
 阅读上述内容时, 还请注意:
@@ -122,20 +122,102 @@ Redis 软件使用 quicklist 数据结构缓存数组键值对, 数组键值对�
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-集合 (有序集合)
+集合
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+集合是若干唯一且无序的字符串键值对组成的数据单元, 单个集合至多能够缓存 2^32 - 1 = 4294967295 个字符串键值对
+集合的基本操作有: 增/ 删/ 改/ 查/ 交集/ 并集/ 差集
+集合的内部编码有: intset/ hashtable
 
+    (1) 集合的字符串元素全部为整数字符
+    (2) 集合的字符串元素数量 < set-max-intset-entries 参数值 (默认值: 512)
+    -----------------------------------------------------------------
+    同时满足上述条件, 集合使用 intset 编码缓存数据, 否则集合使用 hashtable 编码缓存数据
+
+用户使用 redis-cli 命令能够使用用户前台创建一个不断执行命令的 Redis 软件终端, 其常用的集合命令有
+::  sadd KEY ELEMENT ...                         集合 KEY 中插入数量不定的字符串 ELEMENT ...
+::  srem KEY ELEMENT ...                         集合 KEY 中删除数量不定的字符串 ELEMENT ...
+::  scard KEY                                    集合 KEY 中统计字符串元素数量
+::  smembers KEY                                 集合 KEY 中读取全部字符串元素
+::  sismember KEY ELEMENT                        集合 KEY 中存在字符串 ELEMENT 则返回 1, 否则返回 0
+::  srandmemeber KEY [NUM]                       集合 KEY 中随机读取 1 个字符串元素 (使用可选参数 NUM 调整元素读取数量)
+::  spop KEY [NUM]                               集合 KEY 中随机删除 1 个字符串元素 (使用可选参数 NUM 调整元素删除数量)
+::  sinter KEY ...                               数量不定的集合 KEY ... 做交集
+::  sunion KEY ...                               数量不定的集合 KEY ... 做并集
+::  sdiff  KEY ...                               数量不定的集合 KEY ... 做差集 (首个集合拥有而其余集合没有的字符串元素)
+::  sinterstore DESTINATION KEY ...              数量不定的集合 KEY ... 做交集, 交集覆盖存储在集合 DESTINATION
+::  sunionstore DESTINATION KEY ...              数量不定的集合 KEY ... 做并集, 并集覆盖存储在集合 DESTINATION
+::  sdiffstore  DESTINATION KEY ...              数量不定的集合 KEY ... 做差集, 差集覆盖存储在集合 DESTINATION
+
+    ┌──────────────────┐                         ┌──────────────────┐
+    │ season           │                         │ season           │
+    │ spring           │                         │ autumn           │
+    │ summer           │                         │ winter           │
+    └──────────────────┘                         └──────────────────┘
+      ▶ season_upper                               ▶ season_lower
+
+    ┌──────────────────┐                         ┌──────────────────┐                         ┌──────────────────┐
+    │ season           │                         │ spring    summer │                         │ spring    summer │
+    │                  │                         │ autumn    winter │                         │                  │
+    │                  │                         │ season           │                         │                  │
+    └──────────────────┘                         └──────────────────┘                         └──────────────────┘
+      ▶ sinter                                     ▶ sunion                                     ▶ sdiff
+
+""""""""" 演示集合命令的基本用法
+[root ~]# redis-cli -h redis.season.com --tls --insecure
+> sadd season_upper season spring summer
+> sadd season_lower season autumn winter
+> scard season_upper
+> srandmember season_lower
+> sinter season_upper season_lower
+> sunion season_upper season_lower
+> sdiff season_upper season_lower
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-位图
+有序集合
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+有序集合是若干唯一且附带权重分数的字符串键值对组成的数据单元, 单个有序集合至多能够缓存 2^32 - 1 = 4294967295 个字符串键值对
+有序集合的权重分数为双精度浮点数 (double)
 
+用户使用 redis-cli 命令能够使用用户前台创建一个不断执行命令的 Redis 软件终端, 其常用的有序集合命令有
+::  zadd KEY SCORE ELEMENT [SCORE ELEMENT ...]   有序集合 KEY 中插入若干附带权重分数的字符串, 亦可更新已有字符串元素的权重分数
+::  zrem KEY ELEMENT ...                         有序集合 KEY 中删除若干附带权重分数的字符串 ELEMENT ...
+::  zcard KEY                                    有序集合 KEY 中统计字符串元素数量
+::  zscore KEY ELEMENT                           有序集合 KEY 中读取字符串 ELEMENT 附带的权重分数
+::  zincrby KEY INCR ELEMENT                     有序集合 KEY 中要求字符串 ELEMENT 附带的权重分数 + INCR
+::  zrank KEY ELEMENT                            有序集合 KEY 中计算字符串 ELEMENT 的正序排名 (权重分数由低到高)
+::  zrevrank KEY ELEMENT                         有序集合 KEY 中计算字符串 ELEMENT 的倒序排名 (权重分数由高到低)
+::  zrange KEY MIN MAX [withscores]              有序集合 KEY 中正序读取排序索引位于 [MIN, MAX] 区间的字符串元素
+::  zrevrange KEY MIN MAX [withscores]           有序集合 KEY 中倒序读取排序索引位于 [MIN, MAX] 区间的字符串元素
+::  zrangebyscore KEY MIN MAX [withscores]       有序集合 KEY 中正序读取权重分数位于 [MIN, MAX] 区间的字符串元素
+::  zrevrangebyscore KEY MIN MAX [withscores]    有序集合 KEY 中倒序读取权重分数位于 [MIN, MAX] 区间的字符串元素
+::  zcount KEY MIN MAX                           有序集合 KEY 中统计权重分数位于 [MIN, MAX] 区间的字符串元素数量
+::  zremrangebyrank KEY MIN MAX                  有序集合 KEY 中正序删除排序索引位于 [MIN, MAX] 区间的字符串元素
+::  zremrangebyscore KEY MIN MAX                 有序集合 KEY 中正序删除权重分数位于 [MIN, MAX] 区间的字符串元素
 
+zinterstore DESTINATION NUM KEY ... option...
+zunionstore DESTINATION NUM KEY ... option...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+zinterstore 命令针对 NUM 个有序集合 KEY ... 做交集, 交集覆盖存储在有序集合 DESTINATION
+zunionstore 命令针对 NUM 个有序集合 KEY ... 做并集, 并集覆盖存储在有序集合 DESTINATION
+zinterstore/ zunionstore 命令常用的可选选项有
+::  aggregate sum                          [ √ ] 累加 NUM 个字符串元素的权重分数求和, 作为结果集内字符串元素的权重分数
+::  aggregate min                                选取 NUM 个字符串元素的权重分数最小值, 作为结果集内字符串元素的权重分数
+::  aggregate max                                选取 NUM 个字符串元素的权重分数最大值, 作为结果集内字符串元素的权重分数
+::  weights DOUBLE ...                           依次赋予 KEY ... 乘法系数 DOUBLE ...
+                                                 字符串元素的权重系数 * DOUBLE 再参与 aggregate 选项计算
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-哈希
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+""""""""" 演示集合命令的基本用法
+[root ~]# redis-cli -h redis.season.com --tls --insecure
+> zadd season_upper 0 season 1 spring 2 summer
+> zadd season_lower 2 season 1 autumn 0 winter
+> zrange season_upper 0 1
+> zrangebyscore season_lower 0 1
+> zinterstore season_inter 2 season_upper season_lower aggregate min
+> zunionstore season_union 2 season_upper season_lower weights 0 2
+> zscore season_union season
+--------------------------------------------------------------------------------------------------------------------- ✻
 
 
 
