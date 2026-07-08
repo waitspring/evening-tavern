@@ -277,8 +277,8 @@
 
 集群配置文件内, 部分配置项存在上下文依赖:
 
-           cluster-replica-no-failover  no  ▶︎  cluster-slave-validity-factor
-       cluster-allow-replica-migration yes  ▶︎  cluster-migration-barrier
+           cluster-replica-no-failover  no  ▶  cluster-slave-validity-factor
+       cluster-allow-replica-migration yes  ▶  cluster-migration-barrier
 
 
 
