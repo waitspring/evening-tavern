@@ -80,13 +80,13 @@ Redis 软件依据哈希数据的结构特征, 使用 ziplist/ hashtable 两种�
 
     压缩列表 [ ziplist ]
     -----------------------------------------------------------------
-        (1) 哈希的内嵌键值对元素数量 < hash-max-ziplist-entries 参数值 (默认值: 512)
-    AND (2) 哈希的内嵌键值对元素尺寸 < hash-max-ziplist-value 参数值 (默认值: 64 Bytes)
+        (0) 哈希的内嵌键值对元素数量 < hash-max-ziplist-entries 参数值 (默认值: 512)
+    AND (1) 哈希的内嵌键值对元素尺寸 < hash-max-ziplist-value 参数值 (默认值: 64 Bytes)
     
     哈希表 [ hashtable ]
     -----------------------------------------------------------------
-        (1) 哈希的内嵌键值对元素数量 ≥ zset-max-ziplist-entries 参数值 (默认值: 128)
-     OR (2) 哈希的内嵌键值对元素尺寸 ≥ zset-max-ziplist-value 参数值 (默认值: 64 Bytes)
+        (0) 哈希的内嵌键值对元素数量 ≥ zset-max-ziplist-entries 参数值 (默认值: 128)
+     OR (1) 哈希的内嵌键值对元素尺寸 ≥ zset-max-ziplist-value 参数值 (默认值: 64 Bytes)
 
       KEY                           FIELD              VALUE
     ┌──────────────────┐          ┌──────────────────┬──────────────────┐
@@ -176,8 +176,8 @@ Redis 软件使用 quicklist 数据结构缓存数组键值对, 数组键值对�
 集合的基本操作有: 增/ 删/ 改/ 查/ 交集/ 并集/ 差集
 集合的编码格式有: intset/ hashtable
 
-    (1) 集合的字符串元素全部为整数字符
-    (2) 集合的字符串元素数量 < set-max-intset-entries 参数值 (默认值: 512)
+    (0) 集合的字符串元素全部为整数字符
+    (1) 集合的字符串元素数量 < set-max-intset-entries 参数值 (默认值: 512)
     -----------------------------------------------------------------
     同时满足上述条件, 集合使用 intset 编码缓存数据, 否则集合使用 hashtable 编码缓存数据
 
@@ -231,13 +231,13 @@ Redis 软件使用 quicklist 数据结构缓存数组键值对, 数组键值对�
 
     压缩列表 [ ziplist ]
     -----------------------------------------------------------------
-        (1) 有序集合的字符串元素数量 < zset-max-ziplist-entries 参数值 (默认值: 128)
-    AND (2) 有序集合的字符串元素尺寸 < zset-max-ziplist-value 参数值 (默认值: 64 Bytes)
+        (0) 有序集合的字符串元素数量 < zset-max-ziplist-entries 参数值 (默认值: 128)
+    AND (1) 有序集合的字符串元素尺寸 < zset-max-ziplist-value 参数值 (默认值: 64 Bytes)
     
     跳跃列表 [ skiplist ]
     -----------------------------------------------------------------
-        (1) 有序集合的字符串元素数量 ≥ zset-max-ziplist-entries 参数值 (默认值: 128)
-     OR (2) 有序集合的字符串元素尺寸 ≥ zset-max-ziplist-value 参数值 (默认值: 64 Bytes)
+        (0) 有序集合的字符串元素数量 ≥ zset-max-ziplist-entries 参数值 (默认值: 128)
+     OR (1) 有序集合的字符串元素尺寸 ≥ zset-max-ziplist-value 参数值 (默认值: 64 Bytes)
 
 用户使用 redis-cli 命令能够使用用户前台创建一个不断执行命令的 Redis 软件终端, 其常用的有序集合命令有
 ::  zadd KEY SCORE ELEMENT ...                   有序集合 KEY 中插入若干附带权重分数的字符串, 亦可更新已有字符串元素的权重分数
