@@ -189,5 +189,10 @@ Redis 软件同市场竞品的关键要素比对如下:
     │ disk storage      │ RDB/ AOF     │ RDB/ AOF     │ X            │ RDB/ AOF     │ RDB          │ HMA          │
     └───────────────────┴──────────────┴──────────────┴──────────────┴──────────────┴──────────────┴──────────────┘
 
+Redis GUI 的常见软件有:
+
+    •  Redis Desktop Manager (RDM)               [              https://github.com/redis/RedisDesktopManager/releases ]
+    •  Redis Insight                             [                     https://github.com/redis/RedisInsight/releases ]
+
 
 
