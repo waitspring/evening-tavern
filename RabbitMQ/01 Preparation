@@ -236,9 +236,6 @@ RabbitMQ 软件若使用 RPM 包直接安装, 可以得到下述文件
 [root ~]# systemctl start  rabbitmq-server.service
 [root ~]# systemctl status rabbitmq-server.service
 [root ~]# rabbitmq-plugins enable rabbitmq_management
-[root ~]# rabbitmqctl add_user admin season_4U
-[root ~]# rabbitmqctl set_user_tags admin administrator
-[root ~]# rabbitmqctl set_permissions -p season admin ".*" ".*" ".*"
 --------------------------------------------------------------------------------------------------------------------- ✻
 
 
