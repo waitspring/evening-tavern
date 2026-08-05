@@ -14,78 +14,62 @@ RabbitMQ 软件的配置文件
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RabbitMQ 软件的配置文件为 /etc/rabbitmq/rabbitmq.conf
 RabbitMQ 软件的配置文件可参考社区文档站点 https://www.rabbitmq.com/docs/3.13/configure#example-config
-RabbitMQ 软件的配置文件可分为网络配置, 软能配置, 客户端配置, 服务端配置共计四个章节 
+RabbitMQ 软件的配置文件可分为网络配置, 性能配置, 客户端配置, 服务端配置共计四个章节
 
-网络配置 AMQP 协议部分
 ┌────────────────────────────────────────────────┬─────────┬───────────────────────────────────────────────────────────
 │ Configuration                                  │ Default │ Comment
 ├────────────────────────────────────────────────┼─────────┼───────────────────────────────────────────────────────────
-│ listeners.tcp = 5672                           │    √    │ 使用 5627 端口接受 AMQP 协议的连接请求
-│ listeners.tcp = NUM                            │         │ 使用 NUM  端口接受 AMQP 协议的连接请求
-│ num_acceptors.tcp = 10                         │    √    │ AMQP 连接请求的引导进程, 其并发上限为 10  个进程
-│ num_acceptors.tcp = NUM                        │         │ AMQP 连接请求的引导进程, 其并发上限为 NUM 个进程
-│ handshake_timeout = 10000                      │    √    │ AMQP 连接请求的超时时间为 10000 毫秒 (10 秒钟)
-│ handshake_timeout = NUM                        │         │ AMQP 连接请求的超时时间为 NUM 毫秒
-└────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
-
-网络配置 AMQPS 协议部分
-┌────────────────────────────────────────────────┬─────────┬───────────────────────────────────────────────────────────
-│ Configuration                                  │ Default │ Comment
-├────────────────────────────────────────────────┼─────────┼───────────────────────────────────────────────────────────
-│ listeners.ssl = NUM                            │         │ 使用 NUM 端口接受 AMQPS 协议的连接请求 (行业惯用 5671 端口)
-│ num_acceptors.ssl = 10                         │    √    │ AMQPS 连接请求的引导进程, 其并发上限为 10  个进程
-│ num_acceptors.ssl = NUM                        │         │ AMQPS 连接请求的引导进程, 其并发上限为 NUM 个进程
-│ ssl_handshake_timeout = 5000                   │    √    │ AMQPS 连接请求的超时时间为 5000 毫秒 (5 秒钟)
-│ ssl_handshake_timeout = NUM                    │         │ AMQPS 连接请求的超时时间为 NUM  毫秒
+│ listeners.tcp.default = 5672                   │    √    │ 设置实例的业务监听端口为 5672 端口
+│ listeners.tcp.default = NUM                    │         │ 设置实例的业务监听端口为  NUM 端口
+│ num_acceptors.tcp = 10                         │    √    │ 并发  10 个引导进程, 用于引导 AMQP 请求建立网络连接
+│ num_acceptors.tcp = 10                         │         │ 并发 NUM 个引导进程, 用于引导 AMQP 请求建立网络连接
+│ handshake_timeout = 10000                      │    √    │ AMQP 请求的超时时间为 10000 毫秒 (10 秒钟)
+│ handshake_timeout = NUM                        │         │ AMQP 请求的超时时间为   NUM 毫秒
+│ listeners.ssl.default = NUM                    │         │ 设置实例的 SSL 监听端口 (社区惯例为 5671 端口)
+│ num_acceptors.ssl = 10                         │    √    │ 并发  10 个引导进程, 用于引导 AMQPS 请求建立网络连接
+│ num_acceptors.ssl = NUM                        │         │ 并发 NUM 个引导进程, 用于引导 AMQPS 请求建立网络连接
 │ ssl_options.cacertifile = CER                  │         │ CA 机构颁发的 SSL 权威证书文件 (/PATH/TO/FILE.CER)
 │ ssl_options.certfile = PEM                     │         │ CA 机构颁发的 SSL 公钥证书文件 (/PATH/TO/FILE.PEM)
 │ ssl_options.keyfile = KEY                      │         │ CA 机构颁发的 SSL 私钥证书文件 (/PATH/TO/FILE.KEY)
 │ ssl_options.verify = verify_none               │    √    │ 禁用 SSL 证书校验客户端连接 (单向 SSL 验证)
 │ ssl_options.verify = verify_peer               │         │ 使用 SSL 证书校验客户端连接 (双向 SSL 验证)
-└────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
-
-性能配置
-┌────────────────────────────────────────────────┬─────────┬───────────────────────────────────────────────────────────
-│ Configuration                                  │ Default │ Comment
-├────────────────────────────────────────────────┼─────────┼───────────────────────────────────────────────────────────
-│ vm_memory_high_watermark.relative = 0.4        │    √    │ 设置软件使用内存的比例上限为 0.4/1
-│ vm_memory_high_watermark.relative = NUM        │         │ 设置软件使用内存的比例上限为 NUM/1
-│ vm_memory_high_watermark.absolute = SIZE       │         │ 设置软件使用内存的尺寸上限为 SIZE (容量单位)
-│ vm_memory_high_watermark_paging_ratio = 0.5    │    √    │ 软件若开销 0.5/1 比例的准用内存, 内存数据换页至磁盘, 性能下降
-│ vm_memory_high_watermark_paging_ratio = NUM    │         │ 软件若开销 NUM/1 比例的准用内存, 内存数据换页至磁盘, 性能下降
-│ disk_free_limit.absolute = 50MB                │    √    │ 软件为数据目录所属的磁盘和文件系统保留 50MB 尺寸的空闲存储
-│ disk_free_limit.absolute = SIZE                │         │ 软件为数据目录所属的磁盘和文件系统保留 NUM  尺寸的空闲存储
-└────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
-
-服务端配置
-┌────────────────────────────────────────────────┬─────────┬───────────────────────────────────────────────────────────
-│ Configuration                                  │ Default │ Comment
-├────────────────────────────────────────────────┼─────────┼───────────────────────────────────────────────────────────
+│ ssl_options.fail_if_no_peer_cert = true        │         │ 双向 SSL 验证模式下, 客户端务必提供 SSL 证书
+│ ssl_options.fail_if_no_peer_cert = false       │    √    │ 双向 SSL 验证模式下, 客户端无需提供 SSL 证书
+│ ssl_handshake_timeout = 5000                   │    √    │ AMQPS 请求的超时时间为 5000 毫秒 (5 秒钟)
+│ ssl_handshake_timeout = NUM                    │         │ AMQPS 请求的超时时间为  NUM 毫秒
 │ distribution.listener.interface = 0.0.0.0      │    √    │ 使用 0.0.0.0 地址绑定分布式通信端口
 │ distribution.listener.interface = IPADDR       │         │ 使用 IPADDR  地址绑定分布式通信端口
 │ distribution.listener.port_range.min = 25672   │    √    │ 设置 25672 端口作为分布式通信端口的阈值下限
-│ distribution.listener.port_range.min = NUM     │         │ 设置 NUM   端口作为分布式通信端口的阈值下限
+│ distribution.listener.port_range.min = NUM     │         │ 设置   NUM 端口作为分布式通信端口的阈值下限
 │ distribution.listener.port_range.max = 25672   │    √    │ 设置 25672 端口作为分布式通信端口的阈值上限
-│ distribution.listener.port_range.max = NUM     │         │ 设置 NUM   端口作为分布式通信端口的阈值上限
-│ log.file.level = info                          │    √    │ 服务端输出 INFO  及其以上级别的日志
-│ log.file.level = error                         │         │ 服务端输出 ERROR 及其以上级别的日志
-│ heartbeat = 60                                 │    √    │ 服务端每隔  60/2 秒钟向客户端发送一个 AMQP 心跳请求
-│ heartbeat = NUM                                │         │ 服务端每隔 NUM/2 秒钟向客户端发送一个 AMQP 心跳请求
-│ default_vhost = /                              │    √    │ 服务端使用    /  作为默认的租户空间
-│ default_vhost = SPACE                          │         │ 服务端使用 SPACE 作为默认的租户空间
-└────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
-
-客户端配置
-┌────────────────────────────────────────────────┬─────────┬───────────────────────────────────────────────────────────
-│ Configuration                                  │ Default │ Comment
-├────────────────────────────────────────────────┼─────────┼───────────────────────────────────────────────────────────
+│ distribution.listener.port_range.max = NUM     │         │ 设置   NUM 端口作为分布式通信端口的阈值上限
+│ vm_memory_high_watermark.relative = 0.4        │    √    │ 软件准用内存占主机内存资源的 40%
+│ vm_memory_high_watermark.relative = 0.?        │         │ 软件准用内存占主机内存资源的 ?0%
+│ vm_memory_high_watermark.absolute = SIZE       │         │ 软件准用内存为 SIZE (容量单位)
+│ vm_memory_high_watermark_paging_ratio = 0.5    │    √    │ 软件准用内存若消耗 50%, 软件把内存数据换页至磁盘, 软件性能下降
+│ vm_memory_high_watermark_paging_ratio = 0.?    │         │ 软件准用内存若消耗 ?0%, 软件把内存数据换页至磁盘, 软件性能下降
+│ disk_free_limit.absolute = 50MB                │    √    │ 软件为数据目录所属的磁盘和文件系统保留 50MB 尺寸的空闲存储
+│ disk_free_limit.absolute = SIZE                │         │ 软件为数据目录所属的磁盘和文件系统保留 SIZE 尺寸的空闲存储
+│ max_message_size = 134217728                   │    √    │ 服务端接受的单条业务数据的尺寸阈值上限为 128MB
+│ max_message_size = NUM                         │         │ 服务端接受的单条业务数据的尺寸阈值上限为 NUM 字节 (byte)
+│ heartbeat = 60                                 │    √    │ 服务端每隔 30 秒钟向客户端发送一个 AMQP 心跳请求
+│                                                │         │ 服务端连续  2 个心跳请求无响应, 判断客户端失联
+│ connection_max = infinity                      │    √    │ 服务端允许建立不限数量的 TCP 连接
+│ connection_max = NUM                           │         │ 服务端允许建立最多 NUM 个 TCP 连接
+│ default_vhost = /                              │    √    │ 服务端创建默认虚拟机 /
+│ default_vhost = STR                            │         │ 服务端创建默认虚拟机 STR
+│ default_user = guest                           │    √    │ 服务端创建默认用户 guest
+│ default_user = STR                             │         │ 服务端创建默认用户 STR
+│ default_pass = guest                           │    √    │ 服务端设置默认用户的认证密码为 guest
+│ default_pass = STR                             │         │ 服务端设置默认用户的认证密码为 STR
+│ default_user_tags.administrator = true         │    √    │ 服务端授予默认用户管理员权限
+│ default_permissions.configure = .*             │    √    │ 服务端授予默认用户, 任意虚拟机内, 交换器和队列的管理权限
+│ default_permissions.write = .*                 │    √    │ 服务端授予默认用户, 任意虚拟机内, 交换器的数据写入权限
+│ default_permissions.read = .*                  │    √    │ 服务端授予默认用户, 任意虚拟机内, 队列的数据读取权限
+│ loopback_users.USER = true                     │    √    │ 默认账号 (USER) 仅使用本机地址访问
+│ loopback_users.USER = false                    │         │ 默认账号 (USER) 可使用任意地址访问
 │ channel_max = 2047                             │    √    │ 单个客户端连接最多能够打开 2047 个数据通道
-│ channel_max = NUM                              │         │ 单个客户端连接最多能够打开 NUM  个数据通道
-│ channel_max = 0                                │         │ 单个客户端连接能够打开不限数量的数据通道, 应用程序可能泄漏数据通道
-│ channel_operation_timeout = 15000              │    √    │ 数据通道操作的超时时间为 15000 毫秒 (15 秒钟)
-│ channel_operation_timeout = NUM                │         │ 数据通道操作的超时时间为 NUM 毫秒
-│ max_message_size = 134217728                   │    √    │ 限制客户端单条数据的尺寸阈值上限为 134217728 字节 (128MB)
-│ max_message_size = NUM                         │         │ 限制客户端单条数据的尺寸阈值上限为 NUM 字节
+│ channel_max = NUM                              │         │ 单个客户端连接最多能够打开  NUM 个数据通道 (数值 0 表示不限制)
 └────────────────────────────────────────────────┴─────────┴───────────────────────────────────────────────────────────
 
 阅读上述表格时, 还请注意:
