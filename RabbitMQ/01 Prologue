@@ -1,10 +1,10 @@
- , __                                                     
-/|/  \                                    o               
- |___/ ,_    _    _   __,   ,_    __, _|_     __   _  _   
- |    /  |  |/  |/ \_/  |  /  |  /  |  |  |  /  \_/ |/ |  
- |       |_/|__/|__/ \_/|_/   |_/\_/|_/|_/|_/\__/   |  |_/
-               /|                                         
-               \|                                         
+ , __             _                       
+/|/  \           | |                      
+ |___/ ,_    __  | |  __   __,         _  
+ |    /  |  /  \_|/  /  \_/  | |   |  |/  
+ |       |_/\__/ |__/\__/ \_/|/ \_/|_/|__/
+                            /|            
+                            \|            
 --  This document was created by Xuanming in 2026, thanks for your reading
 
 
@@ -13,19 +13,18 @@
 RabbitMQ 软件的发展历程
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RabbitMQ 软件作为互联网生态中常见的消息异步代理软件, 可以解耦数据的上下游组件, 避免数据风暴冲垮业务
-RabbitMQ 软件遵循高级消息队列协议 (AMQP: Advanced Message Queuing Protocol), 使用 Erlang 语言开发, 能够部署为分布式集群
+RabbitMQ 软件遵循高级消息队列协议 (AMQP: Advanced Message Queuing Protocol), 使用 Erlang 语言开发, 支持分布式集群部署
 RabbitMQ 软件最初由兔子科技公司 (Rabbit Technologies) 发布, 目前由威睿公司 (VMware) 负责迭代与维护
 
-RabbitMQ 软件历史复杂, 产品赛道竞争激烈
+消息中间件的发展编年史
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-**  1983 年, 印裔美籍工程师维韦克 (Vivek Ranadive) 借鉴主板总线的概念, 原创性的提出发布订阅的数据解耦模式, 并发布闭源的 TIB 软件
-**  1985 年, 泰克克伦公司 (Teknekron) 投资维韦克成立泰克克伦软件公司 (Teknekron Software) 专营 TIB 软件
-**  1988 年, 美林证券公司 (Merrill Lynch) 付费采购 TIB 软件用于整合来源复杂的行情资讯数据, 消息中间件的技术价值得到市场肯定
-**  1993 年, 国际商业机器公司 (IBM) 发布闭源的 WebShpere 软件, 抢占日益增长的消息中间件市场
-**  1996 年, 微软公司 (Microsoft) 发布闭源的 MSMQ 消息中间件, 消息中间件市场竞争加剧
-**  1997 年, 路透通讯社 (Reuters) 收购泰克克伦软件系统公司, 重组为帝博科公司 (TIBCO), 专营 TIBCO EMS 软件为代表的消息中间件产品
-**  1998 年, 太阳微系统公司 (Sun Microsystems) 为解决 Java 应用同时连接多种消息中间件时的兼容性问题, 发布 JMS 接口协议
-**  2003 年, 摩根大通银行 (JP Morgan) 为解决自研应用同时连接多种消息中间件时的兼容性问题, 成立 AMQP 通信协议工作组
+**  1983 年, 泰克克伦公司 (Teknekron) 创始人维韦克 (Vivek Ranadive) 仿照主板总线, 原创性的提出发布订阅的数据解耦模式
+**  1985 年, 泰克克伦公司发布闭源的 TIB 软件, 高盛证券 (Goldman Sachs) 付费采购 TIB 软件, 以便整合来源复杂的实时交易数据
+**  1993 年, 国际商业机器公司 (IBM) 发布闭源的 WebShpere 软件, 成为商用消息中间件的核心供应商
+**  1996 年, 微软公司 (Microsoft) 发布闭源的 MSMQ 消息中间件
+**  1997 年, 路透社 (Reuters) 收购泰克克伦软件公司, 重组为帝博科公司 (TIBCO), 专营闭源的 TIBCO EMS 软件
+**  1998 年, 太阳微系统公司 (Sun Microsystems) 为解决 Java 应用同时连接多种商用闭源消息中间件时的兼容性问题, 发布 JMS 接口协议
+**  2003 年, 摩根大通 (JPMorgan Chase) 为解决自研应用同时连接多种消息中间件时的兼容性问题, 成立 AMQP 通信协议工作组
 **  2005 年, 阿帕奇软件基金会 (Apache Software Foundation) 孵化开源的 ActiveMQ 软件, 成为第一个遵守 JMS 接口协议的开源软件项目
 **  2007 年, 兔子科技公司使用 Erlang 语言编写开源的 RabbitMQ 软件, 成为第一个遵守 AMQP 通信协议的开源软件项目
 **  2010 年, 威睿公司收购兔子科技公司, 获得 RabbitMQ 软件项目的知识产权, 威睿公司正式全权负责 RabbitMQ 软件的迭代与维护
@@ -33,6 +32,8 @@ RabbitMQ 软件历史复杂, 产品赛道竞争激烈
 **  2012 年, 阿里巴巴公司 (Alibaba) 依据微服务架构下电子商务场景需求优化 Kafka 软件, 发布为开源的 RocketMQ 软件
 **  2017 年, 阿帕奇软件基金会获得 RocketMQ 软件项目的知识产权
 
+消息中间件的技术沿革及特性比对
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ┌───────────┐         ┌───────────┐           ┌───────────┐           ┌───────────┐
 │    TIB    ├╌╌╌╌╌╌╌╌▶│ TIBCO EMS ├╌╌╌╌╌┐     │   AMQP    ├╌╌╌╌╌╌╌╌╌╌▶│ RabbitMQ  ├╌╌╌╌╌╌╌╌╌╌╌┐
 └───────────┘         └───────────┘     ┊     └───────────┘           └───────────┘           ┊
@@ -106,137 +107,6 @@ GitHub 第三方开源社区提供软件的下载服务
 
     •  https://github.com/rabbitmq/rabbitmq-server/releases/download/v3.9.16/rabbitmq-server-3.9.16-1.el7.noarch.rpm
     •  https://github.com/rabbitmq/erlang-rpm/releases/download/v23.3.4.18/erlang-23.3.4.18-1.el7.x86_64.rpm
-
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RabbitMQ 软件的主机配置
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RabbitMQ 软件受主机的内核参数的影响, 这些内核参数登记在下述配置文件:
-
-    •  资源限制文件 /etc/security/limits.conf
-    •  资源限制文件 /etc/security/limits.d/20-nproc.conf (优先级高于 /etc/security/limits.conf 资源限制文件)
-    •  内核参数文件 /etc/sysctl.conf
-    •  启动参数文件 /etc/default/grub (永久关闭透明大页的启动参数 transparent_hugepage=never)
-
-资源限制文件 /etc/security/limits.conf
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*  -  nproc   65535
-*  -  nofile  65535
-*  -  core    unlimited
-*  -  fsize   unlimited
-*  -  rss     unlimited
-*  -  stack   unlimited
-*  -  memlock unlimited
-*  -  as      unlimited
-
-内核参数文件 /etc/sysctl.conf
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-fs.file-max = 65535
-vm.overcommit_memory = 1
-vm.swappiness = 1
-vm.zone_reclaim_mode = 0
-net.ipv4.tcp_tw_reuse = 1
-net.ipv4.tcp_keepalive_time = 600
-net.ipv4.tcp_fin_timeout = 30
-net.ipv4.tcp_max_tw_buckets = 5000
-net.ipv4.tcp_syncookies = 1
-net.ipv4.tcp_max_syn_backlog = 4096
-net.ipv4.tcp_rmem = 4096 32768 262142
-net.ipv4.tcp_wmem = 4096 32768 262142
-net.ipv4.ip_local_port_range = 1024 65535
-net.core.netdev_max_backlog = 8096
-net.core.rmem_default = 262144
-net.core.wmem_default = 262144
-net.core.rmem_max = 2097152
-net.core.wmem_max = 2097152
-
-""""""""" 演示资源调优的基本步骤
-[root ~]# cat > /etc/security/limits.conf << EOF
-*  -  nproc   65535
-*  -  nofile  65535
-*  -  core    unlimited
-*  -  fsize   unlimited
-*  -  rss     unlimited
-*  -  stack   unlimited
-*  -  memlock unlimited
-*  -  as      unlimited
-EOF
-[root ~]# ulimit -a
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 演示内核调优的基本步骤
-[root ~]# cat > /etc/sysctl.conf << EOF
-fs.file-max = 65535
-vm.overcommit_memory = 1
-vm.swappiness = 1
-vm.zone_reclaim_mode = 0
-net.ipv4.tcp_tw_reuse = 1
-net.ipv4.tcp_keepalive_time = 600
-net.ipv4.tcp_fin_timeout = 30
-net.ipv4.tcp_max_tw_buckets = 5000
-net.ipv4.tcp_syncookies = 1
-net.ipv4.tcp_max_syn_backlog = 4096
-net.ipv4.tcp_rmem = 4096 32768 262142
-net.ipv4.tcp_wmem = 4096 32768 262142
-net.ipv4.ip_local_port_range = 1024 65535
-net.core.netdev_max_backlog = 8096
-net.core.rmem_default = 262144
-net.core.wmem_default = 262144
-net.core.rmem_max = 2097152
-net.core.wmem_max = 2097152
-EOF
-[root ~]# sysctl -p
---------------------------------------------------------------------------------------------------------------------- ✻
-
-""""""""" 演示启动调优的基本步骤
-[root ~]# sed -i -r '/GRUB_CMDLINE_LINUX/s/(.+)="(.+)"/\1="\2 transparent_hugepage=never"/g' /etc/default/grub
-[root ~]# grub2-mkconfig -o /boot/grub2/grub.cfg
-[root ~]# reboot
---------------------------------------------------------------------------------------------------------------------- ✻
-
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RabbitMQ 软件的安装过程
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RabbitMQ 软件的安装途经有:
-
-    •  使用 TGZ 源码包编译安装 (推荐从 GitHub 社区站点下载 https://github.com/rabbitmq/rabbitmq-server/releases)
-    •  使用 YUM 软件源直接安装 (详情见 https://www.rabbitmq.com/docs/next/install-rpm)
-    •  使用 RPM 软件包直接安装 (推荐用 RPM 包直接安装)
-
-RabbitMQ 软件若使用 RPM 包直接安装, 可以得到下述文件
-┌────────────────────────────────────────────────┬─────┬───────────────────────────────────────────────────────────────
-│ Path                                           │ F/D │ Comment
-├────────────────────────────────────────────────┼─────┼───────────────────────────────────────────────────────────────
-│ /etc/rabbitmq                                  │  D  │ 配置目录
-│ /etc/rabbitmq/rabbitmq.conf                    │  F  │ 配置文件
-│ /etc/logrotate.d/rabbitmq-server               │  F  │ 日志滚动配置文件
-│ /usr/lib/rabbitmq                              │  D  │ 安装目录
-│ /usr/lib/systemd/system/rabbitmq-server.ser... │  F  │ 服务单元管理文件
-│ /usr/lib/tmpfiles.d/rabbitmq-server.conf       │  F  │ 运行策略调度文件
-│ /usr/sbin/rabbitmq-diagnostics                 │  F  │ 健康诊断工具
-│ /usr/sbin/rabbitmq-plugins                     │  F  │ 插件管理工具
-│ /usr/sbin/rabbitmq-queues                      │  F  │ 队列管理工具
-│ /usr/sbin/rabbitmq-server                      │  F  │ 服务管理工具
-│ /usr/sbin/rabbitmqctl                          │  F  │ 综合管理工具
-│ /usr/share/doc/rabbitmq-server-3.9.16          │  D  │ 版权目录
-│ /usr/share/man/man8/rabbitmq-*.gz              │  F  │ 参考文档
-│ /var/lib/rabbitmq                              │  D  │ 数据目录
-│ /var/log/rabbitmq                              │  D  │ 日志目录
-└────────────────────────────────────────────────┴─────┴───────────────────────────────────────────────────────────────
-
-""""""""" 使用 RPM 包直接安装 RabbitMQ 软件
-[root ~]# rpm -ivh /srv/erlang-23.3.4.18-1.el7.x86_64.rpm
-[root ~]# rpm -ivh rabbitmq-server-3.9.16-1.el7.noarch.rpm
-[root ~]# rpm -qs  rabbitmq-server
-[root ~]# vim /etc/rabbitmq/rabbitmq.conf
-[root ~]# systemctl enable rabbitmq-server.service
-[root ~]# systemctl start  rabbitmq-server.service
-[root ~]# systemctl status rabbitmq-server.service
-[root ~]# rabbitmq-plugins enable rabbitmq_management
---------------------------------------------------------------------------------------------------------------------- ✻
 
 
 

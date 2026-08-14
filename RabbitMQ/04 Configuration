@@ -74,10 +74,10 @@ RabbitMQ 软件的配置文件可分为网络配置, 性能配置, 客户端配�
 
 阅读上述表格时, 还请注意:
 
-    •  vm_memory_high_watermark.relative     阈值范围的建议值为 [0.4, 0.7]
-    •  vm_memory_high_watermark_paging_ratio 阈值范围的建议值为 [0.5, 0.8]
-    •  disk_free_limit.absolute              阈值范围的建议值为 [2GB, 4GB]
-    •  channel_max                           阈值范围的建议值为 [128, 256]
+    •  vm_memory_high_watermark.relative         阈值范围的建议值为 [0.4, 0.7]
+    •  vm_memory_high_watermark_paging_ratio     阈值范围的建议值为 [0.5, 0.8]
+    •  disk_free_limit.absolute                  阈值范围的建议值为 [2GB, 4GB]
+    •  channel_max                               阈值范围的建议值为 [128, 256]
 
 
 
