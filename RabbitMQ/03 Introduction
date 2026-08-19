@@ -37,6 +37,41 @@ RabbitMQ 软件的基本架构
     │ Producer ├╌╌╌╌┘ │                  └╌╌╌▶│  Queue   ├╌╌╌╌╌╌╌╌▶│ Consumer │
     └──────────┘      │                       └──────────┘  │      └──────────┘
                       └─────────────────────────────────────┘
+                 ┌──────────┐                         ┌──────────┐                         ┌──────────┐
+                 │ Producer │                         │  Broker  │                         │ Consumer │
+                 └────┬─────┘                         └────┬─────┘                         └────┬─────┘
+    ──────────────────┼────────────────────────────────────┼────────────────────────────────────┼──────────────────
+                      │                                    │                                    │
+    Create Connection │╌╌╌╌╌╌Connection.Start╌╌╌╌╌╌╌╌╌╌╌╌╌▶│◀╌╌╌╌╌Connection.Start╌╌╌╌╌╌╌╌╌╌╌╌╌╌│ Create Connection
+                      │◀╌╌╌╌╌Connection.Start.OK╌╌╌╌╌╌╌╌╌╌╌│╌╌╌╌╌╌Connection.Start.OK╌╌╌╌╌╌╌╌╌╌▶│
+                      │╌╌╌╌╌╌Connection.Tune╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│◀╌╌╌╌╌Connection.Tune╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│
+                      │◀╌╌╌╌╌Connection.Tune.OK╌╌╌╌╌╌╌╌╌╌╌╌│╌╌╌╌╌╌Connection.Tune.OK╌╌╌╌╌╌╌╌╌╌╌▶│
+                      │╌╌╌╌╌╌Connection.Open╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│◀╌╌╌╌╌Connection.Open╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│
+                      │◀╌╌╌╌╌Connection.Open.OK╌╌╌╌╌╌╌╌╌╌╌╌│╌╌╌╌╌╌Connection.Open.OK╌╌╌╌╌╌╌╌╌╌╌▶│
+                      │                                    │                                    │
+       Create Channel │╌╌╌╌╌╌Channel.Open╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│◀╌╌╌╌╌Channel.Open╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│ Create Channel
+                      │◀╌╌╌╌╌Channel.Open.OK╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│╌╌╌╌╌╌Channel.Open.OK╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│
+                      │                                    │                                    │
+      Publish Message │╌╌╌╌╌╌Basic.Publish╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│◀╌╌╌╌╌Basic.Consume╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│ Consumer Ready
+                      │                                    │╌╌╌╌╌╌Basic.Consume.OK╌╌╌╌╌╌╌╌╌╌╌╌╌▶│
+        Close Channel │╌╌╌╌╌╌Channel.Close╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│                                    │
+                      │◀╌╌╌╌╌Channel.Close.OK╌╌╌╌╌╌╌╌╌╌╌╌╌╌│╌╌╌╌╌╌Basic.Deliver╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│ Receive Message
+                      │                                    │◀╌╌╌╌╌Basic.ACK╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│
+     Close Connection │╌╌╌╌╌╌Connection.Close╌╌╌╌╌╌╌╌╌╌╌╌╌▶│                                    │
+                      │◀╌╌╌╌╌Connection.Close.OK╌╌╌╌╌╌╌╌╌╌╌│◀╌╌╌╌╌Channel.Close╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│ Close Channel
+                      │                                    │╌╌╌╌╌╌Channel.Close.OK╌╌╌╌╌╌╌╌╌╌╌╌╌▶│
+                      │                                    │                                    │
+                      │                                    │◀╌╌╌╌╌Connection.Close╌╌╌╌╌╌╌╌╌╌╌╌╌╌│ Close Connection
+                      │                                    │╌╌╌╌╌╌Connection.Close.OK╌╌╌╌╌╌╌╌╌╌▶│
+                      │                                    │                                    │
+
+阅读上述图例时, 还请注意:
+
+    •
+    •
+    •
+    •
+    •
 
 
 
@@ -74,7 +109,7 @@ for binding in exchange.bindings:
                     └╌╌╌▶│  Queue   │           └╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│  Queue   │           └╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│  Queue   │
                          └──────────┘                           └──────────┘                           └──────────┘
 
-使用模糊匹配的路由策略时, 还请注意:
+阅读模糊匹配 (Topic) 的路由策略时, 还请注意:
 
     •  特殊字符 * 仅允许绑定键使用, 能够匹配一个单词 [0-9a-zA-Z_\-]+
     •  特殊字符 # 仅允许绑定键使用, 能够匹配多个单词 [0-9a-zA-Z_\-.]+
