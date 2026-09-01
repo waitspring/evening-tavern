@@ -37,38 +37,35 @@ RabbitMQ 软件的基本架构
     │ Producer ├╌╌╌╌╌╌┘   │                    └╌╌╌╌╌>│  Queue   ├╌╌╌╌╌╌╌╌╌╌╌╌>│ Consumer │
     └──────────┘          │                           └──────────┘  │          └──────────┘
                           └─────────────────────────────────────────┘
+
                  ┌──────────┐                         ┌──────────┐                         ┌──────────┐
                  │ Producer │                         │  Broker  │                         │ Consumer │
                  └────┬─────┘                         └────┬─────┘                         └────┬─────┘
     ──────────────────┼────────────────────────────────────┼────────────────────────────────────┼──────────────────
                       │                                    │                                    │
-    Create Connection │╌╌╌╌╌╌Connection.Start╌╌╌╌╌╌╌╌╌╌╌╌╌>│<╌╌╌╌╌Connection.Start╌╌╌╌╌╌╌╌╌╌╌╌╌╌│ Create Connection
-                      │<╌╌╌╌╌Connection.Start.OK╌╌╌╌╌╌╌╌╌╌╌│╌╌╌╌╌╌Connection.Start.OK╌╌╌╌╌╌╌╌╌╌>│
-                      │╌╌╌╌╌╌Connection.Tune╌╌╌╌╌╌╌╌╌╌╌╌╌╌>│<╌╌╌╌╌Connection.Tune╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│
-                      │<╌╌╌╌╌Connection.Tune.OK╌╌╌╌╌╌╌╌╌╌╌╌│╌╌╌╌╌╌Connection.Tune.OK╌╌╌╌╌╌╌╌╌╌╌>│
-                      │╌╌╌╌╌╌Connection.Open╌╌╌╌╌╌╌╌╌╌╌╌╌╌>│<╌╌╌╌╌Connection.Open╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│
-                      │<╌╌╌╌╌Connection.Open.OK╌╌╌╌╌╌╌╌╌╌╌╌│╌╌╌╌╌╌Connection.Open.OK╌╌╌╌╌╌╌╌╌╌╌>│
+    Create Connection ├╌╌╌╌╌╌AMQP Header╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│◀╌╌╌╌╌AMQP Header╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤ Create Connection
+                      │◀╌╌╌╌╌Connection.Start╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌Connection.Start╌╌╌╌╌╌╌╌╌╌╌╌╌▶│
+                      ├╌╌╌╌╌╌Connection.Start.OK╌╌╌╌╌╌╌╌╌╌▶│◀╌╌╌╌╌Connection.Start.OK╌╌╌╌╌╌╌╌╌╌╌┤
+                      │◀╌╌╌╌╌Connection.Tune╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌Connection.Tune╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│
+                      ├╌╌╌╌╌╌Connection.Tune.OK╌╌╌╌╌╌╌╌╌╌╌▶│◀╌╌╌╌╌Connection.Tune.OK╌╌╌╌╌╌╌╌╌╌╌╌┤
+                      ├╌╌╌╌╌╌Connection.Open╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│◀╌╌╌╌╌Connection.Open╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+                      │◀╌╌╌╌╌Connection.Open.OK╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌Connection.Open.OK╌╌╌╌╌╌╌╌╌╌╌▶│
                       │                                    │                                    │
-       Create Channel │╌╌╌╌╌╌Channel.Open╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌>│<╌╌╌╌╌Channel.Open╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│ Create Channel
-                      │<╌╌╌╌╌Channel.Open.OK╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│╌╌╌╌╌╌Channel.Open.OK╌╌╌╌╌╌╌╌╌╌╌╌╌╌>│
+       Create Channel ├╌╌╌╌╌╌Channel.Open╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│◀╌╌╌╌╌Channel.Open╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤ Create Channel
+                      │◀╌╌╌╌╌Channel.Open.OK╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌Channel.Open.OK╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│
                       │                                    │                                    │
-      Publish Message │╌╌╌╌╌╌Basic.Publish╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌>│<╌╌╌╌╌Basic.Consume╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│ Consumer Ready
-                      │<╌ ╌ ╌Basic.ACK╌ ╌ ╌ ╌ ╌ ╌ ╌ ╌ ╌ ╌ ╌│╌╌╌╌╌╌Basic.Consume.OK╌╌╌╌╌╌╌╌╌╌╌╌╌>│
+                      │                                    │◀╌╌╌╌╌Basic.Consume╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤ Consumer Ready
+                      │                                    ├╌╌╌╌╌╌Basic.Consume.OK╌╌╌╌╌╌╌╌╌╌╌╌╌▶│
                       │                                    │                                    │
-        Close Channel │╌╌╌╌╌╌Channel.Close╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌>│╌╌╌╌╌╌Basic.Deliver╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌>│ Receive Message
-                      │<╌╌╌╌╌Channel.Close.OK╌╌╌╌╌╌╌╌╌╌╌╌╌╌│<╌╌╌╌╌Basic.ACK╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│
+      Publish Message ├╌╌╌╌╌╌Basic.Publish╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶├╌╌╌╌╌╌Basic.Deliver╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│ Receive Message
+                      │                                    │◀╌╌╌╌╌Basic.ACK╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
                       │                                    │                                    │
-    Close Connection  │╌╌╌╌╌╌Connection.Close╌╌╌╌╌╌╌╌╌╌╌╌╌>│<╌╌╌╌╌Channel.Close╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│ Close Channel
-                      │<╌╌╌╌╌Connection.Close.OK╌╌╌╌╌╌╌╌╌╌╌│╌╌╌╌╌╌Channel.Close.OK╌╌╌╌╌╌╌╌╌╌╌╌╌>│
+        Close Channel ├╌╌╌╌╌╌Channel.Close╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶│◀╌╌╌╌╌Channel.Close╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤ Close Channel
+                      │◀╌╌╌╌╌Channel.Close.OK╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌Channel.Close.OK╌╌╌╌╌╌╌╌╌╌╌╌╌▶│
                       │                                    │                                    │
-                      │                                    │<╌╌╌╌╌Connection.Close╌╌╌╌╌╌╌╌╌╌╌╌╌╌│ Close Connection
-                      │                                    │╌╌╌╌╌╌Connection.Close.OK╌╌╌╌╌╌╌╌╌╌>│
+     Close Connection ├╌╌╌╌╌╌Connection.Close╌╌╌╌╌╌╌╌╌╌╌╌╌▶│◀╌╌╌╌╌Connection.Close╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤ Close Connection
+                      │◀╌╌╌╌╌Connection.Close.OK╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌Connection.Close.OK╌╌╌╌╌╌╌╌╌╌▶│
                       │                                    │                                    │
-
-阅读上述图例时, 还请注意:
-
-    •  消息的生产者在向节点的交换器发布消息时, 能够和节点约定消息的确认机制 (无需确认, 批量确认, 逐条确认)
-    •  消息的消费者在消费消息时, 必然回报消息的确认回执 (自动确认, 手动确认)
 
 
 
