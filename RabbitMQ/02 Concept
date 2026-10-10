@@ -81,7 +81,7 @@ Exchange.Declare
 ::  durable = { true | false }         [ false ] 是否创建持久交换器 (持久交换器: 元数据被写入磁盘, 重启软件节点仍能保留交换器)
 ::  internal = { true | false }        [ false ] 是否创建内部交换器 (内部交换器: E2E 模式使用, 生产者禁止使用内部交换器)
 ::  auto-delete = { true | false }     [ false ] 是否创建自删交换器 (自删交换器: 交换器没有生产者, 软件节点自动删除交换器)
-::  arguments = { ... }                          交换器扩展参数
+::  arguments = { ... }                          设置交换器的扩展参数
 
 Exchange.Declare 交换器扩展参数有
 ::  alternate-exchange: STR                      设置交换器使用 STR 作为备份交换器
