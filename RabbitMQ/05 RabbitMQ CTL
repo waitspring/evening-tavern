@@ -1,0 +1,205 @@
+ , __        _    _         ,__ __    __          ___  ______ _   
+/|/  \      | |  | |  o    /|  |  |  /  \        / (_)(_) |\_|_)  
+ |___/  __, | |  | |    _|_ |  |  | | __ |      |         |  |    
+ | \   /  | |/ \_|/ \_|  |  |  |  | |/  \|      |       _ | _|    
+ |  \_/\_/|_/\_/  \_/ |_/|_/|  |  |_/\__/\_/     \___/ (_/ (/\___/
+                                                                  
+                                                                  
+--  This document was created by Xuanming in 2026, thanks for your reading
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+虚拟机管理命令
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+虚拟机管理命令需要借助 rabbitmqctl 工具
+
+    •  rabbitmqctl list_vhosts  [param ...]      回显虚拟机的名称清单
+    •  rabbitmqctl add_vhost     VHOST           创建名称为 VHOST 的虚拟机
+    •  rabbitmqctl delete_vhost  VHOST           删除名称为 VHOST 的虚拟机 (允许删除默认虚拟机, 虚拟机被删除后数据不可恢复)
+    •  rabbitmqctl restart_vhost VHOST           重启名称为 VHOST 的虚拟机
+    •  rabbitmqctl trace_on   -p VHOST           开启虚拟机 VHOST 的消息跟踪, 复制消息并发布给 amq.rabbitmq.trace 交换器
+    •  rabbitmqctl trace_off  -p VHOST           关闭虚拟机 VHOST 的消息跟踪
+
+rabbitmqctl list_vhosts [param ...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rabbitmqctl list_vhosts 命令回显虚拟机的名称清单
+rabbitmqctl list_vhosts 命令常用的可选参数有
+::  name                                         列出虚拟机的名称
+::  tracing                                      列出虚拟机的消息跟踪状态
+
+""""""""" 演示虚拟机管理命令
+[root ~]# rabbitmqctl add_vhost foo
+[root ~]# rabbitmqctl trace_on -p foo
+[root ~]# rabbitmqctl list_vhosts name tracing
+[root ~]# rabbitmqctl delete_vhost foo
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+用户管理命令
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+用户管理命令需要借助 rabbitmqctl 工具
+
+    •  rabbitmqctl add_user          U P         创建名称为 U 的用户, 设置用户密码为 P
+    •  rabbitmqctl authenticate_user U P         验证名称为 U 的用户, 用户密码是否为 P (SUCCESS/ ERROR)
+    •  rabbitmqctl change_password   U P         更新名称为 U 的用户, 设置用户密码为 P
+    •  rabbitmqctl clear_password    U           锁定名称为 U 的用户, 用户禁止使用密码访问 RabbitMQ 服务
+    •  rabbitmqctl delete_user       U           删除名称为 U 的用户
+    •  rabbitmqctl list_users                    回显用户的名称清单
+    •  rabbitmqctl set_user_tags     U tag ...   设置用户的角色标签 tag ... (覆盖更新)
+
+    ┌────────────────────────────┬────────────────────────────────────────────────────────────────────────────────┐
+    │ Role Tag                   │ Describe                                                                       │
+    ├────────────────────────────┼────────────────────────────────────────────────────────────────────────────────┤
+    │ None                       │ Grant none role to new user by default                                         │
+    ├────────────────────────────┼────────────────────────────────────────────────────────────────────────────────┤
+    │ Management                 │ Access Web                                                                     │
+    ├────────────────────────────┼────────────────────────────────────────────────────────────────────────────────┤
+    │ Policymaker                │ Include Management role, manage policy and parameter additionally              │
+    ├────────────────────────────┼────────────────────────────────────────────────────────────────────────────────┤
+    │ Monitoring                 │ Include Management role, manage connection, channel and node additionally      │
+    ├────────────────────────────┼────────────────────────────────────────────────────────────────────────────────┤
+    │ Administrator              │ Include Policymaker and Monitoring roles, top authority                        │
+    └────────────────────────────┴────────────────────────────────────────────────────────────────────────────────┘
+
+阅读上述表格时, 还请注意:
+
+    •  RabbitMQ 软件固定提供 None, Management, Policymaker, Monitoring, Administrator 在内的五种角色标签
+    •  RabbitMQ 软件支持使用自定义字符串为业务用户添加个性标签, 个性标签不具备权限属性
+
+""""""""" 演示用户管理命令
+[root ~]# rabbitmqctl add_user foo foo_4U
+[root ~]# rabbitmqctl set_user_tags foo A B C D
+[root ~]# rabbitmqctl authenticate_user foo foo_4U
+[root ~]# rabbitmqctl clear_password foo
+[root ~]# rabbitmqctl delete_user foo
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+权限管理命令
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rabbitmqctl list_permissions -p VHOST
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rabbitmqctl 命令回显虚拟机 VHOST 的操作权限列表
+
+rabbitmqctl list_user_permissions U
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rabbitmqctl 命令回显用户 U 的操作权限列表
+
+rabbitmqctl set_permissions -p VHOST U C W R
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rabbitmqctl set_permissions 命令基于虚拟机 VHOST 赋予用户 U 配置 (C), 写入 (W), 读取 (R) 交换器与队列对象的权限 (覆盖更新)
+rabbitmqctl set_permissions 命令使用正则语法描述配置 (C), 写入 (W), 读取 (R), 正则语法命中的交换器与队列即为用户有权限管理的对象
+
+    ┌────────────────────────────┬──────────────────────────┬──────────────────────────┬──────────────────────────┐
+    │ AMQP Command               │ (C)onfigure              │ (W)rite                  │ (R)ead                   │
+    ├────────────────────────────┼──────────────────────────┼──────────────────────────┼──────────────────────────┤
+    │ Exchange.Declare           │ exchange                 │                          │                          │
+    │ Exchange.Declare (with AE) │ exchange                 │ exchange (AE)            │ exchange                 │
+    │ Exchange.Delete            │ exchange                 │                          │                          │
+    │ Exchange.Bind              │                          │ exchange (destination)   │ exchange (source)        │
+    │ Exchange.Unbind            │                          │ exchange (destination)   │ exchange (source)        │
+    │ Queue.Declare              │ queue                    │                          │                          │
+    │ Queue.Declare (with DLX)   │ queue                    │ exchange (DLX)           │ queue                    │
+    │ Queue.Delete               │ queue                    │                          │                          │
+    │ Queue.Bind                 │                          │ queue                    │ exchange                 │
+    │ Queue.Unbind               │                          │ queue                    │ exchange                 │
+    │ Queue.Purge                │                          │                          │ queue                    │
+    │ Basic.Publish              │                          │ exchange                 │                          │
+    │ Basic.Get                  │                          │                          │ queue                    │
+    │ Basic.Consume              │                          │                          │ queue                    │
+    └────────────────────────────┴──────────────────────────┴──────────────────────────┴──────────────────────────┘
+
+rabbitmqctl clear_permissions -p VHOST U
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rabbitmqctl clear_permissions 命令基于虚拟机 VHOST 清除用户 U 配置 (C), 写入 (W), 读取 (R) 交换器与队列对象的权限
+
+""""""""" 演示权限管理命令
+[root ~]# rabbitmqctl set_permissions -p season foo '.+' '.+' '.+'
+[root ~]# rabbitmqctl list_permissions -p season
+[root ~]# rabbitmqctl list_user_permissions foo
+[root ~]# rabbitmqctl clear_permissions -p season foo
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+资源管理命令
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rabbitmqctl list_exchanges -p VHOST [param ...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rabbitmqctl list_exchanges 命令基于虚拟机 VHOST 回显交换器清单 (默认显示交换器的名称和路由策略)
+rabbitmqctl list_exchanges 命令常用的可选参数有
+::  name                                         显示交换器的名称
+::  type                                         显示交换器的路由策略
+::  durable                                      显示交换器是否为持久交换器
+::  internal                                     显示交换器是否为内部交换器
+::  auto_delete                                  显示交换器是否为自删交换器
+::  arguments                                    显示交换器的扩展参数
+
+rabbitmqctl list_queues -p VHOST [param ...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rabbitmqctl list_queues 命令基于虚拟机 VHOST 回显队列清单 (默认显示队列的名称和队列内消息数量统计)
+rabbitmqctl list_queues 命令常用的可选参数有
+::  name                                         显示队列的名称
+::  durable                                      显示队列是否为持久队列
+::  auto_delete                                  显示队列是否为自删队列
+::  arguments                                    显示队列的扩展参数
+::  pid                                          显示队列的 Erlang 服务进程号
+::  messsages                                    显示队列内消息数量统计
+::  message_bytes                                显示队列内消息容量统计
+::  consumers                                    显示队列的消费者订阅数量统计
+::  memory                                       显示队列的内存消耗统计 (单位: 字节)
+::  state                                        显示队列的运行状态
+
+rabbitmqctl list_bindings -p VHOST [param ...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rabbitmqctl list_bindings 命令基于虚拟机 VHOST 回显绑定关系清单
+rabbitmqctl list_bindings 命令常用的可选参数有
+::  source_name                                  发起绑定关系对象的名称
+::  source_kind                                  发起绑定关系对象的类型
+::  destination_name                             接受绑定关系对象的名称
+::  destination_kind                             接受绑定关系对象的类型
+::  routing_key                                  标记交换器和队列绑定关系的路由规则
+::  arguments                                    标记交换器和队列绑定关系的扩展参数
+
+rabbitmqctl list_connections [param ...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rabbitmqctl list_connections 命令回显连接清单
+rabbitmqctl list_connections 命令常用的可选参数有
+::  name                                         显示连接的名称 (peer_host:peer_port -> host:port)
+::  host                                         显示连接的服务端地址
+::  port                                         显示连接的服务端端口
+::  peer_host                                    显示连接的客户端地址
+::  peer_port                                    显示连接的客户端端口
+::  user                                         显示连接的用户
+::  vhost                                        显示连接的虚拟机
+::  channels                                     显示连接的信道数量统计
+::  state                                        显示连接的状态
+::  pid                                          显示连接的 Erlang 服务进程号
+
+rabbitmqctl list_channels [param ...]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rabbitmqctl list_channels 命令回显信道清单
+rabbitmqctl list_channels 命令常用的可选参数有
+::  name                                         显示信道的名称 (peer_host:peer_port -> host:port (number))
+::  number                                       显示信道的编号
+::  user                                         显示信道的用户
+::  vhost                                        显示信道的虚拟机
+::  consumer_count                               显示信道的消费者数量统计
+::  pid                                          显示信道所属连接的 Erlang 服务进程名称
+
+""""""""" 演示资源管理命令
+[root ~]# rabbitmqctl list_exchanges -p season name type durable internal auto_delete arguments
+[root ~]# rabbitmqctl list_queues -p season name state durable auto_delete messages consumers
+[root ~]# rabbitmqctl list_bindings -p season
+[root ~]# rabbitmqctl list_connections name user vhost channels pid
+[root ~]# rabbitmqctl list_channles name user vhost consumer_count
+--------------------------------------------------------------------------------------------------------------------- ✻
+
+
+
